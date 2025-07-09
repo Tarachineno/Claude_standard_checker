@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "number": "EN 55032",
+      "version": "V2010+A11:2020",
+      "directive": "EMC",
+      "title": "Electromagnetic compatibility of multimedia equipment - Emission requirements",
+      "status": "Active",
+      "publication_date": "2012-12-01",
+      "amendment_date": "2024-04-19",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN 61000-4-2",
+      "version": "V2008+A1:2013",
+      "directive": "EMC",
+      "title": "Electromagnetic compatibility (EMC) - Part 4-2: Testing and measurement techniques - Electrostatic discharge immunity test",
+      "status": "Active",
+      "publication_date": "2008-12-01",
+      "amendment_date": "2024-10-30",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN 61000-4-3",
+      "version": "V2006+A1:2007+A2:2010",
+      "directive": "EMC",
+      "title": "Electromagnetic compatibility (EMC) - Part 4-3: Testing and measurement techniques - Radiated, radio-frequency, electromagnetic field immunity test",
+      "status": "Active",
+      "publication_date": "2006-02-01",
+      "amendment_date": "2024-04-19",
+      "_class_name": "Standard"
+    }
+  ],
+  "timestamp": "2025-07-09T12:57:03.953808",
+  "expires_at": "2025-07-10T12:57:03.953790"
+}

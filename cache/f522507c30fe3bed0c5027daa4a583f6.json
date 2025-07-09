@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "number": "EN 62368-1",
+      "version": "V2014+A11:2017",
+      "directive": "LVD",
+      "title": "Audio/video, information and communication technology equipment - Part 1: Safety requirements",
+      "status": "Active",
+      "publication_date": "2014-02-26",
+      "amendment_date": "2024-10-30",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN 60950-1",
+      "version": "V2006+A11:2009+A1:2010+A12:2011+A2:2013",
+      "directive": "LVD",
+      "title": "Information technology equipment - Safety - Part 1: General requirements",
+      "status": "Withdrawn",
+      "publication_date": "2006-01-01",
+      "amendment_date": "2020-12-20",
+      "_class_name": "Standard"
+    }
+  ],
+  "timestamp": "2025-07-09T12:57:04.223551",
+  "expires_at": "2025-07-10T12:57:04.223534"
+}

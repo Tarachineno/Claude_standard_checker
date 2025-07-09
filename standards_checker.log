@@ -1,0 +1,160 @@
+2025-07-09 09:19:15,263 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 09:19:15,264 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:19:15,417 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:19:15,417 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:19:15,417 - utils - INFO - Fetching standards for RE directive
+2025-07-09 09:19:28,904 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:19:28,905 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:19:29,057 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:19:29,057 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:20:02,629 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:20:02,629 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:20:02,779 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:20:02,779 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:20:39,632 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:20:39,632 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:20:39,803 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:20:39,803 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:21:34,188 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:21:34,188 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:21:34,335 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:21:34,335 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:21:38,965 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 09:21:38,965 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:21:38,966 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:21:39,115 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:21:39,115 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:21:39,115 - utils - INFO - Fetching standards for RE directive
+2025-07-09 09:21:54,125 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 09:21:54,126 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 09:21:54,274 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 09:21:54,274 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 09:21:54,274 - utils - INFO - Generating search URL for standard: EN 301 091-1
+2025-07-09 09:21:54,274 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+091-1
+2025-07-09 09:21:54,274 - utils - INFO - Generating search URL for standard: EN 301 091-2
+2025-07-09 09:21:54,274 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+091-2
+2025-07-09 09:21:54,274 - utils - INFO - Generating search URL for standard: EN 301 091-3
+2025-07-09 09:21:54,274 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+091-3
+2025-07-09 09:21:54,275 - utils - INFO - Generating search URL for standard: EN 301 783
+2025-07-09 09:21:54,275 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+783
+2025-07-09 09:21:54,275 - utils - INFO - Generating search URL for standard: EN 301 893
+2025-07-09 09:21:54,275 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+893
+2025-07-09 12:54:25,935 - utils - INFO - Fetching standards for RE directive
+2025-07-09 12:54:27,314 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-09 12:54:27,315 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-09 12:54:27,367 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 12:54:27,369 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 12:54:27,518 - root - WARNING - Failed to save cache: Object of type AccreditationScope is not JSON serializable
+2025-07-09 12:54:27,518 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 12:56:09,802 - utils - INFO - Fetching standards for RE directive
+2025-07-09 12:56:13,472 - utils - WARNING - Web fetch failed for RE, using sample data
+2025-07-09 12:56:13,473 - utils - INFO - Using 8 sample standards for RE
+2025-07-09 12:56:18,966 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 12:56:18,966 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 12:56:18,967 - root - WARNING - Failed to load cache: Expecting value: line 2 column 11 (char 12)
+2025-07-09 12:56:19,115 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 12:56:19,115 - utils - INFO - Fetching standards for RE directive
+2025-07-09 12:56:19,115 - utils - INFO - Using cached data for RE
+2025-07-09 12:56:19,115 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 12:56:19,124 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 12:56:40,473 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 12:56:40,473 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 12:56:40,474 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 12:56:40,623 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 12:56:49,196 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-09 12:56:49,196 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-09 12:56:49,196 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-09 12:56:49,196 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-09 12:56:49,196 - utils - INFO - Generating search URL for standard: EN 300 328
+2025-07-09 12:56:49,196 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=300+328
+2025-07-09 12:56:49,196 - utils - INFO - Generating search URL for standard: EN 301 893
+2025-07-09 12:56:49,196 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+893
+2025-07-09 12:57:03,305 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 12:57:03,305 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 12:57:03,305 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 12:57:03,454 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 12:57:03,454 - utils - INFO - Fetching standards for RE directive
+2025-07-09 12:57:03,454 - utils - INFO - Using cached data for RE
+2025-07-09 12:57:03,454 - utils - INFO - Fetching standards for EMC directive
+2025-07-09 12:57:03,953 - utils - WARNING - Web fetch failed for EMC, using sample data
+2025-07-09 12:57:03,953 - utils - INFO - Using 3 sample standards for EMC
+2025-07-09 12:57:03,954 - utils - INFO - Fetching standards for LVD directive
+2025-07-09 12:57:04,223 - utils - WARNING - Web fetch failed for LVD, using sample data
+2025-07-09 12:57:04,223 - utils - INFO - Using 2 sample standards for LVD
+2025-07-09 12:57:04,223 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 12:57:04,240 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 12:57:04,241 - utils - INFO - Comparing 3 OJ standards with 89 ISO standards
+2025-07-09 12:57:04,245 - utils - INFO - Comparison completed: 3 matches, 100.0% coverage
+2025-07-09 12:57:04,245 - utils - INFO - Comparing 2 OJ standards with 89 ISO standards
+2025-07-09 12:57:04,248 - utils - INFO - Comparison completed: 1 matches, 50.0% coverage
+2025-07-09 12:57:04,248 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 12:57:04,260 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 13:00:05,172 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 13:00:05,173 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 13:00:05,319 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 13:00:14,502 - utils - INFO - Fetching standards for RE directive
+2025-07-09 13:00:14,502 - utils - INFO - Using cached data for RE
+2025-07-09 13:00:14,502 - utils - INFO - Fetching standards for EMC directive
+2025-07-09 13:00:14,502 - utils - INFO - Using cached data for EMC
+2025-07-09 13:00:14,502 - utils - INFO - Fetching standards for LVD directive
+2025-07-09 13:00:14,502 - utils - INFO - Using cached data for LVD
+2025-07-09 13:00:27,626 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-09 13:00:27,626 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-09 13:00:27,626 - utils - INFO - Generating search URL for standard: EN 300 328
+2025-07-09 13:00:27,627 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=300+328
+2025-07-09 13:00:27,627 - utils - INFO - Generating search URL for standard: EN 301 893
+2025-07-09 13:00:27,627 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+893
+2025-07-09 13:00:27,627 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-09 13:00:27,627 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-09 13:00:27,627 - utils - INFO - Generating search URL for standard: EN 300 328
+2025-07-09 13:00:27,627 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=300+328
+2025-07-09 13:00:27,627 - utils - INFO - Generating search URL for standard: EN 301 893
+2025-07-09 13:00:27,627 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+893
+2025-07-09 13:00:40,122 - utils - INFO - Fetching standards for RE directive
+2025-07-09 13:00:40,122 - utils - INFO - Using cached data for RE
+2025-07-09 13:00:40,122 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 13:00:40,123 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 13:00:40,269 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 13:00:40,269 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 13:00:40,278 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 13:00:43,799 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 13:00:43,799 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 13:00:43,800 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 13:00:43,947 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 13:00:43,947 - utils - INFO - Fetching standards for RE directive
+2025-07-09 13:00:43,948 - utils - INFO - Using cached data for RE
+2025-07-09 13:00:43,948 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 13:00:43,956 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 13:00:43,956 - utils - INFO - Fetching standards for EMC directive
+2025-07-09 13:00:43,956 - utils - INFO - Using cached data for EMC
+2025-07-09 13:00:43,956 - utils - INFO - Comparing 3 OJ standards with 89 ISO standards
+2025-07-09 13:00:43,959 - utils - INFO - Comparison completed: 3 matches, 100.0% coverage
+2025-07-09 13:00:43,959 - utils - INFO - Fetching standards for LVD directive
+2025-07-09 13:00:43,959 - utils - INFO - Using cached data for LVD
+2025-07-09 13:00:43,959 - utils - INFO - Comparing 2 OJ standards with 89 ISO standards
+2025-07-09 13:00:43,961 - utils - INFO - Comparison completed: 1 matches, 50.0% coverage
+2025-07-09 13:01:00,958 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 13:01:00,958 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-09 13:01:00,959 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-09 13:01:01,105 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-09 13:01:01,105 - utils - INFO - Fetching standards for RE directive
+2025-07-09 13:01:01,105 - utils - INFO - Using cached data for RE
+2025-07-09 13:01:01,105 - utils - INFO - Fetching standards for EMC directive
+2025-07-09 13:01:01,105 - utils - INFO - Using cached data for EMC
+2025-07-09 13:01:01,105 - utils - INFO - Fetching standards for LVD directive
+2025-07-09 13:01:01,105 - utils - INFO - Using cached data for LVD
+2025-07-09 13:01:01,105 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,113 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 13:01:01,113 - utils - INFO - Comparing 3 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,116 - utils - INFO - Comparison completed: 3 matches, 100.0% coverage
+2025-07-09 13:01:01,116 - utils - INFO - Comparing 2 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,118 - utils - INFO - Comparison completed: 1 matches, 50.0% coverage
+2025-07-09 13:01:01,118 - utils - INFO - Comparing 8 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,126 - utils - INFO - Comparison completed: 8 matches, 100.0% coverage
+2025-07-09 13:01:01,126 - utils - INFO - Comparing 3 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,129 - utils - INFO - Comparison completed: 3 matches, 100.0% coverage
+2025-07-09 13:01:01,129 - utils - INFO - Comparing 2 OJ standards with 89 ISO standards
+2025-07-09 13:01:01,131 - utils - INFO - Comparison completed: 1 matches, 50.0% coverage
+2025-07-09 19:13:05,641 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-09 19:13:24,640 - utils - INFO - Fetching standards for RE directive
+2025-07-09 19:13:24,642 - utils - INFO - Using cached data for RE
