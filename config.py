@@ -2,11 +2,45 @@
 Configuration file for EU Harmonized Standards Checker System
 """
 
-# EU Directive URLs
+# EU Directive URLs - EUR-Lex Official Journal
 DIRECTIVE_URLS = {
     'RE': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en',
     'EMC': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en',
     'LVD': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en'
+}
+
+# EUR-Lex Official Journal URLs for direct access
+EUR_LEX_URLS = {
+    'RE': {
+        'main': 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC',
+        'amendments': [
+            'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392',
+            'https://eur-lex.europa.eu/eli/dec_impl/2023/2669/oj',
+            'https://eur-lex.europa.eu/eli/dec_impl/2025/138/oj',
+            'https://eur-lex.europa.eu/eli/dec_impl/2025/893/oj/eng'
+        ],
+        'ec_webpage': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en'
+    },
+    'EMC': {
+        'main': 'https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG',
+        'amendments': [
+            'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC',
+            'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.366.01.0017.01.ENG',
+            'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2021.089.01.0017.01.ENG',
+            'https://eur-lex.europa.eu/eli/dec_impl/2022/622/oj',
+            'https://eur-lex.europa.eu/eli/dec_impl/2022/910/oj',
+            'http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=uriserv:OJ.C_.2018.246.01.0001.01.ENG'
+        ],
+        'ec_webpage': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en'
+    },
+    'LVD': {
+        'main': 'https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj',
+        'amendments': [
+            'https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj',
+            'https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj'
+        ],
+        'ec_webpage': 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en'
+    }
 }
 
 # Directive Information
@@ -84,6 +118,16 @@ LOGGING_CONFIG = {
     'level': 'INFO',
     'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     'file': 'standards_checker.log'
+}
+
+# Debug Configuration
+DEBUG_CONFIG = {
+    'enabled': False,  # デフォルトはFalse
+    'detailed_parsing': True,
+    'url_responses': True,
+    'standard_extraction': True,
+    'status_detection': True,
+    'file': 'debug_standards.log'
 }
 
 # Output Configuration

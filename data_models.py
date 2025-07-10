@@ -14,9 +14,12 @@ class Standard:
     version: str         # 例: "V3.3.1"
     directive: str       # 例: "RE"
     title: str           # 規格タイトル
-    status: str          # 有効/無効
-    publication_date: str
+    status: str          # Active/Withdrawn/Superseded
+    publication_date: str # 最初の公開日
     amendment_date: str  # 最新Amendment日付
+    withdrawal_date: str = ""  # 失効日付（該当する場合）
+    superseded_by: str = ""    # 後継規格番号（該当する場合）
+    oj_reference: str = ""     # OJ参照番号（例: "OJ L 289, 10.11.2022"）
     
     def __post_init__(self):
         # 規格番号の正規化

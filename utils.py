@@ -14,7 +14,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from config import HTTP_CONFIG, CACHE_CONFIG, LOGGING_CONFIG
+from config import HTTP_CONFIG, CACHE_CONFIG, LOGGING_CONFIG, DEBUG_CONFIG
 
 
 def setup_logging() -> logging.Logger:
@@ -28,6 +28,73 @@ def setup_logging() -> logging.Logger:
         ]
     )
     return logging.getLogger(__name__)
+
+
+def setup_debug_logging() -> logging.Logger:
+    """デバッグログの設定"""
+    debug_logger = logging.getLogger('debug_standards')
+    
+    # 既存のハンドラーをクリア
+    debug_logger.handlers.clear()
+    
+    # デバッグレベルに設定
+    debug_logger.setLevel(logging.DEBUG)
+    
+    # ファイルハンドラーを追加
+    file_handler = logging.FileHandler(DEBUG_CONFIG['file'], mode='w', encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    
+    # コンソールハンドラーを追加
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    
+    # フォーマッターを設定
+    formatter = logging.Formatter('%(asctime)s - DEBUG - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    debug_logger.addHandler(file_handler)
+    debug_logger.addHandler(console_handler)
+    
+    # 親ロガーへの伝播を無効化
+    debug_logger.propagate = False
+    
+    return debug_logger
+
+
+def debug_log(message: str, category: str = 'general'):
+    """デバッグログを出力"""
+    if not DEBUG_CONFIG['enabled']:
+        return
+    
+    # カテゴリ別の有効性チェック
+    if category == 'parsing' and not DEBUG_CONFIG['detailed_parsing']:
+        return
+    if category == 'url' and not DEBUG_CONFIG['url_responses']:
+        return
+    if category == 'extraction' and not DEBUG_CONFIG['standard_extraction']:
+        return
+    if category == 'status' and not DEBUG_CONFIG['status_detection']:
+        return
+    
+    debug_logger = logging.getLogger('debug_standards')
+    if not debug_logger.handlers:
+        setup_debug_logging()
+    
+    debug_logger.debug(f"[{category.upper()}] {message}")
+
+
+def enable_debug_mode():
+    """デバッグモードを有効化"""
+    DEBUG_CONFIG['enabled'] = True
+    setup_debug_logging()
+    debug_log("Debug mode enabled", "general")
+
+
+def disable_debug_mode():
+    """デバッグモードを無効化"""
+    DEBUG_CONFIG['enabled'] = False
+    debug_log("Debug mode disabled", "general")
 
 
 def create_http_session() -> requests.Session:

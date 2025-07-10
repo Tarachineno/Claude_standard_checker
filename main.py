@@ -13,7 +13,7 @@ from etsi_searcher import ETSIPortalSearcher
 from iso17025_extractor import ISO17025ScopeExtractor
 from comparator import StandardComparator
 from data_models import Standard, TestStandard, AccreditationScope, ComparisonResult
-from utils import setup_logging, format_standards_list
+from utils import setup_logging, format_standards_list, enable_debug_mode
 from config import DIRECTIVE_INFO
 
 
@@ -383,10 +383,18 @@ def main():
     if len(sys.argv) < 2:
         print("Usage:")
         print("  python main.py interactive")
-        print("  python main.py check [directive]")
-        print("  python main.py compare <pdf_path> [directive]")
-        print("  python main.py search <query>")
+        print("  python main.py check [directive] [--debug]")
+        print("  python main.py compare <pdf_path> [directive] [--debug]")
+        print("  python main.py search <query> [--debug]")
+        print("  python main.py debug <directive>  # デバッグモードで実行")
         sys.exit(1)
+    
+    # デバッグフラグをチェック
+    debug_mode = '--debug' in sys.argv
+    if debug_mode:
+        enable_debug_mode()
+        sys.argv.remove('--debug')
+        print("Debug mode enabled. Check debug_standards.log for detailed logs.")
     
     app = HarmonizedStandardsChecker()
     command = sys.argv[1].lower()
@@ -414,6 +422,14 @@ def main():
         
         query = sys.argv[2]
         app.search_standards(query)
+    
+    elif command == 'debug':
+        # 専用デバッグモード
+        enable_debug_mode()
+        directive = sys.argv[2] if len(sys.argv) > 2 else 'RE'
+        print(f"Running debug mode for {directive} directive...")
+        print("Detailed logs will be saved to debug_standards.log")
+        app.run_full_check(directive)
     
     else:
         print(f"Unknown command: {command}")

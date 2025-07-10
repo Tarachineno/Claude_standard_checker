@@ -14,7 +14,10 @@ SAMPLE_RE_STANDARDS = [
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems",
         status="Active",
         publication_date="2023-03-15",
-        amendment_date="2025-01-28"
+        amendment_date="2025-01-28",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 301 489-1",
@@ -23,7 +26,10 @@ SAMPLE_RE_STANDARDS = [
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements",
         status="Active",
         publication_date="2019-03-12",
-        amendment_date="2023-11-27"
+        amendment_date="2023-11-27",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 301 489-3",
@@ -32,7 +38,10 @@ SAMPLE_RE_STANDARDS = [
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 3: Specific conditions for Short-Range Devices (SRD)",
         status="Active",
         publication_date="2017-05-16",
-        amendment_date="2023-10-03"
+        amendment_date="2023-10-03",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 300 328",
@@ -41,7 +50,10 @@ SAMPLE_RE_STANDARDS = [
         title="Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band",
         status="Active",
         publication_date="2016-11-30",
-        amendment_date="2025-05-14"
+        amendment_date="2025-05-14",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 301 893",
@@ -50,7 +62,10 @@ SAMPLE_RE_STANDARDS = [
         title="5 GHz RLAN; Harmonised Standard for access to radio spectrum",
         status="Active",
         publication_date="2017-05-12",
-        amendment_date="2023-11-27"
+        amendment_date="2023-11-27",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 302 065-1",
@@ -59,7 +74,10 @@ SAMPLE_RE_STANDARDS = [
         title="Short Range Devices (SRD) using Ultra Wide Band (UWB) technology; Part 1: Technical requirements and test methods",
         status="Active",
         publication_date="2016-07-20",
-        amendment_date="2025-01-28"
+        amendment_date="2025-01-28",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 300 220-1",
@@ -68,7 +86,10 @@ SAMPLE_RE_STANDARDS = [
         title="Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods",
         status="Active",
         publication_date="2012-01-04",
-        amendment_date="2023-10-03"
+        amendment_date="2023-10-03",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     ),
     Standard(
         number="EN 303 413",
@@ -77,7 +98,10 @@ SAMPLE_RE_STANDARDS = [
         title="Satellite Earth Stations and Systems (SES); Global Navigation Satellite System (GNSS) receivers",
         status="Active",
         publication_date="2017-05-12",
-        amendment_date="2025-05-14"
+        amendment_date="2025-05-14",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 289, 10.11.2022"
     )
 ]
 
@@ -90,7 +114,10 @@ SAMPLE_EMC_STANDARDS = [
         title="Electromagnetic compatibility of multimedia equipment - Emission requirements",
         status="Active",
         publication_date="2012-12-01",
-        amendment_date="2024-04-19"
+        amendment_date="2024-04-19",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 206, 6.8.2019"
     ),
     Standard(
         number="EN 61000-4-2",
@@ -99,7 +126,10 @@ SAMPLE_EMC_STANDARDS = [
         title="Electromagnetic compatibility (EMC) - Part 4-2: Testing and measurement techniques - Electrostatic discharge immunity test",
         status="Active",
         publication_date="2008-12-01",
-        amendment_date="2024-10-30"
+        amendment_date="2024-10-30",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 206, 6.8.2019"
     ),
     Standard(
         number="EN 61000-4-3",
@@ -108,7 +138,10 @@ SAMPLE_EMC_STANDARDS = [
         title="Electromagnetic compatibility (EMC) - Part 4-3: Testing and measurement techniques - Radiated, radio-frequency, electromagnetic field immunity test",
         status="Active",
         publication_date="2006-02-01",
-        amendment_date="2024-04-19"
+        amendment_date="2024-04-19",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L 206, 6.8.2019"
     )
 ]
 
@@ -121,7 +154,10 @@ SAMPLE_LVD_STANDARDS = [
         title="Audio/video, information and communication technology equipment - Part 1: Safety requirements",
         status="Active",
         publication_date="2014-02-26",
-        amendment_date="2024-10-30"
+        amendment_date="2024-10-30",
+        withdrawal_date="",
+        superseded_by="",
+        oj_reference="OJ L, 2023/2723, 13.12.2023"
     ),
     Standard(
         number="EN 60950-1",
@@ -130,7 +166,10 @@ SAMPLE_LVD_STANDARDS = [
         title="Information technology equipment - Safety - Part 1: General requirements",
         status="Withdrawn",
         publication_date="2006-01-01",
-        amendment_date="2020-12-20"
+        amendment_date="2020-12-20",
+        withdrawal_date="2020-12-20",
+        superseded_by="EN 62368-1",
+        oj_reference="OJ L, 2023/2723, 13.12.2023"
     )
 ]
 
