@@ -723,10 +723,10 @@
         "_class_name": "TestStandard"
       }
     ],
-    "extraction_date": "2025-07-09T13:01:01.104647",
+    "extraction_date": "2025-07-17T03:21:30.169800",
     "pdf_source": "data/7080-01.pdf",
     "_class_name": "AccreditationScope"
   },
-  "timestamp": "2025-07-09T13:01:01.104757",
-  "expires_at": "2025-07-10T13:01:01.104685"
+  "timestamp": "2025-07-17T03:21:30.170153",
+  "expires_at": "2025-07-18T03:21:30.169884"
 }

@@ -1,3 +1,4 @@
+
 """
 ISO17025 Scope Extractor Module - ISO17025 Certificate Scope Extraction
 """
@@ -18,6 +19,8 @@ from utils import (
 )
 
 
+
+
 class ISO17025ScopeExtractor:
     """ISO17025 Certificate Scope Extractor"""
     
@@ -30,47 +33,46 @@ class ISO17025ScopeExtractor:
         """PDFファイルから認証スコープを抽出"""
         try:
             self.logger.info(f"Extracting scope from PDF: {pdf_path}")
-            
             # キャッシュキーを生成（ファイルハッシュベース）
             file_hash = get_file_hash(pdf_path)
             cache_key = create_cache_key("iso17025_scope", file_hash)
-            
             # キャッシュから確認
             cached_data = load_from_cache(cache_key)
             if cached_data:
                 self.logger.info("Using cached extraction result")
                 return ProcessingResult(success=True, data=cached_data)
-            
-            # PDFからテキストを抽出
-            pdf_text = self._extract_text_from_pdf(pdf_path)
-            
-            if not pdf_text:
-                return ProcessingResult(
-                    success=False,
-                    error_message="Failed to extract text from PDF"
-                )
-            
-            # 証明書情報を抽出
-            cert_info = self._extract_certificate_info(pdf_text)
-            
-            # 規格情報を抽出
-            test_standards = self._parse_scope_text(pdf_text)
-            
-            # 結果を組み立て
+            # まず通常のテキスト抽出を試みる
+            text = self._extract_text_from_pdf(pdf_path)
+            if not text or not text.strip():
+                print("PDFからテキスト抽出できません。OCRを実行します...")
+                try:
+                    from pdf2image import convert_from_path
+                    import pytesseract
+                    images = convert_from_path(pdf_path)
+                    ocr_text = ""
+                    total_pages = len(images)
+                    for idx, img in enumerate(images, 1):
+                        print(f"OCR処理中: ページ {idx}/{total_pages} ...")
+                        page_text = pytesseract.image_to_string(img, lang='jpn+eng')
+                        ocr_text += page_text
+                    print("OCR処理完了")
+                    text = ocr_text
+                except Exception as e:
+                    import traceback
+                    print(f"OCR処理中にエラー: {e}")
+                    traceback.print_exc()
+                    return self._error_result(f"OCR failed: {e}")
+            # 以降は既存のテキストパース処理
+            test_standards = self._parse_scope_text(text)
+            cert_info = self._extract_certificate_info(text)
+            from datetime import datetime
             scope = AccreditationScope(
                 certificate_info=cert_info,
                 test_standards=test_standards,
                 extraction_date=datetime.now().isoformat(),
                 pdf_source=pdf_path
             )
-            
-            # キャッシュに保存
-            save_to_cache(cache_key, scope)
-            
-            self.logger.info(f"Successfully extracted {len(test_standards)} standards from {pdf_path}")
-            
             return ProcessingResult(success=True, data=scope)
-            
         except Exception as e:
             self.logger.error(f"Error extracting from PDF {pdf_path}: {str(e)}")
             return ProcessingResult(
@@ -379,16 +381,14 @@ class ISO17025ScopeExtractor:
         categorized = self.get_standards_by_category(scope)
         
         for category, standards in categorized.items():
-            result.append(f"\\n{category}:")
+            result.append(f"\n{category} ({len(standards)} standards):")
             for standard in standards:
                 version_str = f" {standard.version}" if standard.version else ""
                 desc_str = f" - {standard.description}" if standard.description else ""
-                result.append(f"  • {standard.standard_number}{version_str}{desc_str}")
-        
-        result.append(f"\\nTotal Standards: {len(scope.test_standards)}")
+                result.append(f"  - {standard.standard_number}{version_str}{desc_str}")
+        result.append(f"\nTotal Standards: {len(scope.test_standards)}")
         result.append(f"Extraction Date: {scope.extraction_date}")
-        
-        return "\\n".join(result)
+        return "\n".join(result)
     
     def extract_from_multiple_pdfs(self, pdf_paths: List[str]) -> ProcessingResult:
         """複数のPDFから一括抽出"""
@@ -417,3 +417,32 @@ class ISO17025ScopeExtractor:
                 error_message="No valid scopes extracted",
                 warnings=errors
             )
+
+
+# 規格番号完全一致のみMatch、バージョン違いはバージョン違いとして表示する比較メソッド
+    def compare_standards(self, iso_standards: List[TestStandard], oj_standards: List[TestStandard]) -> Dict[str, List[str]]:
+        """ISO17025規格とOJ規格を比較し、完全一致・バージョン違い・未一致を分類"""
+        matches = []
+        version_mismatches = []
+        unmatched = []
+        # OJ側の規格番号とバージョンの辞書を作成（完全一致のみ）
+        # OJ側の規格番号（完全一致のみ）をセットで保持
+        oj_numbers = set(std.standard_number for std in oj_standards)
+        oj_versions_dict = {}
+        for std in oj_standards:
+            oj_versions_dict.setdefault(std.standard_number, set()).add(std.version)
+        # ISO側の規格ごとに判定（完全一致のみ）
+        for iso_std in iso_standards:
+            if iso_std.standard_number in oj_numbers:
+                oj_versions = oj_versions_dict[iso_std.standard_number]
+                if iso_std.version in oj_versions or not iso_std.version:
+                    matches.append(f"✓ {iso_std.standard_number}{' ' + iso_std.version if iso_std.version else ''}")
+                else:
+                    version_mismatches.append(f"△ {iso_std.standard_number} (ISO: {iso_std.version}, OJ: {', '.join([v for v in oj_versions if v])})")
+            else:
+                unmatched.append(f"× {iso_std.standard_number}{' ' + iso_std.version if iso_std.version else ''}")
+        return {
+            "matches": matches,
+            "version_mismatches": version_mismatches,
+            "unmatched": unmatched
+        }

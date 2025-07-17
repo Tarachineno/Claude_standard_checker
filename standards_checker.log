@@ -158,3 +158,138 @@
 2025-07-09 19:13:05,641 - utils - INFO - Harmonized Standards Checker initialized
 2025-07-09 19:13:24,640 - utils - INFO - Fetching standards for RE directive
 2025-07-09 19:13:24,642 - utils - INFO - Using cached data for RE
+2025-07-17 03:19:09,788 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:21:29,701 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 03:21:30,171 - utils - INFO - Successfully extracted 89 standards from data/7080-01.pdf
+2025-07-17 03:22:39,395 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:29:14,732 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:29:32,047 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:29:32,177 - utils - ERROR - Error extracting from PDF data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf: 'ISO17025ScopeExtractor' object has no attribute '_error_result'
+2025-07-17 03:33:07,468 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:33:20,191 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:35:18,982 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:35:30,305 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:37:44,613 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:37:56,217 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:42:07,538 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:42:22,213 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:45:42,972 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:45:51,743 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:48:40,208 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 03:48:40,210 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 03:50:25,105 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:50:36,927 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 03:50:36,931 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 03:53:06,656 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:53:15,607 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 03:53:15,609 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 03:54:15,620 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 03:54:27,067 - utils - INFO - Extracting scope from PDF: data/JAB Accreditation Scope (Valid until 2028.12.31)(Reviced 2025.03.06).pdf
+2025-07-17 03:57:08,569 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 03:57:08,571 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 03:57:09,066 - utils - INFO - Fetching standards for RE directive
+2025-07-17 03:57:09,067 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC
+2025-07-17 03:57:10,714 - utils - INFO - Fetched 713 standards from main EUR-Lex document
+2025-07-17 03:57:10,714 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392
+2025-07-17 03:57:11,522 - utils - INFO - Fetched 148 standards from amendment 1
+2025-07-17 03:57:11,522 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2023/2669/oj
+2025-07-17 03:57:12,386 - utils - INFO - Fetched 18 standards from amendment 2
+2025-07-17 03:57:12,386 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2025/138/oj
+2025-07-17 03:57:13,224 - utils - INFO - Fetched 20 standards from amendment 3
+2025-07-17 03:57:13,225 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2025/893/oj/eng
+2025-07-17 03:57:14,208 - utils - INFO - Fetched 463 standards from amendment 4
+2025-07-17 03:57:14,210 - utils - INFO - Successfully fetched 197 unique standards from EUR-Lex for RE
+2025-07-17 03:57:14,210 - utils - INFO - Fetched 197 standards from EUR-Lex
+2025-07-17 03:57:14,210 - utils - INFO - Fetching standards from EC webpage: https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en
+2025-07-17 03:57:14,814 - utils - INFO - Found 0 document links on EC webpage
+2025-07-17 03:57:14,815 - utils - INFO - Successfully fetched 0 unique standards from EC webpage
+2025-07-17 03:57:14,815 - utils - INFO - After deduplication: 197 unique standards
+2025-07-17 03:57:14,816 - utils - INFO - Standards sorted by number
+2025-07-17 03:57:14,819 - utils - INFO - Comparing 197 OJ standards with 89 ISO standards
+2025-07-17 03:57:15,120 - utils - INFO - Comparison completed: 158 matches, 80.2% coverage
+2025-07-17 04:01:01,778 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 04:01:12,137 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 04:01:12,139 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 04:01:24,533 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 04:01:24,535 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 04:01:25,014 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:01:25,015 - utils - INFO - Using cached data for RE
+2025-07-17 04:01:25,015 - utils - INFO - Comparing 197 OJ standards with 89 ISO standards
+2025-07-17 04:01:25,298 - utils - INFO - Comparison completed: 158 matches, 80.2% coverage
+2025-07-17 04:04:14,635 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 04:04:26,287 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 04:04:26,289 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 04:04:26,812 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:04:26,813 - utils - INFO - Using cached data for RE
+2025-07-17 04:04:26,813 - utils - INFO - Comparing 197 OJ standards with 89 ISO standards
+2025-07-17 04:04:27,129 - utils - INFO - Comparison completed: 158 matches, 80.2% coverage
+2025-07-17 04:06:17,312 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 04:06:30,898 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 04:06:30,902 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'
+2025-07-17 04:06:31,380 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:06:31,381 - utils - INFO - Using cached data for RE
+2025-07-17 04:06:31,381 - utils - INFO - Comparing 197 OJ standards with 89 ISO standards
+2025-07-17 04:06:31,665 - utils - INFO - Comparison completed: 158 matches, 80.2% coverage
+2025-07-17 04:07:52,518 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 04:07:59,221 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:07:59,224 - utils - INFO - Using cached data for RE
+2025-07-17 04:08:53,456 - utils - INFO - Fetching standards for EMC directive
+2025-07-17 04:08:53,457 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG
+2025-07-17 04:08:54,648 - utils - INFO - Fetched 24 standards from main EUR-Lex document
+2025-07-17 04:08:54,648 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC
+2025-07-17 04:08:55,528 - utils - INFO - Fetched 30 standards from amendment 1
+2025-07-17 04:08:55,528 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.366.01.0017.01.ENG
+2025-07-17 04:08:56,297 - utils - INFO - Fetched 32 standards from amendment 2
+2025-07-17 04:08:56,297 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2021.089.01.0017.01.ENG
+2025-07-17 04:08:57,177 - utils - INFO - Fetched 37 standards from amendment 3
+2025-07-17 04:08:57,178 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2022/622/oj
+2025-07-17 04:08:58,042 - utils - INFO - Fetched 39 standards from amendment 4
+2025-07-17 04:08:58,042 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2022/910/oj
+2025-07-17 04:08:58,811 - utils - INFO - Fetched 26 standards from amendment 5
+2025-07-17 04:08:58,811 - utils - INFO - Parsing EUR-Lex page: http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=uriserv:OJ.C_.2018.246.01.0001.01.ENG
+2025-07-17 04:09:00,125 - bs4.dammit - WARNING - Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER.
+2025-07-17 04:09:00,259 - utils - INFO - Fetched 0 standards from amendment 6
+2025-07-17 04:09:00,259 - utils - INFO - Successfully fetched 35 unique standards from EUR-Lex for EMC
+2025-07-17 04:09:00,259 - utils - INFO - Fetched 35 standards from EUR-Lex
+2025-07-17 04:09:00,260 - utils - INFO - Fetching standards from EC webpage: https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en
+2025-07-17 04:09:00,815 - utils - INFO - Found 0 document links on EC webpage
+2025-07-17 04:09:00,815 - utils - INFO - Successfully fetched 0 unique standards from EC webpage
+2025-07-17 04:09:00,816 - utils - INFO - After deduplication: 35 unique standards
+2025-07-17 04:09:00,816 - utils - INFO - Standards sorted by number
+2025-07-17 04:09:17,948 - utils - INFO - Fetching standards for LVD directive
+2025-07-17 04:09:17,949 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj
+2025-07-17 04:09:19,505 - utils - INFO - Fetched 723 standards from main EUR-Lex document
+2025-07-17 04:09:19,505 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj
+2025-07-17 04:09:20,394 - utils - INFO - Fetched 45 standards from amendment 1
+2025-07-17 04:09:20,395 - utils - INFO - Parsing EUR-Lex page: https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj
+2025-07-17 04:09:21,235 - utils - INFO - Fetched 47 standards from amendment 2
+2025-07-17 04:09:21,236 - utils - INFO - Successfully fetched 645 unique standards from EUR-Lex for LVD
+2025-07-17 04:09:21,236 - utils - INFO - Fetched 645 standards from EUR-Lex
+2025-07-17 04:09:21,236 - utils - INFO - Fetching standards from EC webpage: https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en
+2025-07-17 04:09:21,464 - utils - INFO - Found 0 document links on EC webpage
+2025-07-17 04:09:21,464 - utils - INFO - Successfully fetched 0 unique standards from EC webpage
+2025-07-17 04:09:21,464 - utils - INFO - After deduplication: 645 unique standards
+2025-07-17 04:09:21,465 - utils - INFO - Standards sorted by number
+2025-07-17 04:09:55,129 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:09:55,131 - utils - INFO - Using cached data for RE
+2025-07-17 04:10:28,133 - utils - INFO - Generating search URL for standard: EN 301 489-19 V2.2.1
+2025-07-17 04:10:28,134 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-19+V2.2.1
+2025-07-17 04:10:28,134 - utils - INFO - Opening search result in browser: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-19+V2.2.1
+2025-07-17 04:10:31,465 - utils - INFO - Successfully opened search result for EN 301 489-19 V2.2.1
+2025-07-17 04:10:49,264 - utils - INFO - Generating search URL for standard: EN 301 489-19
+2025-07-17 04:10:49,265 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-19
+2025-07-17 04:10:49,265 - utils - INFO - Opening search result in browser: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-19
+2025-07-17 04:10:50,407 - utils - INFO - Successfully opened search result for EN 301 489-19
+2025-07-17 04:20:30,028 - utils - INFO - Harmonized Standards Checker initialized
+2025-07-17 04:20:38,908 - utils - INFO - Fetching standards for RE directive
+2025-07-17 04:20:38,910 - utils - INFO - Using cached data for RE
+2025-07-17 04:20:53,235 - utils - INFO - Fetching standards for EMC directive
+2025-07-17 04:20:53,235 - utils - INFO - Using cached data for EMC
+2025-07-17 04:20:58,749 - utils - INFO - Fetching standards for LVD directive
+2025-07-17 04:20:58,754 - utils - INFO - Using cached data for LVD
+2025-07-17 04:21:27,103 - utils - INFO - Generating search URL for standard: EN 301 489-17
+2025-07-17 04:21:27,103 - utils - INFO - Search URL generated successfully: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-17 04:21:27,103 - utils - INFO - Opening search result in browser: https://portal.etsi.org/webapp/WorkProgram/Frame_WorkItemList.asp?SearchPage=TRUE&qSORT=HIGHVERSION&qINCLUDE_SUB_TB=True&qETSI_ALL=TRUE&qREPORT_TYPE=SUMMARY&optDisplay=10&includeNonActiveTB=FALSE&butSimple=%2B%2BSearch%2B%2B&qETSI_NUMBER=301+489-17
+2025-07-17 04:21:29,971 - utils - INFO - Successfully opened search result for EN 301 489-17
+2025-07-17 04:21:54,553 - utils - INFO - Extracting scope from PDF: data/7080-01.pdf
+2025-07-17 04:21:54,555 - root - WARNING - Failed to load cache: CertificateInfo.__init__() got an unexpected keyword argument '_class_name'

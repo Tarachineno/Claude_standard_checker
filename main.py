@@ -135,11 +135,8 @@ class HarmonizedStandardsChecker:
             # マッチした規格の表示
             if comparison.matched_standards:
                 print("Matched Standards:")
-                for oj_std, iso_std in comparison.matched_standards[:10]:  # 最初の10件
+                for oj_std, iso_std in comparison.matched_standards:
                     print(f"  ✓ {oj_std.number} ↔ {iso_std.standard_number}")
-                
-                if len(comparison.matched_standards) > 10:
-                    print(f"  ... and {len(comparison.matched_standards) - 10} more")
             
             print("\\n" + "="*50 + "\\n")
             
@@ -242,11 +239,9 @@ class HarmonizedStandardsChecker:
             # カテゴリ別表示
             categorized = self.iso17025_extractor.get_standards_by_category(scope)
             for category, standards in categorized.items():
-                print(f"\\n{category}: {len(standards)} standards")
-                for std in standards[:3]:  # 最初の3件
+                print(f"\n{category}: {len(standards)} standards")
+                for std in standards:
                     print(f"  - {std.standard_number}")
-                if len(standards) > 3:
-                    print(f"  ... and {len(standards) - 3} more")
         else:
             print(f"Extraction failed: {result.error_message}")
     
@@ -387,7 +382,7 @@ def main():
         print("  python main.py compare <pdf_path> [directive] [--debug]")
         print("  python main.py search <query> [--debug]")
         print("  python main.py debug <directive>  # デバッグモードで実行")
-        sys.exit(1)
+        sys.exit(1)  # 例外で止まるように戻しました
     
     # デバッグフラグをチェック
     debug_mode = '--debug' in sys.argv
