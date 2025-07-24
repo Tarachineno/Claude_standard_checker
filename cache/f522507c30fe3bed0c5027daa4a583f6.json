@@ -7567,7 +7567,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60238",
+      "number": "EN IEC 60238:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7580,7 +7580,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60320-1",
+      "number": "EN IEC 60320-1:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7593,7 +7593,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60320-2-4",
+      "number": "EN IEC 60320-2-4:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7606,7 +7606,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-105",
+      "number": "EN IEC 60335-2-105:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7619,7 +7619,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-11",
+      "number": "EN IEC 60335-2-11:2022",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7632,7 +7632,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-24",
+      "number": "EN IEC 60335-2-24:2022",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7645,7 +7645,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-25",
+      "number": "EN IEC 60335-2-25:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7658,7 +7658,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-41",
+      "number": "EN IEC 60335-2-41:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7671,7 +7671,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-43",
+      "number": "EN IEC 60335-2-43:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7684,7 +7684,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-51",
+      "number": "EN IEC 60335-2-51:2023",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7697,7 +7697,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-84",
+      "number": "EN IEC 60335-2-84:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7710,7 +7710,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60335-2-96",
+      "number": "EN IEC 60335-2-96:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7723,7 +7723,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60598-1",
+      "number": "EN IEC 60598-1:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7736,7 +7736,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60598-2-17",
+      "number": "EN IEC 60598-2-17:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7749,7 +7749,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60598-2-22",
+      "number": "EN IEC 60598-2-22:2022",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7762,7 +7762,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60598-2-23",
+      "number": "EN IEC 60598-2-23:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7775,7 +7775,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60670-1",
+      "number": "EN IEC 60670-1:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7788,7 +7788,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60934",
+      "number": "EN IEC 60934:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7801,7 +7801,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-3",
+      "number": "EN IEC 60947-3:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7814,7 +7814,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-4-1",
+      "number": "EN IEC 60947-4-1:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7827,7 +7827,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-5-2",
+      "number": "EN IEC 60947-5-2:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7840,7 +7840,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-5-8",
+      "number": "EN IEC 60947-5-8:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7853,7 +7853,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-8",
+      "number": "EN IEC 60947-8:2023",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7866,7 +7866,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-9-1",
+      "number": "EN IEC 60947-9-1:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7879,7 +7879,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-1",
+      "number": "EN IEC 60974-11:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7892,7 +7892,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-11",
+      "number": "EN IEC 60974-13:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7905,7 +7905,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-13",
+      "number": "EN IEC 60974-1:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7918,7 +7918,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-2",
+      "number": "EN IEC 60974-2:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7931,7 +7931,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-3",
+      "number": "EN IEC 60974-3:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7944,7 +7944,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-5",
+      "number": "EN IEC 60974-5:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7957,7 +7957,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-7",
+      "number": "EN IEC 60974-7:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7970,7 +7970,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60974-8",
+      "number": "EN IEC 60974-8:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7983,7 +7983,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-010",
+      "number": "EN IEC 61010-2-010:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -7996,20 +7996,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-011",
-      "version": "",
-      "directive": "LVD",
-      "title": "",
-      "status": "Active",
-      "publication_date": "1010-2-01",
-      "amendment_date": "1010-2-01",
-      "withdrawal_date": "",
-      "superseded_by": "",
-      "oj_reference": "OJ L, 2023/2723, 13.12.2023",
-      "_class_name": "Standard"
-    },
-    {
-      "number": "EN IEC 61010-2-012",
+      "number": "EN IEC 61010-2-011:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8022,7 +8009,20 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-030",
+      "number": "EN IEC 61010-2-012:2022",
+      "version": "",
+      "directive": "LVD",
+      "title": "",
+      "status": "Active",
+      "publication_date": "1010-2-01",
+      "amendment_date": "1010-2-01",
+      "withdrawal_date": "",
+      "superseded_by": "",
+      "oj_reference": "OJ L, 2023/2723, 13.12.2023",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN IEC 61010-2-030:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8035,7 +8035,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-032",
+      "number": "EN IEC 61010-2-032:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8048,7 +8048,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-033",
+      "number": "EN IEC 61010-2-033:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8061,7 +8061,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-034",
+      "number": "EN IEC 61010-2-034:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8074,7 +8074,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-040",
+      "number": "EN IEC 61010-2-040:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8087,7 +8087,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-051",
+      "number": "EN IEC 61010-2-051:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8100,7 +8100,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-061",
+      "number": "EN IEC 61010-2-061:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8113,7 +8113,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-081",
+      "number": "EN IEC 61010-2-081:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8126,7 +8126,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-091",
+      "number": "EN IEC 61010-2-091:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8139,7 +8139,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-130",
+      "number": "EN IEC 61010-2-130:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8152,7 +8152,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-201",
+      "number": "EN IEC 61010-2-201:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8165,7 +8165,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61010-2-202",
+      "number": "EN IEC 61010-2-202:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8178,7 +8178,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61058-1",
+      "number": "EN IEC 61058-1:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8191,7 +8191,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61204-7",
+      "number": "EN IEC 61204-7:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8204,7 +8204,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61293",
+      "number": "EN IEC 61293:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8217,7 +8217,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61347-2-14",
+      "number": "EN IEC 61347-2-14:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8230,7 +8230,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61535",
+      "number": "EN IEC 61535:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8243,7 +8243,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61557-12",
+      "number": "EN IEC 61557-12:2022",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8256,7 +8256,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61558-1",
+      "number": "EN IEC 61558-1:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8269,7 +8269,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61730-1",
+      "number": "EN IEC 61730-1:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8282,7 +8282,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61730-2",
+      "number": "EN IEC 61730-2:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8295,7 +8295,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61851-1",
+      "number": "EN IEC 61851-1:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8308,7 +8308,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61914",
+      "number": "EN IEC 61914:2021",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8321,7 +8321,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62031",
+      "number": "EN IEC 62031:2020",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8334,7 +8334,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62040-1",
+      "number": "EN IEC 62040-1:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8347,7 +8347,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62275",
+      "number": "EN IEC 62275:2019",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8360,7 +8360,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 63044-3",
+      "number": "EN IEC 63044-3:2018",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8373,7 +8373,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN ISO 11252",
+      "number": "EN ISO 11252:2013",
       "version": "",
       "directive": "LVD",
       "title": "",
@@ -8386,6 +8386,6 @@
       "_class_name": "Standard"
     }
   ],
-  "timestamp": "2025-07-17T04:09:21.467788",
-  "expires_at": "2025-07-18T04:09:21.465947"
+  "timestamp": "2025-07-24T23:23:31.435599",
+  "expires_at": "2025-07-25T23:23:31.434079"
 }

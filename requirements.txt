@@ -1,8 +1,37 @@
+# EU Harmonized Standards Checker - Package Distribution Requirements
+# Core dependencies for OJ standards fetching and ETSI portal search
+
+# Web scraping and HTTP requests
 requests>=2.31.0
 beautifulsoup4>=4.12.0
-pdfplumber>=0.11.0
-PyPDF2>=3.0.1
-pandas>=2.0.0
 lxml>=4.9.0
-openpyxl>=3.1.0
 urllib3>=2.0.0
+
+# PDF processing for ISO17025 certificate extraction  
+PyPDF2>=3.0.1
+pdfplumber>=0.11.0
+
+# Data processing
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Progress bars and CLI utilities
+tqdm>=4.65.0
+
+# JSON schema validation
+jsonschema>=4.17.0
+
+# Additional utilities for robust text processing
+python-dateutil>=2.8.0
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.21.0
+
+# Optional dependencies for enhanced functionality
+# selenium>=4.10.0  # Uncomment if browser automation is needed
+# Pillow>=9.5.0     # Uncomment if image processing is needed
+
+# Development dependencies (optional - not needed for package distribution)
+# pytest>=7.3.0
+# pytest-cov>=4.1.0
+# black>=23.3.0
+# flake8>=6.0.0

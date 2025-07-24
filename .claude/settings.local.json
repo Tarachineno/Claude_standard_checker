@@ -5,7 +5,16 @@
       "Bash(pdftotext:*)",
       "Bash(pip install:*)",
       "Bash(source:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(claude --version)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(rm:*)",
+      "Bash(sed:*)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

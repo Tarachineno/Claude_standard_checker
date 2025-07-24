@@ -131,14 +131,15 @@ def normalize_standard_number(standard_number: str) -> str:
 
 def extract_version_from_standard(standard_text: str) -> tuple:
     """規格テキストから番号とバージョンを分離"""
-    # バージョンパターン（V1.2.3, v1.2.3, (2020), :2020など）
+    # バージョンパターン（V1.2.3, v1.2.3, (2020)など）
     version_patterns = [
         r'V(\d+\.\d+\.\d+)',
         r'v(\d+\.\d+\.\d+)',
-        r'\((\d{4})\)',
-        r':(\d{4})',
-        r'-(\d{4})'
+        r'\((\d{4})\)'
     ]
+    
+    # 年度付き規格番号（例：EN IEC 60947-3:2009）は規格番号として保持
+    # コロン付きの年度は分離しない
     
     for pattern in version_patterns:
         match = re.search(pattern, standard_text)
@@ -147,6 +148,7 @@ def extract_version_from_standard(standard_text: str) -> tuple:
             number = re.sub(pattern, '', standard_text).strip()
             return normalize_standard_number(number), f"V{version}"
     
+    # コロン付きの年度は規格番号の一部として保持
     return normalize_standard_number(standard_text), ""
 
 

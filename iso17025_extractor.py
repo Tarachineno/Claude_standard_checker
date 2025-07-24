@@ -419,19 +419,17 @@ class ISO17025ScopeExtractor:
             )
 
 
-# 規格番号完全一致のみMatch、バージョン違いはバージョン違いとして表示する比較メソッド
     def compare_standards(self, iso_standards: List[TestStandard], oj_standards: List[TestStandard]) -> Dict[str, List[str]]:
         """ISO17025規格とOJ規格を比較し、完全一致・バージョン違い・未一致を分類"""
         matches = []
         version_mismatches = []
         unmatched = []
-        # OJ側の規格番号とバージョンの辞書を作成（完全一致のみ）
-        # OJ側の規格番号（完全一致のみ）をセットで保持
+        
         oj_numbers = set(std.standard_number for std in oj_standards)
         oj_versions_dict = {}
         for std in oj_standards:
             oj_versions_dict.setdefault(std.standard_number, set()).add(std.version)
-        # ISO側の規格ごとに判定（完全一致のみ）
+        
         for iso_std in iso_standards:
             if iso_std.standard_number in oj_numbers:
                 oj_versions = oj_versions_dict[iso_std.standard_number]
@@ -441,6 +439,7 @@ class ISO17025ScopeExtractor:
                     version_mismatches.append(f"△ {iso_std.standard_number} (ISO: {iso_std.version}, OJ: {', '.join([v for v in oj_versions if v])})")
             else:
                 unmatched.append(f"× {iso_std.standard_number}{' ' + iso_std.version if iso_std.version else ''}")
+        
         return {
             "matches": matches,
             "version_mismatches": version_mismatches,

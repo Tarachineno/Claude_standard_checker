@@ -313,7 +313,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 55015",
+      "number": "EN IEC 55015:2019",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -326,7 +326,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-3",
+      "number": "EN IEC 60947-3:2009",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -339,7 +339,20 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-4-1",
+      "number": "EN IEC 60947-3:2021",
+      "version": "",
+      "directive": "EMC",
+      "title": "",
+      "status": "Active",
+      "publication_date": "",
+      "amendment_date": "",
+      "withdrawal_date": "",
+      "superseded_by": "",
+      "oj_reference": "OJ 2022",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN IEC 60947-4-1:2019",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -352,7 +365,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-5-2",
+      "number": "EN IEC 60947-5-2:2020",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -365,7 +378,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 60947-9-1",
+      "number": "EN IEC 60947-9-1:2019",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -378,7 +391,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 61058-1",
+      "number": "EN IEC 61058-1:2018",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -391,7 +404,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62053-21",
+      "number": "EN IEC 62053-21:2021",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -404,7 +417,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62053-22",
+      "number": "EN IEC 62053-22:2021",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -417,7 +430,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62053-23",
+      "number": "EN IEC 62053-22:2022",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -430,7 +443,7 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN IEC 62053-24",
+      "number": "EN IEC 62053-23:2021",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -443,7 +456,46 @@
       "_class_name": "Standard"
     },
     {
-      "number": "EN ISO 13766-1",
+      "number": "EN IEC 62053-23:2022",
+      "version": "",
+      "directive": "EMC",
+      "title": "",
+      "status": "Active",
+      "publication_date": "",
+      "amendment_date": "",
+      "withdrawal_date": "",
+      "superseded_by": "",
+      "oj_reference": "OJ 2022",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN IEC 62053-24:2021",
+      "version": "",
+      "directive": "EMC",
+      "title": "",
+      "status": "Active",
+      "publication_date": "",
+      "amendment_date": "",
+      "withdrawal_date": "",
+      "superseded_by": "",
+      "oj_reference": "OJ 2022",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN IEC 62053-24:2022",
+      "version": "",
+      "directive": "EMC",
+      "title": "",
+      "status": "Active",
+      "publication_date": "",
+      "amendment_date": "",
+      "withdrawal_date": "",
+      "superseded_by": "",
+      "oj_reference": "OJ 2022",
+      "_class_name": "Standard"
+    },
+    {
+      "number": "EN ISO 13766-1:2018",
       "version": "",
       "directive": "EMC",
       "title": "",
@@ -456,6 +508,6 @@
       "_class_name": "Standard"
     }
   ],
-  "timestamp": "2025-07-17T04:09:00.817003",
-  "expires_at": "2025-07-18T04:09:00.816639"
+  "timestamp": "2025-07-24T23:12:03.939018",
+  "expires_at": "2025-07-25T23:12:03.938908"
 }

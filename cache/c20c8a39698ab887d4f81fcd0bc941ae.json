@@ -3,7 +3,7 @@
     {
       "number": "EN 300 065",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -16,7 +16,7 @@
     {
       "number": "EN 300 086",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -29,7 +29,7 @@
     {
       "number": "EN 300 113",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -42,7 +42,7 @@
     {
       "number": "EN 300 219",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -55,7 +55,7 @@
     {
       "number": "EN 300 220-2",
       "version": "V3.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -68,7 +68,7 @@
     {
       "number": "EN 300 220-3-1",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -81,7 +81,7 @@
     {
       "number": "EN 300 220-3-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -94,7 +94,7 @@
     {
       "number": "EN 300 220-4",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -107,7 +107,7 @@
     {
       "number": "EN 300 224",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -120,7 +120,7 @@
     {
       "number": "EN 300 296",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -133,7 +133,7 @@
     {
       "number": "EN 300 328",
       "version": "V2.2.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -146,7 +146,7 @@
     {
       "number": "EN 300 330",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -159,7 +159,7 @@
     {
       "number": "EN 300 341",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -172,7 +172,7 @@
     {
       "number": "EN 300 390",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -185,7 +185,7 @@
     {
       "number": "EN 300 422-1",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -198,7 +198,7 @@
     {
       "number": "EN 300 422-2",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -211,7 +211,7 @@
     {
       "number": "EN 300 422-3",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -224,7 +224,7 @@
     {
       "number": "EN 300 422-4",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -237,7 +237,7 @@
     {
       "number": "EN 300 433",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -250,7 +250,7 @@
     {
       "number": "EN 300 440",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -263,7 +263,7 @@
     {
       "number": "EN 300 454-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -276,7 +276,7 @@
     {
       "number": "EN 300 487",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -289,7 +289,7 @@
     {
       "number": "EN 300 674-2-1",
       "version": "V3.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -302,7 +302,7 @@
     {
       "number": "EN 300 674-2-2",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -315,7 +315,7 @@
     {
       "number": "EN 300 676-2",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -328,7 +328,7 @@
     {
       "number": "EN 300 698",
       "version": "V2.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -341,7 +341,7 @@
     {
       "number": "EN 300 718-1",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -354,7 +354,7 @@
     {
       "number": "EN 300 718-2",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -367,7 +367,7 @@
     {
       "number": "EN 300 720",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -380,7 +380,7 @@
     {
       "number": "EN 301 025",
       "version": "V2.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -393,7 +393,7 @@
     {
       "number": "EN 301 091-2",
       "version": "V1.3.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -406,7 +406,7 @@
     {
       "number": "EN 301 166",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -419,7 +419,7 @@
     {
       "number": "EN 301 178",
       "version": "V2.2.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -432,7 +432,7 @@
     {
       "number": "EN 301 357",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -445,7 +445,7 @@
     {
       "number": "EN 301 360",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -458,7 +458,7 @@
     {
       "number": "EN 301 406",
       "version": "V2.2.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -471,7 +471,7 @@
     {
       "number": "EN 301 406-2",
       "version": "V3.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -484,7 +484,7 @@
     {
       "number": "EN 301 426",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -497,7 +497,7 @@
     {
       "number": "EN 301 427",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -510,7 +510,7 @@
     {
       "number": "EN 301 428",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -523,7 +523,7 @@
     {
       "number": "EN 301 430",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -536,7 +536,7 @@
     {
       "number": "EN 301 441",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -549,7 +549,7 @@
     {
       "number": "EN 301 442",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -562,7 +562,7 @@
     {
       "number": "EN 301 443",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -575,7 +575,7 @@
     {
       "number": "EN 301 444",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "(a)",
       "status": "Active",
       "publication_date": "",
@@ -588,7 +588,7 @@
     {
       "number": "EN 301 447",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -601,7 +601,7 @@
     {
       "number": "EN 301 459",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -614,7 +614,7 @@
     {
       "number": "EN 301 473",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -627,7 +627,7 @@
     {
       "number": "EN 301 489-1",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -640,7 +640,7 @@
     {
       "number": "EN 301 489-3",
       "version": "V2.3.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -653,7 +653,7 @@
     {
       "number": "EN 301 489-12",
       "version": "V3.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -666,7 +666,7 @@
     {
       "number": "EN 301 489-17",
       "version": "V3.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -679,7 +679,7 @@
     {
       "number": "EN 301 489-19",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -692,7 +692,7 @@
     {
       "number": "EN 301 489-20",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -705,7 +705,7 @@
     {
       "number": "EN 301 489-52",
       "version": "V1.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -718,7 +718,7 @@
     {
       "number": "EN 301 489-54",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -731,7 +731,7 @@
     {
       "number": "EN 301 502",
       "version": "V12.5.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -744,7 +744,7 @@
     {
       "number": "EN 301 511",
       "version": "V12.5.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -757,7 +757,7 @@
     {
       "number": "EN 301 559",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -770,7 +770,7 @@
     {
       "number": "EN 301 598",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -783,7 +783,7 @@
     {
       "number": "EN 301 681",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -796,7 +796,7 @@
     {
       "number": "EN 301 721",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -809,7 +809,7 @@
     {
       "number": "EN 301 783",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -822,7 +822,7 @@
     {
       "number": "EN 301 839",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -835,7 +835,7 @@
     {
       "number": "EN 301 841-3",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -848,7 +848,7 @@
     {
       "number": "EN 301 842-5",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -861,7 +861,7 @@
     {
       "number": "EN 301 893",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -874,7 +874,7 @@
     {
       "number": "EN 301 908",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "No",
       "status": "Active",
       "publication_date": "",
@@ -887,7 +887,7 @@
     {
       "number": "EN 301 908-1",
       "version": "V15.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -900,7 +900,7 @@
     {
       "number": "EN 301 908-2",
       "version": "V13.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -913,7 +913,7 @@
     {
       "number": "EN 301 908-3",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -926,7 +926,7 @@
     {
       "number": "EN 301 908-10",
       "version": "V4.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -939,7 +939,7 @@
     {
       "number": "EN 301 908-11",
       "version": "V11.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -952,7 +952,7 @@
     {
       "number": "EN 301 908-12",
       "version": "V7.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -965,7 +965,7 @@
     {
       "number": "EN 301 908-13",
       "version": "V13.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -978,7 +978,7 @@
     {
       "number": "EN 301 908-14",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -991,7 +991,7 @@
     {
       "number": "EN 301 908-15",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1004,7 +1004,7 @@
     {
       "number": "EN 301 908-18",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1017,7 +1017,7 @@
     {
       "number": "EN 301 908-19",
       "version": "V6.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1030,7 +1030,7 @@
     {
       "number": "EN 301 908-20",
       "version": "V6.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1043,7 +1043,7 @@
     {
       "number": "EN 301 908-21",
       "version": "V6.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1056,7 +1056,7 @@
     {
       "number": "EN 301 908-22",
       "version": "V6.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1069,7 +1069,7 @@
     {
       "number": "EN 301 908-23",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1082,7 +1082,7 @@
     {
       "number": "EN 301 908-24",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1095,7 +1095,7 @@
     {
       "number": "EN 301 908-25",
       "version": "V15.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1108,7 +1108,7 @@
     {
       "number": "EN 301 929",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1121,7 +1121,7 @@
     {
       "number": "EN 302 017",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1134,7 +1134,7 @@
     {
       "number": "EN 302 018",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1147,7 +1147,7 @@
     {
       "number": "EN 302 054",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1160,7 +1160,7 @@
     {
       "number": "EN 302 064",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1173,7 +1173,7 @@
     {
       "number": "EN 302 064-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1186,7 +1186,7 @@
     {
       "number": "EN 302 065-1",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1199,7 +1199,7 @@
     {
       "number": "EN 302 065-2",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1212,7 +1212,7 @@
     {
       "number": "EN 302 065-3",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "16 November 2019",
@@ -1225,7 +1225,7 @@
     {
       "number": "EN 302 065-4",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1238,7 +1238,7 @@
     {
       "number": "EN 302 066",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "(a)",
       "status": "Active",
       "publication_date": "",
@@ -1251,7 +1251,7 @@
     {
       "number": "EN 302 066-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "20 January 2023",
       "status": "Active",
       "publication_date": "20 January 2023",
@@ -1264,7 +1264,7 @@
     {
       "number": "EN 302 077",
       "version": "V2.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1277,7 +1277,7 @@
     {
       "number": "EN 302 077-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1290,7 +1290,7 @@
     {
       "number": "EN 302 186",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1303,7 +1303,7 @@
     {
       "number": "EN 302 194-2",
       "version": "V1.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1316,7 +1316,7 @@
     {
       "number": "EN 302 195",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1329,7 +1329,7 @@
     {
       "number": "EN 302 208",
       "version": "V3.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Withdrawn",
       "publication_date": "",
@@ -1342,7 +1342,7 @@
     {
       "number": "EN 302 217-2",
       "version": "V3.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1355,7 +1355,7 @@
     {
       "number": "EN 302 245",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1368,7 +1368,7 @@
     {
       "number": "EN 302 245-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1381,7 +1381,7 @@
     {
       "number": "EN 302 248",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1394,7 +1394,7 @@
     {
       "number": "EN 302 264-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1407,7 +1407,7 @@
     {
       "number": "EN 302 288-2",
       "version": "V1.6.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1420,7 +1420,7 @@
     {
       "number": "EN 302 296",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1433,7 +1433,7 @@
     {
       "number": "EN 302 296-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "29 September 2023",
       "status": "Active",
       "publication_date": "29 September 2023",
@@ -1446,7 +1446,7 @@
     {
       "number": "EN 302 326-2",
       "version": "V1.2.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1459,7 +1459,7 @@
     {
       "number": "EN 302 340",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1472,7 +1472,7 @@
     {
       "number": "EN 302 372",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1485,7 +1485,7 @@
     {
       "number": "EN 302 448",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1498,7 +1498,7 @@
     {
       "number": "EN 302 454",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1511,7 +1511,7 @@
     {
       "number": "EN 302 480",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1524,7 +1524,7 @@
     {
       "number": "EN 302 502",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1537,7 +1537,7 @@
     {
       "number": "EN 302 510-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1550,7 +1550,7 @@
     {
       "number": "EN 302 536-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1563,7 +1563,7 @@
     {
       "number": "EN 302 537",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1576,7 +1576,7 @@
     {
       "number": "EN 302 561",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1589,7 +1589,7 @@
     {
       "number": "EN 302 567",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1602,7 +1602,7 @@
     {
       "number": "EN 302 571",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1615,7 +1615,7 @@
     {
       "number": "EN 302 574-1",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1628,7 +1628,7 @@
     {
       "number": "EN 302 574-2",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1641,7 +1641,7 @@
     {
       "number": "EN 302 574-3",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1654,7 +1654,7 @@
     {
       "number": "EN 302 608",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1667,7 +1667,7 @@
     {
       "number": "EN 302 609",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1680,7 +1680,7 @@
     {
       "number": "EN 302 617",
       "version": "V2.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1693,7 +1693,7 @@
     {
       "number": "EN 302 686",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1706,7 +1706,7 @@
     {
       "number": "EN 302 729",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1719,7 +1719,7 @@
     {
       "number": "EN 302 858-2",
       "version": "V1.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1732,7 +1732,7 @@
     {
       "number": "EN 302 885",
       "version": "V2.2.3",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1745,7 +1745,7 @@
     {
       "number": "EN 302 961",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1758,7 +1758,7 @@
     {
       "number": "EN 302 977",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1771,7 +1771,7 @@
     {
       "number": "EN 303 039",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1784,7 +1784,7 @@
     {
       "number": "EN 303 084",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1797,7 +1797,7 @@
     {
       "number": "EN 303 098",
       "version": "V2.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1810,7 +1810,7 @@
     {
       "number": "EN 303 132",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1823,7 +1823,7 @@
     {
       "number": "EN 303 135",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1836,7 +1836,7 @@
     {
       "number": "EN 303 203",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1849,7 +1849,7 @@
     {
       "number": "EN 303 204",
       "version": "V3.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1862,7 +1862,7 @@
     {
       "number": "EN 303 213-5-1",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1875,7 +1875,7 @@
     {
       "number": "EN 303 213-5-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1888,7 +1888,7 @@
     {
       "number": "EN 303 213-6-1",
       "version": "V3.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1901,7 +1901,7 @@
     {
       "number": "EN 303 258",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1914,7 +1914,7 @@
     {
       "number": "EN 303 276",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1927,7 +1927,7 @@
     {
       "number": "EN 303 340",
       "version": "V1.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1940,7 +1940,7 @@
     {
       "number": "EN 303 345-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1953,7 +1953,7 @@
     {
       "number": "EN 303 345-3",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1966,7 +1966,7 @@
     {
       "number": "EN 303 345-4",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1979,7 +1979,7 @@
     {
       "number": "EN 303 345-5",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -1992,7 +1992,7 @@
     {
       "number": "EN 303 347-1",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2005,7 +2005,7 @@
     {
       "number": "EN 303 347-2",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2018,7 +2018,7 @@
     {
       "number": "EN 303 347-3",
       "version": "V2.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2031,7 +2031,7 @@
     {
       "number": "EN 303 348",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2044,7 +2044,7 @@
     {
       "number": "EN 303 354",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2057,7 +2057,7 @@
     {
       "number": "EN 303 363-1",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2070,7 +2070,7 @@
     {
       "number": "EN 303 363-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2083,7 +2083,7 @@
     {
       "number": "EN 303 364-2",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2096,7 +2096,7 @@
     {
       "number": "EN 303 364-3",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2109,7 +2109,7 @@
     {
       "number": "EN 303 372-1",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Withdrawn",
       "publication_date": "",
@@ -2122,7 +2122,7 @@
     {
       "number": "EN 303 372-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Withdrawn",
       "publication_date": "",
@@ -2135,7 +2135,7 @@
     {
       "number": "EN 303 402",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2148,7 +2148,7 @@
     {
       "number": "EN 303 406",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2161,7 +2161,7 @@
     {
       "number": "EN 303 413",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Withdrawn",
       "publication_date": "",
@@ -2174,7 +2174,7 @@
     {
       "number": "EN 303 520",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "(a)",
       "status": "Active",
       "publication_date": "",
@@ -2187,7 +2187,7 @@
     {
       "number": "EN 303 609",
       "version": "V12.5.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2200,7 +2200,7 @@
     {
       "number": "EN 303 661",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2213,7 +2213,7 @@
     {
       "number": "EN 303 687",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2226,7 +2226,7 @@
     {
       "number": "EN 303 753",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2239,7 +2239,7 @@
     {
       "number": "EN 303 758",
       "version": "V1.1.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2252,7 +2252,7 @@
     {
       "number": "EN 303 978",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2265,7 +2265,7 @@
     {
       "number": "EN 303 979",
       "version": "V2.1.2",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2278,7 +2278,7 @@
     {
       "number": "EN 303 980",
       "version": "V1.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2291,7 +2291,7 @@
     {
       "number": "EN 303 981",
       "version": "V1.3.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2304,7 +2304,7 @@
     {
       "number": "EN 304 220-1",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2317,7 +2317,7 @@
     {
       "number": "EN 304 220-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2330,7 +2330,7 @@
     {
       "number": "EN 305 550-2",
       "version": "V1.2.1",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2343,7 +2343,7 @@
     {
       "number": "EN 18031-1",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2356,7 +2356,7 @@
     {
       "number": "EN 18031-2",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2369,7 +2369,7 @@
     {
       "number": "EN 18031-3",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2382,7 +2382,7 @@
     {
       "number": "EN 300",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2395,7 +2395,7 @@
     {
       "number": "EN 301",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2408,7 +2408,7 @@
     {
       "number": "EN 302",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2421,7 +2421,7 @@
     {
       "number": "EN 303",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2434,7 +2434,7 @@
     {
       "number": "EN 304",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2447,7 +2447,7 @@
     {
       "number": "EN 305",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2460,7 +2460,7 @@
     {
       "number": "EN 50360",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2473,7 +2473,7 @@
     {
       "number": "EN 50385",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2486,7 +2486,7 @@
     {
       "number": "EN 50401",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2499,7 +2499,7 @@
     {
       "number": "EN 50566",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2512,7 +2512,7 @@
     {
       "number": "EN 55035",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2525,7 +2525,7 @@
     {
       "number": "ETSI EN 301 489-1",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2538,7 +2538,7 @@
     {
       "number": "en 4",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "",
       "status": "Active",
       "publication_date": "",
@@ -2551,7 +2551,7 @@
     {
       "number": "en 9",
       "version": "",
-      "directive": "RE",
+      "directive": "RED",
       "title": "No",
       "status": "Active",
       "publication_date": "",
@@ -2562,6 +2562,6 @@
       "_class_name": "Standard"
     }
   ],
-  "timestamp": "2025-07-17T03:57:14.816944",
-  "expires_at": "2025-07-18T03:57:14.816309"
+  "timestamp": "2025-07-24T23:29:40.947159",
+  "expires_at": "2025-07-25T23:29:40.946494"
 }
