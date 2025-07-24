@@ -18,6 +18,33 @@
 
 ## 🚀 クイックスタート
 
+### オプション1: スタンドアロン実行ファイル（推奨）
+
+**最も簡単な方法 - Python環境不要！**
+
+1. 開発環境でビルド：
+```bash
+pip install pyinstaller
+python build_executable.py
+```
+
+2. 配布先で実行：
+```bash
+# Windows
+eu_standards_checker.exe
+
+# Linux/Mac  
+./eu_standards_checker
+```
+
+**特徴:**
+- ✅ Pythonインストール不要
+- ✅ 全パッケージ同梱
+- ✅ ダブルクリックで実行可能
+- ✅ 完全機能（PDF処理含む）
+
+### オプション2: Pythonスクリプト版
+
 ### 1. パッケージの配置
 全ファイルを同じフォルダに配置してください：
 
@@ -36,6 +63,9 @@ eu_standards_checker/
 ├── utils.py                # ユーティリティ
 ├── requirements.txt        # 依存パッケージリスト
 ├── install_minimal.py      # 最小インストールスクリプト
+├── build_executable.py     # 実行ファイルビルドスクリプト
+├── eu_standards_checker.spec # PyInstaller設定ファイル
+├── BUILD_INSTRUCTIONS.md   # ビルド手順書
 └── README_PACKAGE.md       # このファイル
 ```
 
@@ -188,6 +218,23 @@ python oj_config_validator.py
 比較機能が必要な場合は、開発版をご利用ください：
 - GitHub: https://github.com/Tarachineno/Claude_standard_checker
 - ブランチ: `master` (フル機能版)
+
+## 📚 ビルド手順
+
+スタンドアロン実行ファイルの作成手順は `BUILD_INSTRUCTIONS.md` を参照してください。
+
+**簡単ビルド:**
+```bash
+# 環境準備
+pip install pyinstaller
+pip install -r requirements.txt
+
+# ビルド実行
+python build_executable.py
+
+# 完成！
+./dist/eu_standards_checker
+```
 
 ## ⚠️ 注意事項
 

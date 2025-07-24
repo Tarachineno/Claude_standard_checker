@@ -8,11 +8,25 @@ import sys
 import os
 
 # Add current directory to Python path to ensure modules can be imported
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Handle both regular Python execution and PyInstaller bundled execution
+if getattr(sys, 'frozen', False):
+    # Running as PyInstaller bundle
+    current_dir = os.path.dirname(sys.executable)
+    bundle_dir = sys._MEIPASS
+else:
+    # Running as regular Python script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    bundle_dir = current_dir
+
 sys.path.insert(0, current_dir)
+sys.path.insert(0, bundle_dir)
 
 def check_dependencies():
     """Check if required dependencies are installed"""
+    # Skip dependency check if running as PyInstaller bundle
+    if getattr(sys, 'frozen', False):
+        print("✅ Running as bundled executable - all dependencies included")
+        return True
     # Core required packages
     required_packages = [
         'requests',
@@ -71,7 +85,10 @@ def check_dependencies():
 def show_welcome():
     """Show welcome message and available features"""
     print("=" * 60)
-    print("EU HARMONIZED STANDARDS CHECKER - Package Version")
+    if getattr(sys, 'frozen', False):
+        print("EU HARMONIZED STANDARDS CHECKER - Standalone Executable")
+    else:
+        print("EU HARMONIZED STANDARDS CHECKER - Package Version")
     print("=" * 60)
     print("\n📋 Available Features:")
     print("  ✅ 1. OJ Standards Fetching (RED, EMC, LVD)")
