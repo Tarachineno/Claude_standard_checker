@@ -35,12 +35,29 @@ eu_standards_checker/
 ├── data_models.py          # データモデル
 ├── utils.py                # ユーティリティ
 ├── requirements.txt        # 依存パッケージリスト
+├── install_minimal.py      # 最小インストールスクリプト
 └── README_PACKAGE.md       # このファイル
 ```
 
 ### 2. 依存関係のインストール
+
+**🔒 インストール制限のある環境（推奨）:**
+```bash
+# 自動最小インストール（推奨）
+python install_minimal.py
+
+# または手動で必須パッケージのみ
+pip install requests beautifulsoup4 lxml urllib3 PyPDF2 pdfplumber pandas
+```
+
+**🔓 制限のない環境:**
 ```bash
 pip install -r requirements.txt
+```
+
+**📦 インストール後の確認:**
+```bash
+python run_checker.py  # 依存関係を自動チェック
 ```
 
 ### 3. 実行方法
@@ -123,6 +140,10 @@ python oj_config_validator.py
 
 1. **依存パッケージエラー**
    ```bash
+   # インストール制限環境の場合
+   python install_minimal.py
+   
+   # 通常環境の場合
    pip install -r requirements.txt
    ```
 
