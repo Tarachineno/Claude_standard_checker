@@ -1,0 +1,122 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-07-24",
+  "description": "Official Journal (OJ) links configuration for EU Harmonized Standards",
+  "directives": {
+    "RED": {
+      "name": "Radio Equipment Directive",
+      "directive_number": "2014/53/EU",
+      "decision": "Commission Implementing Decision (EU) 2022/2191",
+      "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en",
+      "description": "Radio Equipment Directive (RED) 2014/53/EU harmonized standards",
+      "oj_links": {
+        "main": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC",
+        "amendments": [
+          {
+            "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392",
+            "date": "2023-10-03",
+            "description": "First amendment to RED harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2023/2669/oj",
+            "date": "2023-11-27",
+            "description": "Second amendment to RED harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2025/138/oj",
+            "date": "2025-01-28",
+            "description": "Third amendment to RED harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2025/893/oj/eng",
+            "date": "2025-05-14",
+            "description": "Fourth amendment to RED harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/test-amendment",
+            "date": "2025-12-01",
+            "description": "Test amendment for validation"
+          }
+        ]
+      }
+    },
+    "EMC": {
+      "name": "Electromagnetic Compatibility Directive",
+      "directive_number": "2014/30/EU",
+      "decision": "Commission Implementing Decision (EU) 2019/1326",
+      "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en",
+      "description": "Electromagnetic Compatibility (EMC) Directive 2014/30/EU harmonized standards",
+      "oj_links": {
+        "main": "https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG",
+        "amendments": [
+          {
+            "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC",
+            "date": "2020-05-15",
+            "description": "First amendment to EMC harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.366.01.0017.01.ENG",
+            "date": "2020-11-04",
+            "description": "Second amendment to EMC harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2021.089.01.0017.01.ENG",
+            "date": "2021-03-17",
+            "description": "Third amendment to EMC harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2022/622/oj",
+            "date": "2022-04-08",
+            "description": "Fourth amendment to EMC harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2022/910/oj",
+            "date": "2022-05-17",
+            "description": "Fifth amendment to EMC harmonized standards"
+          },
+          {
+            "url": "http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=uriserv:OJ.C_.2018.246.01.0001.01.ENG",
+            "date": "2018-07-13",
+            "description": "Corrigendum to EMC harmonized standards"
+          }
+        ]
+      }
+    },
+    "LVD": {
+      "name": "Low Voltage Directive",
+      "directive_number": "2014/35/EU",
+      "decision": "Commission Implementing Decision (EU) 2023/2723",
+      "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en",
+      "description": "Low Voltage Directive (LVD) 2014/35/EU harmonized standards",
+      "oj_links": {
+        "main": "https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj",
+        "amendments": [
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj",
+            "date": "2024-04-19",
+            "description": "First amendment to LVD harmonized standards"
+          },
+          {
+            "url": "https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj",
+            "date": "2024-10-30",
+            "description": "Second amendment to LVD harmonized standards"
+          }
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "source": "Official Journal of the European Union (OJ)",
+    "usage_notes": [
+      "To add new amendments, add entries to the amendments array with url, date, and description",
+      "To add new directives, create a new entry under 'directives' with all required fields",
+      "Always update the 'last_updated' field when making changes",
+      "URLs should be the official EUR-Lex links"
+    ],
+    "api_compatibility": {
+      "mobile_app": true,
+      "web_service": true,
+      "desktop_app": true
+    }
+  }
+}

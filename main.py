@@ -4,17 +4,16 @@ Main Application - EU Harmonized Standards Checker System
 
 import os
 import sys
-import logging
-from typing import List, Dict, Optional
+from typing import List, Dict
 from datetime import datetime
 
 from oj_checker import OJChecker
 from etsi_searcher import ETSIPortalSearcher
 from iso17025_extractor import ISO17025ScopeExtractor
 from comparator import StandardComparator
-from data_models import Standard, TestStandard, AccreditationScope, ComparisonResult
-from utils import setup_logging, format_standards_list, enable_debug_mode
-from config import DIRECTIVE_INFO
+from data_models import TestStandard, AccreditationScope, ComparisonResult
+from utils import setup_logging, enable_debug_mode
+from config import DIRECTIVE_INFO, get_available_directives
 
 
 class HarmonizedStandardsChecker:
@@ -187,7 +186,8 @@ class HarmonizedStandardsChecker:
     
     def _interactive_oj_fetch(self) -> None:
         """対話式OJ規格取得"""
-        print("\\nAvailable directives: RE, EMC, LVD")
+        available = get_available_directives()
+        print(f"\\nAvailable directives: {', '.join(available)}")
         directive = input("Enter directive code: ").strip().upper()
         
         if directive not in DIRECTIVE_INFO:
@@ -421,7 +421,7 @@ def main():
     elif command == 'debug':
         # 専用デバッグモード
         enable_debug_mode()
-        directive = sys.argv[2] if len(sys.argv) > 2 else 'RE'
+        directive = sys.argv[2] if len(sys.argv) > 2 else 'RED'
         print(f"Running debug mode for {directive} directive...")
         print("Detailed logs will be saved to debug_standards.log")
         app.run_full_check(directive)

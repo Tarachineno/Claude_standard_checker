@@ -10,7 +10,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 301 489-17",
         version="V3.3.1",
-        directive="RE",
+        directive="RED",
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems",
         status="Active",
         publication_date="2023-03-15",
@@ -22,7 +22,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 301 489-1",
         version="V2.2.3",
-        directive="RE",
+        directive="RED",
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements",
         status="Active",
         publication_date="2019-03-12",
@@ -34,7 +34,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 301 489-3",
         version="V2.1.1",
-        directive="RE",
+        directive="RED",
         title="ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 3: Specific conditions for Short-Range Devices (SRD)",
         status="Active",
         publication_date="2017-05-16",
@@ -46,7 +46,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 300 328",
         version="V2.2.2",
-        directive="RE",
+        directive="RED",
         title="Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band",
         status="Active",
         publication_date="2016-11-30",
@@ -58,7 +58,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 301 893",
         version="V2.1.1",
-        directive="RE",
+        directive="RED",
         title="5 GHz RLAN; Harmonised Standard for access to radio spectrum",
         status="Active",
         publication_date="2017-05-12",
@@ -70,7 +70,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 302 065-1",
         version="V2.1.1",
-        directive="RE",
+        directive="RED",
         title="Short Range Devices (SRD) using Ultra Wide Band (UWB) technology; Part 1: Technical requirements and test methods",
         status="Active",
         publication_date="2016-07-20",
@@ -82,7 +82,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 300 220-1",
         version="V3.1.1",
-        directive="RE",
+        directive="RED",
         title="Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods",
         status="Active",
         publication_date="2012-01-04",
@@ -94,7 +94,7 @@ SAMPLE_RE_STANDARDS = [
     Standard(
         number="EN 303 413",
         version="V1.1.1",
-        directive="RE",
+        directive="RED",
         title="Satellite Earth Stations and Systems (SES); Global Navigation Satellite System (GNSS) receivers",
         status="Active",
         publication_date="2017-05-12",
@@ -176,7 +176,7 @@ SAMPLE_LVD_STANDARDS = [
 def get_sample_standards():
     """Get all sample standards organized by directive"""
     return {
-        'RE': SAMPLE_RE_STANDARDS,
+        'RED': SAMPLE_RE_STANDARDS,
         'EMC': SAMPLE_EMC_STANDARDS,
         'LVD': SAMPLE_LVD_STANDARDS
     }
