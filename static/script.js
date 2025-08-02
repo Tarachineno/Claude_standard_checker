@@ -170,50 +170,57 @@ async function loadDirectives() {
 // Standards functions
 async function fetchStandards() {
     const directive = document.getElementById('directive-select').value;
+    const fetchMethod = document.getElementById('fetch-method').value;
     
     if (!directive) {
         showError('Please select a directive');
         return;
     }
 
-    // Special handling for directives - redirect to ETSI portal
-    const etsiUrls = {
-        'RED': 'https://www.etsi.org/standards/get-standards#page=4&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=RED&sort=1',
-        'EMC': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=EMC&sort=3',
-        'LVD': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=LVD&sort=3'
-    };
-
-    if (etsiUrls[directive]) {
-        const etsiUrl = etsiUrls[directive];
-        
-        console.log(`Redirecting to ETSI portal for ${directive} standards:`, etsiUrl);
-        window.open(etsiUrl, '_blank');
-        
-        const directiveNames = {
-            'RED': 'Radio Equipment Directive',
-            'EMC': 'Electromagnetic Compatibility Directive',
-            'LVD': 'Low Voltage Directive'
+    if (fetchMethod === 'etsi') {
+        // ETSI Portal redirect method
+        const etsiUrls = {
+            'RED': 'https://www.etsi.org/standards/get-standards#page=4&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=RED&sort=1',
+            'EMC': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=EMC&sort=3',
+            'LVD': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=LVD&sort=3'
         };
-        
-        showSuccess(`Opening ETSI portal for ${directiveNames[directive]} (${directive}) standards in a new tab`);
+
+        if (etsiUrls[directive]) {
+            const etsiUrl = etsiUrls[directive];
+            
+            console.log(`Redirecting to ETSI portal for ${directive} standards:`, etsiUrl);
+            window.open(etsiUrl, '_blank');
+            
+            const directiveNames = {
+                'RED': 'Radio Equipment Directive',
+                'EMC': 'Electromagnetic Compatibility Directive',
+                'LVD': 'Low Voltage Directive'
+            };
+            
+            showSuccess(`Opening ETSI portal for ${directiveNames[directive]} (${directive}) standards in a new tab`);
+            return;
+        }
+    } else if (fetchMethod === 'oj') {
+        // Official Journal parsing method
+        try {
+            console.log('Fetching standards from Official Journal for directive:', directive);
+            
+            const response = await apiCall(`/standards?directive=${directive}`);
+            
+            if (response && response.success) {
+                displayStandards(response.data);
+                showSuccess(`Successfully fetched ${response.data.count} standards from Official Journal for ${response.data.directive_name}`);
+            } else {
+                throw new Error(response?.error || 'Failed to fetch standards from Official Journal');
+            }
+        } catch (error) {
+            console.error('Failed to fetch OJ standards:', error);
+            showError(`Failed to fetch OJ standards: ${error.message}`);
+        }
         return;
     }
 
-    try {
-        console.log('Fetching standards for directive:', directive);
-        
-        const response = await apiCall(`/standards?directive=${directive}`);
-        
-        if (response && response.success) {
-            displayStandards(response.data);
-            showSuccess(`Successfully fetched ${response.data.count} standards for ${response.data.directive_name}`);
-        } else {
-            throw new Error(response?.error || 'Failed to fetch standards');
-        }
-    } catch (error) {
-        console.error('Failed to fetch standards:', error);
-        showError(`Failed to fetch standards: ${error.message}`);
-    }
+    showError('Please select a valid fetch method');
 }
 
 function displayStandards(data) {

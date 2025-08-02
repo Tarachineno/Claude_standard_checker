@@ -2,11 +2,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-// Directive configuration
+// Directive configuration with EC webpage URLs for dynamic OJ link discovery
 const DIRECTIVE_CONFIG = {
   RED: {
     name: 'Radio Equipment Directive',
-    urls: [
+    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en',
+    fallback_urls: [
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC',
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392',
       'https://eur-lex.europa.eu/eli/dec_impl/2023/2669/oj',
@@ -16,7 +17,8 @@ const DIRECTIVE_CONFIG = {
   },
   EMC: {
     name: 'Electromagnetic Compatibility Directive',
-    urls: [
+    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en',
+    fallback_urls: [
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG',
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC',
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.366.01.0017.01.ENG',
@@ -27,7 +29,8 @@ const DIRECTIVE_CONFIG = {
   },
   LVD: {
     name: 'Low Voltage Directive',
-    urls: [
+    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en',
+    fallback_urls: [
       'https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj',
       'https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj',
       'https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj'
@@ -104,12 +107,28 @@ async function fetchStandardsFromEurlex(directive) {
   const allStandards = [];
   const standardsSet = new Set(); // To avoid duplicates
 
-  for (const url of config.urls) {
+  // First, try to get dynamic OJ links from EC webpage
+  let urls = [];
+  try {
+    console.log(`Fetching dynamic OJ links from EC webpage: ${config.ec_webpage}`);
+    urls = await getOJLinksFromECPage(config.ec_webpage);
+    console.log(`Found ${urls.length} OJ links from EC webpage`);
+    
+    if (urls.length === 0) {
+      console.log('No OJ links found on EC webpage, using fallback URLs');
+      urls = config.fallback_urls;
+    }
+  } catch (error) {
+    console.error('Error fetching from EC webpage, using fallback URLs:', error.message);
+    urls = config.fallback_urls;
+  }
+
+  for (const url of urls) {
     try {
       console.log(`Fetching from: ${url}`);
       
       const response = await axios.get(url, {
-        timeout: 10000,
+        timeout: 15000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
@@ -139,6 +158,71 @@ async function fetchStandardsFromEurlex(directive) {
   
   console.log(`Total unique standards found: ${allStandards.length}`);
   return allStandards;
+}
+
+// Function to extract OJ links from EC webpage
+async function getOJLinksFromECPage(ecUrl) {
+  try {
+    const response = await axios.get(ecUrl, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    const $ = cheerio.load(response.data);
+    const ojLinks = [];
+
+    // Look for links to eur-lex.europa.eu in the "Publications in the Official Journal" section
+    $('a[href*="eur-lex.europa.eu"]').each((i, element) => {
+      const href = $(element).attr('href');
+      const text = $(element).text().trim();
+      
+      // Filter for OJ links (Commission Implementing Decision or Amendment)
+      if (href && (text.includes('Commission Implementing Decision') || 
+                   text.includes('Amendment') || 
+                   text.includes('OJ L') ||
+                   text.includes('Official Journal'))) {
+        
+        let fullUrl = href;
+        if (href.startsWith('/')) {
+          fullUrl = 'https://eur-lex.europa.eu' + href;
+        }
+        
+        if (!ojLinks.includes(fullUrl)) {
+          ojLinks.push(fullUrl);
+          console.log(`Found OJ link: ${fullUrl}`);
+        }
+      }
+    });
+
+    // Also look for links in paragraphs that mention OJ or Official Journal
+    $('p, div, section').each((i, element) => {
+      const text = $(element).text();
+      if (text.includes('Official Journal') || text.includes('OJ L') || text.includes('Commission Implementing Decision')) {
+        $(element).find('a[href*="eur-lex.europa.eu"]').each((j, link) => {
+          const href = $(link).attr('href');
+          if (href) {
+            let fullUrl = href;
+            if (href.startsWith('/')) {
+              fullUrl = 'https://eur-lex.europa.eu' + href;
+            }
+            
+            if (!ojLinks.includes(fullUrl)) {
+              ojLinks.push(fullUrl);
+              console.log(`Found OJ link in text: ${fullUrl}`);
+            }
+          }
+        });
+      }
+    });
+
+    return ojLinks;
+    
+  } catch (error) {
+    console.error('Error fetching OJ links from EC page:', error.message);
+    return [];
+  }
 }
 
 function parseStandardsFromHtml($, directive) {
