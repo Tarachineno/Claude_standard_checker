@@ -5,44 +5,73 @@ Netlify Functions handler for the EU Harmonized Standards Checker API
 import json
 import os
 import sys
-import traceback
-from urllib.parse import parse_qs, urlparse
+import io
+from urllib.parse import parse_qs
 
 # Add the project root to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from app import app
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(current_dir, '..', '..')
+sys.path.insert(0, project_root)
 
 def handler(event, context):
     """
     Netlify Functions handler that routes requests to the Flask app
     """
     try:
+        # Import Flask app here to avoid import issues
+        from app import app
+        
         # Parse the request
         method = event.get('httpMethod', 'GET')
-        path = event.get('path', '/')
+        raw_path = event.get('path', '/')
         query_string = event.get('queryStringParameters') or {}
         headers = event.get('headers', {})
         body = event.get('body', '')
         
+        # Extract API path from the full path
+        # Remove /.netlify/functions/api prefix to get the actual API path
+        if raw_path.startswith('/.netlify/functions/api'):
+            api_path = raw_path[len('/.netlify/functions/api'):]
+            if not api_path:
+                api_path = '/'
+        else:
+            api_path = raw_path
+        
+        # Ensure API path starts with /api
+        if not api_path.startswith('/api'):
+            api_path = '/api' + api_path
+        
         # Convert query parameters to proper format
         query_string_formatted = '&'.join([f"{k}={v}" for k, v in query_string.items()])
         
-        # Create a mock WSGI environ for Flask
+        # Handle body for POST requests
+        wsgi_input = io.BytesIO()
+        if body:
+            if event.get('isBase64Encoded', False):
+                import base64
+                body_bytes = base64.b64decode(body)
+            else:
+                body_bytes = body.encode('utf-8')
+            wsgi_input.write(body_bytes)
+            wsgi_input.seek(0)
+        
+        # Create WSGI environ for Flask
         environ = {
             'REQUEST_METHOD': method,
-            'PATH_INFO': path,
+            'PATH_INFO': api_path,
             'QUERY_STRING': query_string_formatted,
             'CONTENT_TYPE': headers.get('content-type', ''),
             'CONTENT_LENGTH': str(len(body)) if body else '0',
             'HTTP_HOST': headers.get('host', 'localhost'),
-            'wsgi.input': body,
+            'wsgi.input': wsgi_input,
             'wsgi.errors': sys.stderr,
             'wsgi.version': (1, 0),
             'wsgi.multithread': False,
             'wsgi.multiprocess': True,
             'wsgi.run_once': False,
             'wsgi.url_scheme': 'https',
+            'SERVER_NAME': headers.get('host', 'localhost').split(':')[0],
+            'SERVER_PORT': '443',
         }
         
         # Add headers to environ
@@ -52,16 +81,16 @@ def handler(event, context):
                 key = 'HTTP_' + key
             environ[key] = value
         
-        # Create a simple WSGI app wrapper
+        # Capture response
         response_data = []
         response_status = None
         response_headers = []
         
-        def start_response(status, headers):
+        def start_response(status, headers, exc_info=None):
             nonlocal response_status, response_headers
             response_status = status
             response_headers = headers
-            return lambda x: None
+            return response_data.append
         
         # Call the Flask app
         with app.app_context():
@@ -92,6 +121,7 @@ def handler(event, context):
     except Exception as e:
         # Log the error
         print(f"Error in Netlify function: {str(e)}")
+        import traceback
         print(traceback.format_exc())
         
         # Return error response
