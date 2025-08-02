@@ -15,8 +15,17 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const directive = event.path.split('/').pop();
+    // Get directive from query parameters or path
+    let directive;
+    if (event.queryStringParameters && event.queryStringParameters.directive) {
+      directive = event.queryStringParameters.directive;
+    } else {
+      directive = event.path.split('/').pop();
+    }
+    
     console.log('Fetching real OJ standards for directive:', directive);
+    console.log('Event path:', event.path);
+    console.log('Query params:', event.queryStringParameters);
 
     // Try to run the actual Python OJ checker
     const result = await runPythonOJChecker(directive);
@@ -306,11 +315,38 @@ async function runPythonOJChecker(directive) {
     console.log('Attempting to run Python script:', pythonScript);
     console.log('Project root:', projectRoot);
     
-    // Run the Python script with the directive and JSON flag
-    const pythonProcess = spawn('python3', [pythonScript, 'check', directive, '--json'], {
-      cwd: projectRoot,
-      env: { ...process.env, PYTHONPATH: projectRoot }
-    });
+    // Try different Python executables in order of preference
+    const pythonPaths = [
+      './test_env/bin/python3',  // Local virtual environment
+      'python3',                 // System Python 3
+      'python'                   // Fallback to Python (could be 2 or 3)
+    ];
+    
+    let pythonProcess;
+    let usedPythonPath;
+    
+    for (const pythonPath of pythonPaths) {
+      try {
+        console.log(`Trying Python path: ${pythonPath}`);
+        pythonProcess = spawn(pythonPath, [pythonScript, 'check', directive, '--json'], {
+          cwd: projectRoot,
+          env: { ...process.env, PYTHONPATH: projectRoot }
+        });
+        usedPythonPath = pythonPath;
+        break;
+      } catch (error) {
+        console.log(`Failed with ${pythonPath}:`, error.message);
+        continue;
+      }
+    }
+    
+    if (!pythonProcess) {
+      console.error('No working Python executable found');
+      resolve({ success: false, error: 'No working Python executable found' });
+      return;
+    }
+    
+    console.log(`Using Python path: ${usedPythonPath}`);
 
     let stdout = '';
     let stderr = '';

@@ -64,12 +64,19 @@ class HarmonizedStandardsChecker:
                 standards_data = []
                 
                 for std in standards:
+                    # Use publication_date as the primary date, fallback to amendment_date
+                    date_value = None
+                    if hasattr(std, 'publication_date') and std.publication_date:
+                        date_value = std.publication_date
+                    elif hasattr(std, 'amendment_date') and std.amendment_date:
+                        date_value = std.amendment_date
+                    
                     standards_data.append({
                         'number': std.number,
                         'title': std.title,
                         'version': std.version,
-                        'date': std.date.isoformat() if std.date else None,
-                        'type': std.type
+                        'date': date_value,
+                        'type': getattr(std, 'type', 'Harmonised Standard')
                     })
                 
                 output = {
