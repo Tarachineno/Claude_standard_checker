@@ -1,5 +1,5 @@
 // Upload and process ISO17025 certificate - Netlify Function
-const multipart = require('lambda-multipart-parser');
+// Demo mode - returns mock data for demonstration purposes
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -25,74 +25,35 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // Parse multipart form data
-    const result = await multipart.parse(event);
-    
-    if (!result.files || result.files.length === 0) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          error: 'No file uploaded'
-        })
-      };
-    }
+    // For demo purposes, always return mock certificate data
+    // In a production environment, you would implement actual PDF parsing
+    console.log('Certificate upload received - returning demo data');
 
-    const file = result.files[0];
-    
-    if (file.contentType !== 'application/pdf') {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          error: 'Only PDF files are supported'
-        })
-      };
-    }
-
-    // Extract text from PDF (simplified version)
-    const extractedText = extractTextFromPDF(file.content);
-    const parsedData = parseISO17025Certificate(extractedText);
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        data: parsedData
-      })
-    };
-
-  } catch (error) {
-    console.error('Certificate processing error:', error);
-    
-    // Return mock data for demo purposes
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
         data: getMockCertificateData(),
-        note: 'Using mock data - PDF processing not available in this environment'
+        note: 'Demo mode: Using sample certificate data. Real PDF processing would be implemented in production.'
+      })
+    };
+
+  } catch (error) {
+    console.error('Certificate processing error:', error);
+    
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: 'Certificate processing failed'
       })
     };
   }
 };
 
-function extractTextFromPDF(pdfBuffer) {
-  // Simplified PDF text extraction
-  // In a real implementation, you would use a library like pdf-parse
-  // For demo purposes, return empty string
-  return '';
-}
-
-function parseISO17025Certificate(text) {
-  // Simplified parsing logic
-  // In a real implementation, you would parse the actual certificate text
-  return getMockCertificateData();
-}
+// Mock certificate data for demo purposes
 
 function getMockCertificateData() {
   return {
