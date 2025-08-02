@@ -1,4 +1,6 @@
-// No external dependencies needed for mock data
+// Import Python execution capability
+const { spawn } = require('child_process');
+const path = require('path');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -14,9 +16,25 @@ exports.handler = async (event, context) => {
 
   try {
     const directive = event.path.split('/').pop();
-    console.log('Fetching standards for directive:', directive);
+    console.log('Fetching real OJ standards for directive:', directive);
 
-    // Mock data for now - can be replaced with real API calls later
+    // Try to run the actual Python OJ checker
+    const result = await runPythonOJChecker(directive);
+    
+    if (result.success) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(result)
+      };
+    } else {
+      throw new Error(result.error);
+    }
+
+  } catch (error) {
+    console.error('Error fetching real standards, falling back to mock:', error);
+
+    // Fallback to mock data if Python execution fails
     const mockData = {
       RED: {
         directive: 'RED',
@@ -278,3 +296,79 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+// Function to run the Python OJ checker
+async function runPythonOJChecker(directive) {
+  return new Promise((resolve, reject) => {
+    const projectRoot = path.join(__dirname, '..', '..');
+    const pythonScript = path.join(projectRoot, 'main.py');
+    
+    console.log('Attempting to run Python script:', pythonScript);
+    console.log('Project root:', projectRoot);
+    
+    // Run the Python script with the directive and JSON flag
+    const pythonProcess = spawn('python3', [pythonScript, 'check', directive, '--json'], {
+      cwd: projectRoot,
+      env: { ...process.env, PYTHONPATH: projectRoot }
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      console.log(`Python script exited with code: ${code}`);
+      console.log('stdout:', stdout);
+      console.log('stderr:', stderr);
+
+      if (code === 0) {
+        try {
+          // Parse the JSON output from the Python script
+          const jsonOutput = stdout.trim();
+          console.log('Raw Python output:', jsonOutput);
+          
+          if (jsonOutput) {
+            const result = JSON.parse(jsonOutput);
+            resolve(result);
+          } else {
+            resolve({ success: false, error: 'No output from Python script' });
+          }
+        } catch (parseError) {
+          console.error('Error parsing Python JSON output:', parseError);
+          console.error('Raw output was:', stdout);
+          resolve({ success: false, error: 'Failed to parse OJ checker JSON output' });
+        }
+      } else {
+        resolve({ success: false, error: `Python script failed with code ${code}: ${stderr}` });
+      }
+    });
+
+    pythonProcess.on('error', (error) => {
+      console.error('Error running Python script:', error);
+      resolve({ success: false, error: `Failed to execute Python script: ${error.message}` });
+    });
+
+    // Set a timeout
+    setTimeout(() => {
+      pythonProcess.kill();
+      resolve({ success: false, error: 'Python script timeout' });
+    }, 30000); // 30 second timeout
+  });
+}
+
+// Helper function to get directive name
+function getDirectiveName(directive) {
+  const names = {
+    'RED': 'Radio Equipment Directive',
+    'EMC': 'Electromagnetic Compatibility Directive',
+    'LVD': 'Low Voltage Directive'
+  };
+  return names[directive] || directive;
+}

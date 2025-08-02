@@ -4,6 +4,7 @@ Main Application - EU Harmonized Standards Checker System
 
 import os
 import sys
+import json
 from typing import List, Dict
 from datetime import datetime
 
@@ -28,10 +29,11 @@ class HarmonizedStandardsChecker:
         
         self.logger.info("Harmonized Standards Checker initialized")
     
-    def run_full_check(self, directive: str = None) -> None:
+    def run_full_check(self, directive: str = None, json_output: bool = False) -> None:
         """完全なチェックを実行"""
         try:
-            print("=== EU Harmonized Standards Checker ===\\n")
+            if not json_output:
+                print("=== EU Harmonized Standards Checker ===\\n")
             
             if directive:
                 directives = [directive]
@@ -39,11 +41,53 @@ class HarmonizedStandardsChecker:
                 directives = list(DIRECTIVE_INFO.keys())
             
             for dir_code in directives:
-                self._process_directive(dir_code)
+                if json_output:
+                    self._process_directive_json(dir_code)
+                else:
+                    self._process_directive(dir_code)
                 
         except Exception as e:
             self.logger.error(f"Error in full check: {str(e)}")
-            print(f"Error: {str(e)}")
+            if json_output:
+                print(json.dumps({"success": False, "error": str(e)}))
+            else:
+                print(f"Error: {str(e)}")
+    
+    def _process_directive_json(self, directive: str) -> None:
+        """JSON形式での単一Directiveの処理"""
+        try:
+            # 規格を取得
+            result = self.oj_checker.fetch_standards(directive)
+            
+            if result.success:
+                standards = result.data
+                standards_data = []
+                
+                for std in standards:
+                    standards_data.append({
+                        'number': std.number,
+                        'title': std.title,
+                        'version': std.version,
+                        'date': std.date.isoformat() if std.date else None,
+                        'type': std.type
+                    })
+                
+                output = {
+                    "success": True,
+                    "data": {
+                        "directive": directive,
+                        "directive_name": DIRECTIVE_INFO[directive]['name'],
+                        "standards": standards_data,
+                        "count": len(standards_data)
+                    }
+                }
+                print(json.dumps(output))
+            else:
+                print(json.dumps({"success": False, "error": result.error_message}))
+                
+        except Exception as e:
+            self.logger.error(f"Error processing directive {directive}: {str(e)}")
+            print(json.dumps({"success": False, "error": str(e)}))
     
     def _process_directive(self, directive: str) -> None:
         """単一Directiveの処理"""
@@ -384,12 +428,18 @@ def main():
         print("  python main.py debug <directive>  # デバッグモードで実行")
         sys.exit(1)  # 例外で止まるように戻しました
     
-    # デバッグフラグをチェック
+    # フラグをチェック
     debug_mode = '--debug' in sys.argv
+    json_mode = '--json' in sys.argv
+    
     if debug_mode:
         enable_debug_mode()
         sys.argv.remove('--debug')
-        print("Debug mode enabled. Check debug_standards.log for detailed logs.")
+        if not json_mode:
+            print("Debug mode enabled. Check debug_standards.log for detailed logs.")
+    
+    if json_mode:
+        sys.argv.remove('--json')
     
     app = HarmonizedStandardsChecker()
     command = sys.argv[1].lower()
@@ -399,7 +449,7 @@ def main():
     
     elif command == 'check':
         directive = sys.argv[2] if len(sys.argv) > 2 else None
-        app.run_full_check(directive)
+        app.run_full_check(directive, json_output=json_mode)
     
     elif command == 'compare':
         if len(sys.argv) < 3:
