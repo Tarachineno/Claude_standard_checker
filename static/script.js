@@ -152,6 +152,7 @@ async function checkHealthStatus() {
         if (isNetlify) {
             console.log('Testing basic Netlify function connectivity...');
             try {
+                // Try the simple test function first
                 const testResponse = await fetch('/.netlify/functions/test');
                 const testData = await testResponse.json();
                 console.log('Basic Netlify test response:', testData);
@@ -163,6 +164,19 @@ async function checkHealthStatus() {
                 }
             } catch (testError) {
                 console.error('Basic Netlify test failed:', testError);
+                
+                // Try the simple health function
+                try {
+                    const healthResponse = await fetch('/.netlify/functions/health');
+                    const healthData = await healthResponse.json();
+                    console.log('Simple health response:', healthData);
+                    
+                    if (healthData.status === 'healthy') {
+                        console.log('✅ Simple health function is working');
+                    }
+                } catch (healthError) {
+                    console.error('Simple health function failed:', healthError);
+                }
             }
         }
         
@@ -177,9 +191,25 @@ async function checkHealthStatus() {
 // Load directives
 async function loadDirectives() {
     try {
-        console.log('Loading directives from:', API_BASE + '/directives');
-        const response = await apiCall('/directives');
-        console.log('Directives response:', response);
+        console.log('Loading directives...');
+        
+        let response;
+        if (isNetlify) {
+            // Try the simple directives function first
+            try {
+                console.log('Trying simple directives function...');
+                const directResponse = await fetch('/.netlify/functions/directives');
+                response = await directResponse.json();
+                console.log('Simple directives response:', response);
+            } catch (simpleError) {
+                console.log('Simple directives failed, trying complex API:', simpleError);
+                response = await apiCall('/directives');
+            }
+        } else {
+            response = await apiCall('/directives');
+        }
+        
+        console.log('Final directives response:', response);
         
         if (!response.success) {
             throw new Error(response.error || 'Failed to load directives');
