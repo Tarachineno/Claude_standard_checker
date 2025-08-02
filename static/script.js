@@ -146,45 +146,56 @@ async function apiCall(endpoint, options = {}) {
 
 async function checkHealthStatus() {
     try {
-        console.log('Checking API health at:', API_BASE + '/health');
+        console.log('Starting connectivity checks...');
         
-        // First try a simple test endpoint if on Netlify
+        // For Netlify, try simple functions first
         if (isNetlify) {
-            console.log('Testing basic Netlify function connectivity...');
+            console.log('Detected Netlify environment, testing functions...');
+            
+            // Test simple health function
             try {
-                // Try the simple test function first
-                const testResponse = await fetch('/.netlify/functions/test');
-                const testData = await testResponse.json();
-                console.log('Basic Netlify test response:', testData);
+                console.log('Testing simple health function...');
+                const healthResponse = await fetch('/.netlify/functions/health');
+                console.log('Health response status:', healthResponse.status);
                 
-                if (testData.success) {
-                    console.log('✅ Basic Netlify functions are working');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    console.log('✅ Simple health function working:', healthData);
+                    return; // Success! No need to test complex API
                 } else {
-                    console.log('❌ Basic Netlify test failed:', testData);
+                    console.log('❌ Simple health function returned:', healthResponse.status);
+                }
+            } catch (healthError) {
+                console.error('❌ Simple health function failed:', healthError);
+            }
+            
+            // Test basic test function
+            try {
+                console.log('Testing basic test function...');
+                const testResponse = await fetch('/.netlify/functions/test');
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    console.log('✅ Basic test function working:', testData);
+                    return; // Success!
                 }
             } catch (testError) {
-                console.error('Basic Netlify test failed:', testError);
-                
-                // Try the simple health function
-                try {
-                    const healthResponse = await fetch('/.netlify/functions/health');
-                    const healthData = await healthResponse.json();
-                    console.log('Simple health response:', healthData);
-                    
-                    if (healthData.status === 'healthy') {
-                        console.log('✅ Simple health function is working');
-                    }
-                } catch (healthError) {
-                    console.error('Simple health function failed:', healthError);
-                }
+                console.error('❌ Basic test function failed:', testError);
             }
+            
+            console.log('⚠️ Simple functions not available, trying complex API...');
         }
         
-        await apiCall('/health');
-        console.log('API is healthy');
+        // Fallback to complex API
+        try {
+            await apiCall('/health');
+            console.log('✅ Complex API is healthy');
+        } catch (apiError) {
+            console.error('❌ Complex API failed:', apiError);
+            throw apiError;
+        }
     } catch (error) {
-        console.error('Health check failed:', error);
-        showError(`Unable to connect to the server. API Base: ${API_BASE}. Error: ${error.message}`);
+        console.error('All connectivity checks failed:', error);
+        showError(`Unable to connect to the server. Simple functions and complex API both failed. Error: ${error.message}`);
     }
 }
 
@@ -199,10 +210,16 @@ async function loadDirectives() {
             try {
                 console.log('Trying simple directives function...');
                 const directResponse = await fetch('/.netlify/functions/directives');
-                response = await directResponse.json();
-                console.log('Simple directives response:', response);
+                console.log('Directives response status:', directResponse.status);
+                
+                if (directResponse.ok) {
+                    response = await directResponse.json();
+                    console.log('✅ Simple directives function working:', response);
+                } else {
+                    throw new Error(`Simple directives function returned status: ${directResponse.status}`);
+                }
             } catch (simpleError) {
-                console.log('Simple directives failed, trying complex API:', simpleError);
+                console.log('❌ Simple directives failed, trying complex API:', simpleError);
                 response = await apiCall('/directives');
             }
         } else {
