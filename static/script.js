@@ -148,9 +148,24 @@ async function checkHealthStatus() {
     try {
         console.log('Starting connectivity checks...');
         
-        // For Netlify, try simple functions first
+        // For Netlify, try static files first, then functions
         if (isNetlify) {
-            console.log('Detected Netlify environment, testing functions...');
+            console.log('Detected Netlify environment, testing connectivity...');
+            
+            // Try static health file first
+            try {
+                console.log('Testing static health file...');
+                const staticHealthResponse = await fetch('/api/health.json');
+                console.log('Static health response status:', staticHealthResponse.status);
+                
+                if (staticHealthResponse.ok) {
+                    const healthData = await staticHealthResponse.json();
+                    console.log('✅ Static health file working:', healthData);
+                    return; // Success! Static files are working
+                }
+            } catch (staticError) {
+                console.error('❌ Static health file failed:', staticError);
+            }
             
             // Test simple health function
             try {
@@ -206,21 +221,37 @@ async function loadDirectives() {
         
         let response;
         if (isNetlify) {
-            // Try the simple directives function first
+            // Try static file first
             try {
-                console.log('Trying simple directives function...');
-                const directResponse = await fetch('/.netlify/functions/directives');
-                console.log('Directives response status:', directResponse.status);
+                console.log('Trying static directives file...');
+                const staticResponse = await fetch('/api/directives.json');
+                console.log('Static directives response status:', staticResponse.status);
                 
-                if (directResponse.ok) {
-                    response = await directResponse.json();
-                    console.log('✅ Simple directives function working:', response);
+                if (staticResponse.ok) {
+                    response = await staticResponse.json();
+                    console.log('✅ Static directives file working:', response);
                 } else {
-                    throw new Error(`Simple directives function returned status: ${directResponse.status}`);
+                    throw new Error(`Static directives file returned status: ${staticResponse.status}`);
                 }
-            } catch (simpleError) {
-                console.log('❌ Simple directives failed, trying complex API:', simpleError);
-                response = await apiCall('/directives');
+            } catch (staticError) {
+                console.log('❌ Static directives failed, trying function:', staticError);
+                
+                // Try the simple directives function
+                try {
+                    console.log('Trying simple directives function...');
+                    const directResponse = await fetch('/.netlify/functions/directives');
+                    console.log('Directives response status:', directResponse.status);
+                    
+                    if (directResponse.ok) {
+                        response = await directResponse.json();
+                        console.log('✅ Simple directives function working:', response);
+                    } else {
+                        throw new Error(`Simple directives function returned status: ${directResponse.status}`);
+                    }
+                } catch (simpleError) {
+                    console.log('❌ Simple directives failed, trying complex API:', simpleError);
+                    response = await apiCall('/directives');
+                }
             }
         } else {
             response = await apiCall('/directives');

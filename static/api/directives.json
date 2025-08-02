@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "data": [
+    {
+      "code": "RED",
+      "name": "Radio Equipment Directive",
+      "description": "Radio Equipment Directive (RED)",
+      "directive_number": "2014/53/EU"
+    },
+    {
+      "code": "EMC", 
+      "name": "Electromagnetic Compatibility Directive",
+      "description": "EMC Directive",
+      "directive_number": "2014/30/EU"
+    },
+    {
+      "code": "LVD",
+      "name": "Low Voltage Directive", 
+      "description": "Low Voltage Directive",
+      "directive_number": "2014/35/EU"
+    }
+  ]
+}
