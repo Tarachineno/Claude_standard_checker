@@ -1,6 +1,12 @@
 // Global variables
 let uploadedCertificateData = null;
-const API_BASE = '/api';
+
+// Detect if we're running on Netlify or local development
+const isNetlify = window.location.hostname.includes('netlify.app') || 
+                  window.location.hostname.includes('netlify.com') ||
+                  window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+const API_BASE = isNetlify ? '/.netlify/functions/api' : '/api';
 
 // DOM elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -107,23 +113,38 @@ async function apiCall(endpoint, options = {}) {
 
 async function checkHealthStatus() {
     try {
+        console.log('Checking API health at:', API_BASE + '/health');
         await apiCall('/health');
         console.log('API is healthy');
     } catch (error) {
-        showError('Unable to connect to the server. Please check if the backend is running.');
+        console.error('Health check failed:', error);
+        showError(`Unable to connect to the server. API Base: ${API_BASE}. Error: ${error.message}`);
     }
 }
 
 // Load directives
 async function loadDirectives() {
     try {
+        console.log('Loading directives from:', API_BASE + '/directives');
         const response = await apiCall('/directives');
+        console.log('Directives response:', response);
+        
+        if (!response.success) {
+            throw new Error(response.error || 'Failed to load directives');
+        }
+        
         const directives = response.data;
+        console.log('Loaded directives:', directives);
 
         // Populate directive selects
         const selects = ['directive-select', 'compare-directive-select'];
         selects.forEach(selectId => {
             const select = document.getElementById(selectId);
+            if (!select) {
+                console.error(`Select element not found: ${selectId}`);
+                return;
+            }
+            
             select.innerHTML = '<option value="">Select directive...</option>';
             
             directives.forEach(directive => {
@@ -132,9 +153,12 @@ async function loadDirectives() {
                 option.textContent = `${directive.code} - ${directive.name}`;
                 select.appendChild(option);
             });
+            
+            console.log(`Populated ${selectId} with ${directives.length} directives`);
         });
     } catch (error) {
         console.error('Failed to load directives:', error);
+        showError(`Failed to load directives: ${error.message}`);
     }
 }
 
