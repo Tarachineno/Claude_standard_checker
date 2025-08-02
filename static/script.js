@@ -1,12 +1,11 @@
+// EU Harmonized Standards Checker - Frontend JavaScript
+// Pure JavaScript implementation for Netlify deployment
+
 // Global variables
 let uploadedCertificateData = null;
 
-// Detect if we're running on Netlify or local development
-const isNetlify = window.location.hostname.includes('netlify.app') || 
-                  window.location.hostname.includes('netlify.com') ||
-                  window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-
-const API_BASE = isNetlify ? '/.netlify/functions/api' : '/api';
+// API configuration - Netlify Functions
+const API_BASE = '/.netlify/functions';
 
 // DOM elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initializeApp() {
     setupEventListeners();
     await loadDirectives();
-    checkHealthStatus();
+    console.log('EU Harmonized Standards Checker initialized');
 }
 
 function setupEventListeners() {
@@ -88,15 +87,7 @@ async function apiCall(endpoint, options = {}) {
     try {
         showLoading();
         
-        // For Netlify, we need to pass the API path as part of the function URL
-        let url;
-        if (isNetlify) {
-            // Remove leading slash from endpoint and add it to the function path
-            const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-            url = `/.netlify/functions/api/${cleanEndpoint}`;
-        } else {
-            url = `${API_BASE}${endpoint}`;
-        }
+        const url = `${API_BASE}${endpoint}`;
         console.log('Making API call to:', url);
         
         const fetchOptions = {
@@ -107,11 +98,8 @@ async function apiCall(endpoint, options = {}) {
             ...options
         };
         
-        console.log('Fetch options:', fetchOptions);
-        
         const response = await fetch(url, fetchOptions);
         console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
         
         let data;
         const contentType = response.headers.get('content-type');
@@ -133,84 +121,9 @@ async function apiCall(endpoint, options = {}) {
         return data;
     } catch (error) {
         console.error('API call failed:', error);
-        console.error('Error details:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
         throw error;
     } finally {
         hideLoading();
-    }
-}
-
-async function checkHealthStatus() {
-    try {
-        console.log('Starting connectivity checks...');
-        
-        // For Netlify, try static files first, then functions
-        if (isNetlify) {
-            console.log('Detected Netlify environment, testing connectivity...');
-            
-            // Try static health file first
-            try {
-                console.log('Testing static health file...');
-                const staticHealthResponse = await fetch('/api/health.json');
-                console.log('Static health response status:', staticHealthResponse.status);
-                
-                if (staticHealthResponse.ok) {
-                    const healthData = await staticHealthResponse.json();
-                    console.log('✅ Static health file working:', healthData);
-                    return; // Success! Static files are working
-                }
-            } catch (staticError) {
-                console.error('❌ Static health file failed:', staticError);
-            }
-            
-            // Test simple health function
-            try {
-                console.log('Testing simple health function...');
-                const healthResponse = await fetch('/.netlify/functions/health');
-                console.log('Health response status:', healthResponse.status);
-                
-                if (healthResponse.ok) {
-                    const healthData = await healthResponse.json();
-                    console.log('✅ Simple health function working:', healthData);
-                    return; // Success! No need to test complex API
-                } else {
-                    console.log('❌ Simple health function returned:', healthResponse.status);
-                }
-            } catch (healthError) {
-                console.error('❌ Simple health function failed:', healthError);
-            }
-            
-            // Test basic test function
-            try {
-                console.log('Testing basic test function...');
-                const testResponse = await fetch('/.netlify/functions/test');
-                if (testResponse.ok) {
-                    const testData = await testResponse.json();
-                    console.log('✅ Basic test function working:', testData);
-                    return; // Success!
-                }
-            } catch (testError) {
-                console.error('❌ Basic test function failed:', testError);
-            }
-            
-            console.log('⚠️ Simple functions not available, trying complex API...');
-        }
-        
-        // Fallback to complex API
-        try {
-            await apiCall('/health');
-            console.log('✅ Complex API is healthy');
-        } catch (apiError) {
-            console.error('❌ Complex API failed:', apiError);
-            throw apiError;
-        }
-    } catch (error) {
-        console.error('All connectivity checks failed:', error);
-        showError(`Unable to connect to the server. Simple functions and complex API both failed. Error: ${error.message}`);
     }
 }
 
@@ -219,45 +132,7 @@ async function loadDirectives() {
     try {
         console.log('Loading directives...');
         
-        let response;
-        if (isNetlify) {
-            // Try static file first
-            try {
-                console.log('Trying static directives file...');
-                const staticResponse = await fetch('/api/directives.json');
-                console.log('Static directives response status:', staticResponse.status);
-                
-                if (staticResponse.ok) {
-                    response = await staticResponse.json();
-                    console.log('✅ Static directives file working:', response);
-                } else {
-                    throw new Error(`Static directives file returned status: ${staticResponse.status}`);
-                }
-            } catch (staticError) {
-                console.log('❌ Static directives failed, trying function:', staticError);
-                
-                // Try the simple directives function
-                try {
-                    console.log('Trying simple directives function...');
-                    const directResponse = await fetch('/.netlify/functions/directives');
-                    console.log('Directives response status:', directResponse.status);
-                    
-                    if (directResponse.ok) {
-                        response = await directResponse.json();
-                        console.log('✅ Simple directives function working:', response);
-                    } else {
-                        throw new Error(`Simple directives function returned status: ${directResponse.status}`);
-                    }
-                } catch (simpleError) {
-                    console.log('❌ Simple directives failed, trying complex API:', simpleError);
-                    response = await apiCall('/directives');
-                }
-            }
-        } else {
-            response = await apiCall('/directives');
-        }
-        
-        console.log('Final directives response:', response);
+        const response = await apiCall('/directives');
         
         if (!response.success) {
             throw new Error(response.error || 'Failed to load directives');
@@ -304,30 +179,11 @@ async function fetchStandards() {
     try {
         console.log('Fetching standards for directive:', directive);
         
-        let response;
-        if (isNetlify) {
-            // Try Node.js function first
-            try {
-                console.log('Trying Node.js standards function...');
-                const nodeResponse = await fetch(`/.netlify/functions/standards/${directive}`);
-                console.log('Node.js function response status:', nodeResponse.status);
-                
-                if (nodeResponse.ok) {
-                    response = await nodeResponse.json();
-                    console.log('✅ Node.js standards function working:', response);
-                } else {
-                    throw new Error(`Node.js function returned status: ${nodeResponse.status}`);
-                }
-            } catch (nodeError) {
-                console.log('❌ Node.js function failed, trying API call:', nodeError);
-                response = await apiCall(`/standards/${directive}`);
-            }
-        } else {
-            response = await apiCall(`/standards/${directive}`);
-        }
+        const response = await apiCall(`/standards?directive=${directive}`);
         
         if (response && response.success) {
             displayStandards(response.data);
+            showSuccess(`Successfully fetched ${response.data.count} standards for ${response.data.directive_name}`);
         } else {
             throw new Error(response?.error || 'Failed to fetch standards');
         }
@@ -365,12 +221,9 @@ function createStandardItem(standard, directive = null) {
         `<span><i class="fas fa-tag"></i> ${standard.version}</span>` : '';
     
     const date = standard.date ? 
-        `<span><i class="fas fa-calendar"></i> ${new Date(standard.date).toLocaleDateString()}</span>` : '';
+        `<span><i class="fas fa-calendar"></i> ${standard.date}</span>` : '';
 
-    const etsiLink = standard.etsi_url ? 
-        `<a href="${standard.etsi_url}" target="_blank" class="etsi-link">
-            <i class="fas fa-external-link-alt"></i> ETSI Portal
-         </a>` : '';
+    const etsiLink = generateETSILink(standard.number);
 
     item.innerHTML = `
         <div class="standard-header">
@@ -389,6 +242,16 @@ function createStandardItem(standard, directive = null) {
     return item;
 }
 
+function generateETSILink(standardNumber) {
+    // Generate ETSI portal search link
+    const searchTerm = encodeURIComponent(standardNumber);
+    const etsiUrl = `https://www.etsi.org/standards-search?search=${searchTerm}`;
+    
+    return `<a href="${etsiUrl}" target="_blank" class="etsi-link">
+        <i class="fas fa-external-link-alt"></i> ETSI Portal
+    </a>`;
+}
+
 async function searchStandards() {
     const query = document.getElementById('search-input').value.trim();
     
@@ -398,10 +261,17 @@ async function searchStandards() {
     }
 
     try {
+        console.log('Searching for:', query);
         const response = await apiCall(`/search?q=${encodeURIComponent(query)}`);
-        displaySearchResults(response.data);
+        
+        if (response.success) {
+            displaySearchResults(response.data);
+        } else {
+            throw new Error(response.error || 'Search failed');
+        }
     } catch (error) {
         console.error('Search failed:', error);
+        showError(`Search failed: ${error.message}`);
     }
 }
 
@@ -449,6 +319,8 @@ function exportStandards() {
 
     const csvContent = generateCSV(standards);
     downloadFile(csvContent, 'eu-harmonized-standards.csv', 'text/csv');
+    
+    showSuccess(`Exported ${standards.length} standards to CSV file`);
 }
 
 function generateCSV(data) {
@@ -507,7 +379,7 @@ function handleFileSelect(e) {
 }
 
 async function handleFile(file) {
-    if (!file.type === 'application/pdf') {
+    if (file.type !== 'application/pdf') {
         showError('Please select a PDF file');
         return;
     }
@@ -522,7 +394,7 @@ async function handleFile(file) {
 
     try {
         showLoading();
-        const response = await fetch(`${API_BASE}/upload-certificate`, {
+        const response = await fetch(`${API_BASE}/certificate`, {
             method: 'POST',
             body: formData
         });
@@ -537,10 +409,13 @@ async function handleFile(file) {
         displayCertificateResults(data.data);
         updateCompareTabState();
         
-        showSuccess('Certificate processed successfully!');
+        const message = data.note ? 
+            `Certificate processed (demo mode): ${data.note}` : 
+            'Certificate processed successfully!';
+        showSuccess(message);
     } catch (error) {
         console.error('File upload failed:', error);
-        showError(error.message);
+        showError(`Certificate processing failed: ${error.message}`);
     } finally {
         hideLoading();
     }
@@ -614,6 +489,8 @@ async function singleCompare() {
     }
 
     try {
+        console.log('Comparing with directive:', directive);
+        
         const response = await apiCall('/compare', {
             method: 'POST',
             body: JSON.stringify({
@@ -622,9 +499,15 @@ async function singleCompare() {
             })
         });
 
-        displayComparisonResults([response.data], false);
+        if (response.success) {
+            displayComparisonResults([response.data], false);
+            showSuccess(`Comparison completed: ${response.data.coverage_percentage.toFixed(1)}% coverage`);
+        } else {
+            throw new Error(response.error || 'Comparison failed');
+        }
     } catch (error) {
         console.error('Comparison failed:', error);
+        showError(`Comparison failed: ${error.message}`);
     }
 }
 
@@ -635,6 +518,8 @@ async function batchCompare() {
     }
 
     try {
+        console.log('Starting batch comparison...');
+        
         const response = await apiCall('/batch-compare', {
             method: 'POST',
             body: JSON.stringify({
@@ -642,15 +527,21 @@ async function batchCompare() {
             })
         });
 
-        const resultsArray = Object.entries(response.data.results).map(([directive, result]) => ({
-            directive: directive,
-            directive_name: result.directive_name,
-            ...result
-        }));
+        if (response.success) {
+            const resultsArray = Object.entries(response.data.results).map(([directive, result]) => ({
+                directive: directive,
+                directive_name: result.directive_name,
+                ...result
+            }));
 
-        displayComparisonResults(resultsArray, true, response.data.best_directive);
+            displayComparisonResults(resultsArray, true, response.data.best_directive);
+            showSuccess(`Batch comparison completed. Best match: ${response.data.best_directive} (${response.data.best_coverage.toFixed(1)}%)`);
+        } else {
+            throw new Error(response.error || 'Batch comparison failed');
+        }
     } catch (error) {
         console.error('Batch comparison failed:', error);
+        showError(`Batch comparison failed: ${error.message}`);
     }
 }
 
@@ -777,3 +668,17 @@ window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled promise rejection:', e.reason);
     showError('An unexpected error occurred. Please try again.');
 });
+
+// Service Worker registration (optional, for PWA features)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        // Uncomment to register service worker
+        // navigator.serviceWorker.register('/sw.js')
+        //     .then(function(registration) {
+        //         console.log('SW registered: ', registration);
+        //     })
+        //     .catch(function(registrationError) {
+        //         console.log('SW registration failed: ', registrationError);
+        //     });
+    });
+}

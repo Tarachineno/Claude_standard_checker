@@ -1,12 +1,29 @@
 {
   "name": "eu-harmonized-standards-checker",
-  "version": "1.0.0",
-  "description": "EU Harmonized Standards Checker Web Application",
-  "dependencies": {
-    "node-fetch": "^2.6.7",
-    "cheerio": "^1.0.0-rc.12"
-  },
+  "version": "2.0.0",
+  "description": "EU Harmonized Standards Checker - Pure JavaScript Web Application",
+  "main": "index.js",
   "scripts": {
-    "build": "echo 'Build completed'"
-  }
+    "build": "echo 'Build complete'",
+    "start": "echo 'Static site - no server needed'",
+    "dev": "npx serve static",
+    "test": "echo 'No tests configured'"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "keywords": [
+    "eu-standards",
+    "harmonized-standards", 
+    "official-journal",
+    "netlify",
+    "javascript"
+  ],
+  "author": "EU Standards Checker",
+  "license": "MIT"
 }

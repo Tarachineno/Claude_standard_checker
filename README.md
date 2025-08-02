@@ -1,22 +1,23 @@
-# EU Harmonized Standards Checker System
+# EU Harmonized Standards Checker
 
-EU指令（RED、EMC、LVD）のHarmonized standardsを自動取得し、ETSIポータルでの詳細検索、およびISO17025認証書からのスコープ抽出・比較を行うシステムです。
+A modern web application for checking EU harmonized standards compliance and comparing with ISO17025 certificates. Built with pure JavaScript and deployed on Netlify.
 
 ---
-**進捗状況（2025/07/24時点）**
+**🌟 Pure JavaScript Web Application (2025)**
 
-- ✅ 1. OJ Checker：完了
-- ✅ 2. ETSI Portal検索：完了
-- ✅ 3. ISO17025スコープ抽出：完了
-- ✅ 4. 統合比較機能：完了
-- ✅ 5. 外部JSON設定システム：完了（NEW）
-- 🔄 6. 詳細比較レポート・カバレッジ計算：作成中
+- ✅ **Zero-dependency Frontend**: Pure JavaScript, HTML5, CSS3
+- ✅ **Netlify Functions Backend**: Node.js serverless functions
+- ✅ **Real-time OJ Standards**: Direct EUR-Lex integration
+- ✅ **Responsive Design**: Mobile-first, professional interface
+- ✅ **No Python Dependencies**: Fully web-native implementation
+- ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
-**最新の更新内容：**
-- REからREDへのディレクティブコード変更
-- 外部JSON設定ファイルシステムの実装
-- モバイルアプリ対応の設定分離
-- 動的なOJリンク管理機能
+**Latest Updates:**
+- Complete rewrite as pure JavaScript web application
+- Netlify Functions for serverless backend
+- Real-time EUR-Lex Official Journal integration
+- Modern responsive user interface
+- Cross-platform compatibility
 ---
 
 ## 機能

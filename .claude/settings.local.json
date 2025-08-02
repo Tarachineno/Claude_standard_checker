@@ -5,7 +5,13 @@
       "Bash(pdftotext:*)",
       "Bash(pip install:*)",
       "Bash(source:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rm:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }
