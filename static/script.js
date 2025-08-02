@@ -87,7 +87,16 @@ function switchTab(tabName) {
 async function apiCall(endpoint, options = {}) {
     try {
         showLoading();
-        const url = `${API_BASE}${endpoint}`;
+        
+        // For Netlify, we need to pass the API path as part of the function URL
+        let url;
+        if (isNetlify) {
+            // Remove leading slash from endpoint and add it to the function path
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+            url = `/.netlify/functions/api/${cleanEndpoint}`;
+        } else {
+            url = `${API_BASE}${endpoint}`;
+        }
         console.log('Making API call to:', url);
         
         const fetchOptions = {

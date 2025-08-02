@@ -32,16 +32,18 @@ def handler(event, context):
         print(f"Netlify function called - Method: {method}, Path: {raw_path}")
         
         # Extract API path from the full path
-        # The function receives the full path including /.netlify/functions/api
-        if raw_path.startswith('/.netlify/functions/api'):
-            # Extract the part after the function name
-            api_path = raw_path[len('/.netlify/functions/api'):]
-            if not api_path or api_path == '/':
-                api_path = '/api/health'  # Default to health check
-            elif not api_path.startswith('/api'):
-                api_path = '/api' + api_path
+        # The function receives paths like /.netlify/functions/api/health or /.netlify/functions/api/directives
+        if raw_path.startswith('/.netlify/functions/api/'):
+            # Extract the part after the function name (e.g., "health", "directives")
+            endpoint = raw_path[len('/.netlify/functions/api/'):]
+            if endpoint:
+                api_path = f'/api/{endpoint}'
+            else:
+                api_path = '/api/health'  # Default
+        elif raw_path == '/.netlify/functions/api':
+            api_path = '/api/health'  # Default for root function call
         else:
-            # Direct call to function
+            # Fallback
             api_path = '/api/health'
         
         print(f"Original path: {raw_path}, Transformed API path: {api_path}")
