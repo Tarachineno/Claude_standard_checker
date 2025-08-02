@@ -47,6 +47,8 @@ def handler(event, context):
             else:
                 api_path = '/api/' + api_path
         
+        print(f"Transformed API path: {api_path}")
+        
         # Convert query parameters to proper format
         query_string_formatted = '&'.join([f"{k}={v}" for k, v in query_string.items()])
         
@@ -115,8 +117,11 @@ def handler(event, context):
         headers_dict.update({
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Content-Type': 'application/json'
         })
+        
+        print(f"Returning response - Status: {status_code}, Body length: {len(response_body)}")
         
         return {
             'statusCode': status_code,

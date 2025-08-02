@@ -87,24 +87,48 @@ function switchTab(tabName) {
 async function apiCall(endpoint, options = {}) {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE}${endpoint}`, {
+        const url = `${API_BASE}${endpoint}`;
+        console.log('Making API call to:', url);
+        
+        const fetchOptions = {
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers
             },
             ...options
-        });
-
-        const data = await response.json();
+        };
+        
+        console.log('Fetch options:', fetchOptions);
+        
+        const response = await fetch(url, fetchOptions);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        let data;
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            console.log('Non-JSON response:', text);
+            throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}...`);
+        }
+        
+        console.log('API response data:', data);
         
         if (!response.ok) {
-            throw new Error(data.error || `HTTP ${response.status}`);
+            throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
         }
 
         return data;
     } catch (error) {
         console.error('API call failed:', error);
-        showError(error.message);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
         throw error;
     } finally {
         hideLoading();
@@ -114,6 +138,25 @@ async function apiCall(endpoint, options = {}) {
 async function checkHealthStatus() {
     try {
         console.log('Checking API health at:', API_BASE + '/health');
+        
+        // First try a simple test endpoint if on Netlify
+        if (isNetlify) {
+            console.log('Testing basic Netlify function connectivity...');
+            try {
+                const testResponse = await fetch('/.netlify/functions/test');
+                const testData = await testResponse.json();
+                console.log('Basic Netlify test response:', testData);
+                
+                if (testData.success) {
+                    console.log('✅ Basic Netlify functions are working');
+                } else {
+                    console.log('❌ Basic Netlify test failed:', testData);
+                }
+            } catch (testError) {
+                console.error('Basic Netlify test failed:', testError);
+            }
+        }
+        
         await apiCall('/health');
         console.log('API is healthy');
     } catch (error) {
