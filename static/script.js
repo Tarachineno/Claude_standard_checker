@@ -302,10 +302,38 @@ async function fetchStandards() {
     }
 
     try {
-        const response = await apiCall(`/standards/${directive}`);
-        displayStandards(response.data);
+        console.log('Fetching standards for directive:', directive);
+        
+        let response;
+        if (isNetlify) {
+            // Try Node.js function first
+            try {
+                console.log('Trying Node.js standards function...');
+                const nodeResponse = await fetch(`/.netlify/functions/standards/${directive}`);
+                console.log('Node.js function response status:', nodeResponse.status);
+                
+                if (nodeResponse.ok) {
+                    response = await nodeResponse.json();
+                    console.log('✅ Node.js standards function working:', response);
+                } else {
+                    throw new Error(`Node.js function returned status: ${nodeResponse.status}`);
+                }
+            } catch (nodeError) {
+                console.log('❌ Node.js function failed, trying API call:', nodeError);
+                response = await apiCall(`/standards/${directive}`);
+            }
+        } else {
+            response = await apiCall(`/standards/${directive}`);
+        }
+        
+        if (response && response.success) {
+            displayStandards(response.data);
+        } else {
+            throw new Error(response?.error || 'Failed to fetch standards');
+        }
     } catch (error) {
         console.error('Failed to fetch standards:', error);
+        showError(`Failed to fetch standards: ${error.message}`);
     }
 }
 
