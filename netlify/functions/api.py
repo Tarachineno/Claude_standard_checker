@@ -32,22 +32,19 @@ def handler(event, context):
         print(f"Netlify function called - Method: {method}, Path: {raw_path}")
         
         # Extract API path from the full path
-        # Remove /.netlify/functions/api prefix to get the actual API path
+        # The function receives the full path including /.netlify/functions/api
         if raw_path.startswith('/.netlify/functions/api'):
+            # Extract the part after the function name
             api_path = raw_path[len('/.netlify/functions/api'):]
-            if not api_path:
-                api_path = '/'
-        else:
-            api_path = raw_path
-        
-        # Ensure API path starts with /api for Flask routing
-        if not api_path.startswith('/api'):
-            if api_path.startswith('/'):
+            if not api_path or api_path == '/':
+                api_path = '/api/health'  # Default to health check
+            elif not api_path.startswith('/api'):
                 api_path = '/api' + api_path
-            else:
-                api_path = '/api/' + api_path
+        else:
+            # Direct call to function
+            api_path = '/api/health'
         
-        print(f"Transformed API path: {api_path}")
+        print(f"Original path: {raw_path}, Transformed API path: {api_path}")
         
         # Convert query parameters to proper format
         query_string_formatted = '&'.join([f"{k}={v}" for k, v in query_string.items()])
