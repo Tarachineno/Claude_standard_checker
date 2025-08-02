@@ -1,0 +1,27 @@
+[build]
+  publish = "static"
+  command = "echo 'Build completed'"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[functions]]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Redirect all API calls to serverless functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Handle SPA routing - redirect all other requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[dev]
+  command = "python app.py"
+  port = 5000
+  publish = "static"

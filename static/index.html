@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Harmonized Standards Checker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-clipboard-check"></i> EU Harmonized Standards Checker</h1>
+            <p>Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Loading overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Navigation tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="standards">OJ Standards</button>
+            <button class="tab-btn" data-tab="search">Search Standards</button>
+            <button class="tab-btn" data-tab="certificate">ISO17025 Certificate</button>
+            <button class="tab-btn" data-tab="compare">Compare Standards</button>
+        </nav>
+
+        <!-- Standards Tab -->
+        <section id="standards-tab" class="tab-content active">
+            <div class="card">
+                <h2><i class="fas fa-list"></i> Fetch OJ Standards</h2>
+                <div class="form-group">
+                    <label for="directive-select">Select Directive:</label>
+                    <select id="directive-select">
+                        <option value="">Loading directives...</option>
+                    </select>
+                    <button id="fetch-standards-btn" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Fetch Standards
+                    </button>
+                </div>
+                
+                <div id="standards-results" class="results-section hidden">
+                    <h3>Results</h3>
+                    <div class="results-header">
+                        <span id="standards-count" class="count-badge">0 standards</span>
+                        <button id="export-standards-btn" class="btn btn-secondary">
+                            <i class="fas fa-file-export"></i> Export
+                        </button>
+                    </div>
+                    <div id="standards-list" class="standards-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Tab -->
+        <section id="search-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-search"></i> Search Standards</h2>
+                <div class="search-form">
+                    <div class="form-group">
+                        <input type="text" id="search-input" placeholder="Enter standard number or keyword (e.g., EN 301 489)" />
+                        <button id="search-btn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="search-results" class="results-section hidden">
+                    <h3>Search Results</h3>
+                    <div class="results-header">
+                        <span id="search-count" class="count-badge">0 results</span>
+                    </div>
+                    <div id="search-list" class="standards-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Certificate Tab -->
+        <section id="certificate-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-certificate"></i> ISO17025 Certificate Analysis</h2>
+                <div class="upload-section">
+                    <div class="upload-area" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drop PDF certificate here or <span class="upload-link">browse</span></p>
+                        <input type="file" id="file-input" accept=".pdf" hidden>
+                    </div>
+                    <div class="upload-info">
+                        <small>Maximum file size: 16MB. Only PDF files are supported.</small>
+                    </div>
+                </div>
+                
+                <div id="certificate-results" class="results-section hidden">
+                    <h3>Certificate Information</h3>
+                    <div class="certificate-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Certificate Number:</label>
+                                <span id="cert-number">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Organization:</label>
+                                <span id="cert-organization">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Valid Until:</label>
+                                <span id="cert-valid-until">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Total Standards:</label>
+                                <span id="cert-standards-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="categories-section">
+                        <h4>Standards by Category</h4>
+                        <div id="standards-categories"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compare Tab -->
+        <section id="compare-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-balance-scale"></i> Standards Comparison</h2>
+                <div class="compare-info">
+                    <p>First upload an ISO17025 certificate in the Certificate tab, then select a directive to compare.</p>
+                </div>
+                
+                <div id="compare-controls" class="hidden">
+                    <div class="form-group">
+                        <label for="compare-directive-select">Select Directive to Compare:</label>
+                        <select id="compare-directive-select">
+                            <option value="">Loading directives...</option>
+                        </select>
+                        <button id="single-compare-btn" class="btn btn-primary">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                        <button id="batch-compare-btn" class="btn btn-secondary">
+                            <i class="fas fa-layer-group"></i> Compare All
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="comparison-results" class="results-section hidden">
+                    <h3>Comparison Results</h3>
+                    <div id="comparison-content"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error modal -->
+        <div id="error-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                <p id="error-message"></p>
+            </div>
+        </div>
+
+        <!-- Success modal -->
+        <div id="success-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3><i class="fas fa-check-circle"></i> Success</h3>
+                <p id="success-message"></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 EU Harmonized Standards Checker. Built for compliance verification.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
