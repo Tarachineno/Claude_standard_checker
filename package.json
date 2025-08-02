@@ -1,0 +1,12 @@
+{
+  "name": "eu-harmonized-standards-checker",
+  "version": "1.0.0",
+  "description": "EU Harmonized Standards Checker Web Application",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "scripts": {
+    "build": "echo 'Build completed'"
+  }
+}

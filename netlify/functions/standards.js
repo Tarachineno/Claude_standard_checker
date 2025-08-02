@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-const cheerio = require('cheerio');
+// No external dependencies needed for mock data
 
 exports.handler = async (event, context) => {
   const headers = {
