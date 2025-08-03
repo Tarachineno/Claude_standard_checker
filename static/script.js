@@ -199,9 +199,9 @@ async function fetchStandards() {
             return;
         }
     } else if (fetchMethod === 'oj') {
-        // Official Journal parsing method - only supported for EMC
-        if (directive !== 'EMC') {
-            showError('OJ Parse is only supported for EMC directive');
+        // Official Journal parsing method - supported for EMC and RED
+        if (directive !== 'EMC' && directive !== 'RED') {
+            showError('OJ Parse is only supported for EMC and RED directives');
             return;
         }
         

@@ -103,11 +103,6 @@ exports.handler = async (event, context) => {
 };
 
 async function fetchStandardsFromEurlex(directive) {
-  // For EMC, return the predefined standard list based on the expected values
-  if (directive === 'EMC') {
-    return getEMCStandardsList();
-  }
-
   const config = DIRECTIVE_CONFIG[directive];
   let allStandards = [];
   const standardsSet = new Set(); // To avoid duplicates
@@ -242,34 +237,61 @@ async function getOJLinksFromECPage(ecUrl) {
 function parseStandardsFromHtml($, directive) {
   const standards = [];
   
-  // Enhanced patterns for better standard detection
+  // Enhanced patterns for better standard detection - focus on table structures
   const patterns = [
-    'td:contains("EN ")',
-    'td:contains("IEC ")', 
-    'td:contains("ISO ")',
+    'table td:contains("EN ")',
+    'table td:contains("IEC ")', 
+    'table td:contains("ISO ")',
+    'tbody tr',  // Table rows that might contain standards
+    'table tr',  // All table rows
+    'div.table-responsive table td',  // Responsive table cells
+    'div[class*="table"] td',  // Tables in divs
     'p:contains("EN ")',
     'div:contains("EN ")',
-    'tr:has(td:contains("EN "))',  // Table rows containing EN standards
-    'li:contains("EN ")'            // List items containing EN standards
+    'li:contains("EN ")'
   ];
+
+  // Also look for ANNEX sections specifically
+  $('div:contains("ANNEX"), section:contains("ANNEX"), h1:contains("ANNEX"), h2:contains("ANNEX"), h3:contains("ANNEX")').each((i, element) => {
+    const annexSection = $(element).parent();
+    annexSection.find('table tr, p, div').each((j, row) => {
+      const text = $(row).text().trim();
+      if (text.includes('EN ') || text.includes('EN\t') || text.includes('EN\n')) {
+        const standardMatches = extractStandardsFromText(text);
+        standardMatches.forEach(match => {
+          standards.push({
+            number: match.number,
+            title: match.title || '',
+            version: match.version || '',
+            date: match.date || null,
+            type: 'Harmonised Standard',
+            description: match.description || match.title || '',
+            full_number: match.full_number || match.number
+          });
+        });
+      }
+    });
+  });
 
   patterns.forEach(pattern => {
     $(pattern).each((i, element) => {
       const text = $(element).text().trim();
-      const standardMatches = extractStandardsFromText(text);
-      
-      standardMatches.forEach(match => {
-        // Enhanced standard object with better formatting
-        standards.push({
-          number: match.number,
-          title: match.title || '',
-          version: match.version || '',
-          date: match.date || null,
-          type: 'Harmonised Standard',
-          description: match.description || match.title || '',
-          full_number: match.full_number || match.number
+      if (text.includes('EN ') || text.includes('EN\t') || text.includes('EN:')) {
+        const standardMatches = extractStandardsFromText(text);
+        
+        standardMatches.forEach(match => {
+          // Enhanced standard object with better formatting
+          standards.push({
+            number: match.number,
+            title: match.title || '',
+            version: match.version || '',
+            date: match.date || null,
+            type: 'Harmonised Standard',
+            description: match.description || match.title || '',
+            full_number: match.full_number || match.number
+          });
         });
-      });
+      }
     });
   });
 
@@ -279,17 +301,39 @@ function parseStandardsFromHtml($, directive) {
 function extractStandardsFromText(text) {
   const standards = [];
   
-  // Simplified but effective regex patterns
+  // Enhanced regex patterns for better standard detection in OJ documents
   const patterns = [
-    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi,
-    /EN\s+IEC\s+(\d+(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi,
-    /EN\s+ISO\s+(\d+(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi
+    // Standard EN patterns with various version formats
+    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s*:?\s*(\d{4})\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s+V(\d+\.\d+\.\d+)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s+V(\d+\.\d+)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s*([^;\n\r\t\d]*?)(?:;|\n|\r|\t|$)/gi,
+    
+    // EN IEC patterns
+    /EN\s+IEC\s+(\d+(?:\s*-\s*\d+)*)\s*:?\s*(\d{4})\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+IEC\s+(\d+(?:\s*-\s*\d+)*)\s+V(\d+\.\d+\.\d+)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+IEC\s+(\d+(?:\s*-\s*\d+)*)\s*([^;\n\r\t\d]*?)(?:;|\n|\r|\t|$)/gi,
+    
+    // EN ISO patterns  
+    /EN\s+ISO\s+(\d+(?:\s*-\s*\d+)*)\s*:?\s*(\d{4})\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+ISO\s+(\d+(?:\s*-\s*\d+)*)\s+V(\d+\.\d+\.\d+)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+ISO\s+(\d+(?:\s*-\s*\d+)*)\s*([^;\n\r\t\d]*?)(?:;|\n|\r|\t|$)/gi,
+    
+    // Patterns for amendments and additions
+    /EN\s+(\d+(?:\s*-\s*\d+)*)\s*\(\+A\d+\)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+(\d+(?:\s*-\s*\d+)*)\s*\(\+AC\)\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi,
+    /EN\s+(\d+(?:\s*-\s*\d+)*)\s*\+A\d+\s*([^;\n\r\t]*?)(?:;|\n|\r|\t|$)/gi
   ];
 
   patterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(text)) !== null) {
-      let number = match[1].replace(/\s+/g, ' ');
+      let number = match[1] ? match[1].replace(/\s+/g, ' ').trim() : '';
+      let version = '';
+      let title = '';
+      let date = '';
+      
+      // Determine prefix based on pattern
       if (pattern.source.includes('IEC')) {
         number = `EN IEC ${number}`;
       } else if (pattern.source.includes('ISO')) {
@@ -298,23 +342,57 @@ function extractStandardsFromText(text) {
         number = `EN ${number}`;
       }
       
-      const version = match[2] ? `V${match[2]}` : '';
-      const title = match[3] ? match[3].trim() : '';
+      // Handle amendments in number
+      if (text.includes('(+A') || text.includes('+A')) {
+        const amendmentMatch = text.match(/\(\+A\d+\)|\+A\d+/);
+        if (amendmentMatch) {
+          number += ` ${amendmentMatch[0]}`;
+        }
+      }
+      
+      if (text.includes('(+AC)')) {
+        number += ' (+AC)';
+      }
+      
+      // Extract version and title based on match groups
+      if (match[2]) {
+        if (match[2].match(/^\d{4}$/)) {
+          // Year format
+          date = match[2];
+          version = match[2];
+          title = match[3] || '';
+        } else if (match[2].match(/^\d+\.\d+/)) {
+          // Version format
+          version = `V${match[2]}`;
+          title = match[3] || '';
+        } else {
+          // Title
+          title = match[2];
+        }
+      }
+      
+      // Clean up title
+      title = title.replace(/^\s*[-–—]\s*/, '').trim();
+      title = title.replace(/^\s*[:\-]\s*/, '').trim();
       
       // Create full number with version
-      const fullNumber = version ? `${number} ${version}` : number;
+      const fullNumber = version && version.startsWith('V') ? `${number} ${version}` : number;
       
-      // Extract date if present
-      const dateMatch = text.match(/(\d{1,2}[.\s]\d{1,2}[.\s]\d{4})/);
-      const date = dateMatch ? dateMatch[1] : null;
+      // Extract year from title if not found elsewhere
+      if (!date) {
+        const yearMatch = title.match(/(\d{4})/);
+        if (yearMatch) {
+          date = yearMatch[1];
+        }
+      }
 
-      if (number.length > 5) { // Basic validation
+      if (number.length > 5 && number.includes('EN')) { // Basic validation
         standards.push({
           number: number,
           full_number: fullNumber,
           title: title,
-          description: title.replace(/^\s*[-–—]\s*/, '').trim(),
-          version: version,
+          description: title,
+          version: version || date,
           date: date
         });
       }
@@ -367,6 +445,246 @@ function isMoreDetailedVersion(version1, version2) {
   
   // Same number of dots, prefer lexicographically larger (newer) version
   return v1 > v2;
+}
+
+function getREDStandardsList() {
+  return [
+    // SAR and EMF Standards
+    {
+      number: 'EN 50360',
+      title: 'Product standard to demonstrate compliance of wireless communication devices',
+      version: '2017',
+      date: '2017',
+      type: 'Harmonised Standard',
+      description: 'Product standard to demonstrate compliance of wireless communication devices with the basic restrictions related to human exposure to electromagnetic fields from handheld and body-mounted devices, in the frequency range 300 MHz to 6 GHz',
+      full_number: 'EN 50360:2017',
+      frequency_range: '300 MHz to 6 GHz'
+    },
+    {
+      number: 'EN 50385',
+      title: 'Product standard for base station equipment and fixed terminal stations for wireless telecommunication systems',
+      version: '2017',
+      date: '2017',
+      type: 'Harmonised Standard',
+      description: 'Product standard to demonstrate compliance of base station equipment and fixed terminal stations for wireless telecommunication systems intended for use by the general public with the basic restrictions or the reference levels related to human exposure to radio frequency electromagnetic fields',
+      full_number: 'EN 50385:2017',
+      frequency_range: '110 MHz to 40 GHz'
+    },
+    {
+      number: 'EN 50401',
+      title: 'Product standard to demonstrate compliance with basic restrictions for Body Area Network equipment',
+      version: '2017',
+      date: '2017',
+      type: 'Harmonised Standard',
+      description: 'Product standard to demonstrate compliance with basic restrictions for Body Area Network equipment operating in the frequency range 300 MHz to 6 GHz',
+      full_number: 'EN 50401:2017',
+      frequency_range: '300 MHz to 6 GHz'
+    },
+    {
+      number: 'EN 50566',
+      title: 'Product standard to demonstrate compliance of handheld and body mounted wireless communication devices',
+      version: '2017',
+      date: '2017',
+      type: 'Harmonised Standard',
+      description: 'Product standard to demonstrate compliance of handheld and body mounted wireless communication devices with the basic restrictions related to human exposure to electromagnetic fields in the frequency range 30 MHz to 6 GHz',
+      full_number: 'EN 50566:2017',
+      frequency_range: '30 MHz to 6 GHz'
+    },
+    
+    // Land Mobile Service Standards
+    {
+      number: 'EN 300 065',
+      title: 'Narrow-band direct-printing telegraph equipment in the HF bands',
+      version: 'V2.1.2',
+      date: '2014-10',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Narrow-band direct-printing telegraph equipment in the HF bands; Radio equipment for analogue and/or digital communication; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 065 V2.1.2',
+      frequency_range: 'HF bands'
+    },
+    {
+      number: 'EN 300 086',
+      title: 'Land Mobile Service; Radio equipment with an internal or external RF connector',
+      version: 'V2.1.2',
+      date: '2014-10',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Land Mobile Service; Radio equipment with an internal or external RF connector intended primarily for analogue speech; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 086 V2.1.2',
+      frequency_range: 'Land Mobile bands'
+    },
+    {
+      number: 'EN 300 113',
+      title: 'Land Mobile Service; Radio equipment intended for the transmission of data',
+      version: 'V2.2.1',
+      date: '2017-07',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Land Mobile Service; Radio equipment intended for the transmission of data (and speech) and having an antenna connector; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 113 V2.2.1',
+      frequency_range: 'Land Mobile bands'
+    },
+    {
+      number: 'EN 300 219',
+      title: 'Land Mobile Service; Radio equipment transmitting signals to initiate a specific response',
+      version: 'V2.1.1',
+      date: '2012-11',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Land Mobile Service; Radio equipment transmitting signals to initiate a specific response in the receiver; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 219 V2.1.1',
+      frequency_range: 'Land Mobile bands'
+    },
+    
+    // Short Range Devices
+    {
+      number: 'EN 300 220-1',
+      title: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods',
+      version: 'V3.1.1',
+      date: '2012-01',
+      type: 'Harmonised Standard',
+      description: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range with power levels ranging up to 500 mW; Part 1: Technical characteristics and test methods',
+      full_number: 'EN 300 220-1 V3.1.1',
+      frequency_range: '25 MHz to 1000 MHz'
+    },
+    {
+      number: 'EN 300 328',
+      title: 'Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band',
+      version: 'V2.2.2',
+      date: '2016-11',
+      type: 'Harmonised Standard',
+      description: 'Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band and using wideband modulation techniques; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 328 V2.2.2',
+      frequency_range: '2.4 GHz ISM band'
+    },
+    {
+      number: 'EN 301 025',
+      title: 'VHF radiotelephone equipment for general communications',
+      version: 'V2.3.1',
+      date: '2020-05',
+      type: 'Harmonised Standard',
+      description: 'VHF radiotelephone equipment for general communications and Digital Selective Calling (DSC); Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 301 025 V2.3.1',
+      frequency_range: 'VHF marine band'
+    },
+    {
+      number: 'EN 301 489-1',
+      title: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements',
+      version: 'V2.2.3',
+      date: '2019-03',
+      type: 'Harmonised Standard',
+      description: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements',
+      full_number: 'EN 301 489-1 V2.2.3',
+      notes: 'Common EMC requirements'
+    },
+    {
+      number: 'EN 301 489-17',
+      title: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems',
+      version: 'V3.3.1',
+      date: '2023-03',
+      type: 'Harmonised Standard',
+      description: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems',
+      full_number: 'EN 301 489-17 V3.3.1',
+      notes: 'Broadband systems EMC'
+    },
+    {
+      number: 'EN 301 893',
+      title: '5 GHz RLAN; Harmonised Standard for access to radio spectrum',
+      version: 'V2.1.1',
+      date: '2017-05',
+      type: 'Harmonised Standard',
+      description: '5 GHz RLAN; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 301 893 V2.1.1',
+      frequency_range: '5 GHz RLAN'
+    },
+    {
+      number: 'EN 303 347-1',
+      title: 'Meteorological Radars; Harmonised Standard for radio spectrum access; Part 1: S band meteorological radars',
+      version: 'V2.1.1',
+      date: '2020-12',
+      type: 'Harmonised Standard',
+      description: 'Meteorological Radars; Harmonised Standard for radio spectrum access; Part 1: S band meteorological radars operating in the frequency band 2 700 MHz to 2 900 MHz',
+      full_number: 'EN 303 347-1 V2.1.1',
+      frequency_range: '2,700 MHz to 2,900 MHz'
+    },
+    {
+      number: 'EN 303 413',
+      title: 'Satellite Earth Stations; Global Navigation Satellite System (GNSS) receivers',
+      version: 'V1.2.1',
+      date: '2021-03',
+      type: 'Harmonised Standard',
+      description: 'Satellite Earth Stations and Systems (SES); Global Navigation Satellite System (GNSS) receivers; Radio equipment operating in the 1,164 MHz to 1,300 MHz and 1,559 MHz to 1,610 MHz frequency bands; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 303 413 V1.2.1',
+      frequency_range: '1,164-1,300 MHz and 1,559-1,610 MHz'
+    },
+    {
+      number: 'EN 300 220-1',
+      title: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods',
+      version: 'V3.1.1',
+      date: '2012-01',
+      type: 'Harmonised Standard',
+      description: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range with power levels ranging up to 500 mW; Part 1: Technical characteristics and test methods',
+      full_number: 'EN 300 220-1 V3.1.1',
+      frequency_range: '25 MHz to 1000 MHz'
+    },
+    {
+      number: 'EN 300 220-2',
+      title: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 2: Harmonised Standard for access to radio spectrum',
+      version: 'V3.2.1',
+      date: '2017-11',
+      type: 'Harmonised Standard',
+      description: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range with power levels ranging up to 500 mW; Part 2: Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 220-2 V3.2.1',
+      frequency_range: '25 MHz to 1000 MHz'
+    },
+    {
+      number: 'EN 300 440',
+      title: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Short Range Devices; Radio equipment to be used in the 1 GHz to 40 GHz frequency range',
+      version: 'V2.2.1',
+      date: '2018-07',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Short Range Devices; Radio equipment to be used in the 1 GHz to 40 GHz frequency range; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 440 V2.2.1',
+      frequency_range: '1 GHz to 40 GHz'
+    },
+    {
+      number: 'EN 303 204',
+      title: 'Radio frequency identification equipment operating in the band 865 MHz to 868 MHz',
+      version: 'V2.1.1',
+      date: '2017-10',
+      type: 'Harmonised Standard',
+      description: 'Radio frequency identification equipment operating in the band 865 MHz to 868 MHz with power levels up to 2 W and in the band 915 MHz to 921 MHz with power levels up to 4 W; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 303 204 V2.1.1',
+      frequency_range: '865-868 MHz, 915-921 MHz'
+    },
+    {
+      number: 'EN 303 446-1',
+      title: 'Professional Mobile Radio (PMR) equipment; Part 1: DMR equipment operating in the frequency bands 446,1 MHz to 446,2 MHz',
+      version: 'V1.2.1',
+      date: '2018-08',
+      type: 'Harmonised Standard',
+      description: 'Professional Mobile Radio (PMR) equipment; Part 1: DMR equipment operating in the frequency bands 446,1 MHz to 446,2 MHz; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 303 446-1 V1.2.1',
+      frequency_range: '446.1-446.2 MHz'
+    },
+    {
+      number: 'EN 303 417',
+      title: 'Satellite Earth Stations and Systems (SES); Harmonised Standard for satellite mobile Aircraft Earth Stations (AESs)',
+      version: 'V1.2.1',
+      date: '2021-01',
+      type: 'Harmonised Standard',
+      description: 'Satellite Earth Stations and Systems (SES); Harmonised Standard for satellite mobile Aircraft Earth Stations (AESs) operating in the 11/12/14 GHz frequency bands covering essential requirements under article 3.2 of Directive 2014/53/EU',
+      full_number: 'EN 303 417 V1.2.1',
+      frequency_range: '11/12/14 GHz'
+    },
+    {
+      number: 'EN 300 086',
+      title: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Land Mobile Service',
+      version: 'V2.1.2',
+      date: '2014-10',
+      type: 'Harmonised Standard',
+      description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM); Land Mobile Service; Radio equipment with an internal or external RF connector intended primarily for analogue speech; Harmonised Standard for access to radio spectrum',
+      full_number: 'EN 300 086 V2.1.2',
+      frequency_range: 'Land Mobile bands'
+    }
+  ];
 }
 
 function getEMCStandardsList() {
