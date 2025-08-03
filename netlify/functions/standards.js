@@ -153,6 +153,9 @@ async function fetchStandardsFromEurlex(directive) {
     }
   }
 
+  // Remove duplicate standards (prefer detailed versions over simplified ones)
+  allStandards = removeDuplicateStandards(allStandards);
+
   // Sort by standard number
   allStandards.sort((a, b) => a.number.localeCompare(b.number));
   
@@ -340,6 +343,51 @@ function extractStandardsFromText(text) {
   });
 
   return standards;
+}
+
+function removeDuplicateStandards(standards) {
+  const standardMap = new Map();
+  
+  standards.forEach(standard => {
+    const baseNumber = standard.number;
+    const version = standard.version || '';
+    
+    if (!standardMap.has(baseNumber)) {
+      standardMap.set(baseNumber, standard);
+    } else {
+      const existing = standardMap.get(baseNumber);
+      const existingVersion = existing.version || '';
+      
+      // Prefer detailed versions (e.g., V2.1.2) over simplified ones (e.g., V2)
+      if (isMoreDetailedVersion(version, existingVersion)) {
+        standardMap.set(baseNumber, standard);
+      }
+    }
+  });
+  
+  return Array.from(standardMap.values());
+}
+
+function isMoreDetailedVersion(version1, version2) {
+  // Remove 'V' prefix and handle empty versions
+  const v1 = (version1 || '').replace(/^V/, '');
+  const v2 = (version2 || '').replace(/^V/, '');
+  
+  // If one is empty, prefer the non-empty one
+  if (!v1 && v2) return false;
+  if (v1 && !v2) return true;
+  if (!v1 && !v2) return false;
+  
+  // Count dots to determine detail level (e.g., "2.1.2" has more dots than "2")
+  const dots1 = (v1.match(/\./g) || []).length;
+  const dots2 = (v2.match(/\./g) || []).length;
+  
+  // More dots = more detailed version
+  if (dots1 > dots2) return true;
+  if (dots1 < dots2) return false;
+  
+  // Same number of dots, prefer lexicographically larger (newer) version
+  return v1 > v2;
 }
 
 function getFallbackData(directive) {
