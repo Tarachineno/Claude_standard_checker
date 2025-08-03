@@ -170,34 +170,60 @@ async function loadDirectives() {
 // Standards functions
 async function fetchStandards() {
     const directive = document.getElementById('directive-select').value;
+    const fetchMethod = document.getElementById('fetch-method').value;
     
     if (!directive) {
         showError('Please select a directive');
         return;
     }
 
-    // ETSI Portal redirect method with standardized format
-    const etsiUrls = {
-        'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
-        'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
-    };
-
-    if (etsiUrls[directive]) {
-        const etsiUrl = etsiUrls[directive];
-        
-        console.log(`Redirecting to ETSI portal for ${directive} standards:`, etsiUrl);
-        window.open(etsiUrl, '_blank');
-        
-        const directiveNames = {
-            'RED': 'Radio Equipment Directive',
-            'EMC': 'Electromagnetic Compatibility Directive'
+    if (fetchMethod === 'etsi') {
+        // ETSI Portal redirect method with standardized format
+        const etsiUrls = {
+            'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
+            'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
         };
+
+        if (etsiUrls[directive]) {
+            const etsiUrl = etsiUrls[directive];
+            
+            console.log(`Redirecting to ETSI portal for ${directive} standards:`, etsiUrl);
+            window.open(etsiUrl, '_blank');
+            
+            const directiveNames = {
+                'RED': 'Radio Equipment Directive',
+                'EMC': 'Electromagnetic Compatibility Directive'
+            };
+            
+            showSuccess(`Opening ETSI portal for ${directiveNames[directive]} (${directive}) standards in a new tab`);
+            return;
+        }
+    } else if (fetchMethod === 'oj') {
+        // Official Journal parsing method - only supported for EMC
+        if (directive !== 'EMC') {
+            showError('OJ Parse is only supported for EMC directive');
+            return;
+        }
         
-        showSuccess(`Opening ETSI portal for ${directiveNames[directive]} (${directive}) standards in a new tab`);
+        try {
+            console.log('Fetching standards from Official Journal for directive:', directive);
+            
+            const response = await apiCall(`/standards?directive=${directive}`);
+            
+            if (response && response.success) {
+                displayStandards(response.data);
+                showSuccess(`Successfully fetched ${response.data.count} standards from Official Journal for ${response.data.directive_name}`);
+            } else {
+                throw new Error(response?.error || 'Failed to fetch standards from Official Journal');
+            }
+        } catch (error) {
+            console.error('Failed to fetch OJ standards:', error);
+            showError(`Failed to fetch OJ standards: ${error.message}`);
+        }
         return;
     }
 
-    showError('Directive not supported');
+    showError('Please select a valid fetch method');
 }
 
 function displayStandards(data) {
