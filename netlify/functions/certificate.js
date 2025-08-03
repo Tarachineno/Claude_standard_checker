@@ -27,8 +27,25 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('Certificate function called');
+    
     // Parse multipart form data
-    const { file, metadata } = await parseMultipartFormData(event);
+    let parseResult;
+    try {
+      parseResult = await parseMultipartFormData(event);
+    } catch (parseError) {
+      console.error('Multipart parsing failed:', parseError);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `File upload parsing failed: ${parseError.message}`
+        })
+      };
+    }
+    
+    const { file } = parseResult;
     
     if (!file || !file.buffer) {
       return {
@@ -36,18 +53,32 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'No PDF file provided'
+          error: 'No PDF file found in upload. Please ensure you are uploading a valid PDF file.'
         })
       };
     }
 
     console.log('Processing PDF file:', file.filename || 'unknown.pdf');
+    console.log('File size:', file.buffer.length, 'bytes');
 
     // Parse PDF content
-    const pdfData = await pdf(file.buffer);
-    let text = pdfData.text;
-
-    console.log('PDF text extracted, length:', text.length);
+    let pdfData, text;
+    try {
+      pdfData = await pdf(file.buffer);
+      text = pdfData.text;
+      console.log('PDF text extracted, length:', text.length);
+      console.log('PDF pages:', pdfData.numpages);
+    } catch (pdfError) {
+      console.error('PDF parsing failed:', pdfError);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `PDF processing failed: ${pdfError.message}. Please ensure the file is a valid PDF.`
+        })
+      };
+    }
 
     // Check if PDF appears to be image-based (very little text extracted)
     if (text.length < 100 || text.trim().split(' ').length < 20) {
@@ -165,32 +196,105 @@ async function performOCR(pdfBuffer, filename) {
 
 // Parse multipart form data from Netlify Functions
 async function parseMultipartFormData(event) {
-  const boundary = event.headers['content-type']?.split('boundary=')[1];
-  if (!boundary) {
-    throw new Error('No boundary found in content-type header');
-  }
+  try {
+    console.log('Parsing multipart form data...');
+    console.log('Content-Type:', event.headers['content-type']);
+    console.log('Body length:', event.body ? event.body.length : 0);
+    console.log('Is Base64 encoded:', event.isBase64Encoded);
 
-  const body = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
-  const parts = body.toString('binary').split(`--${boundary}`);
-  
-  let file = null;
-  
-  for (const part of parts) {
-    if (part.includes('Content-Disposition: form-data')) {
-      const headers = part.split('\r\n\r\n')[0];
-      const content = part.split('\r\n\r\n').slice(1).join('\r\n\r\n');
+    // Extract boundary from content-type header
+    const contentType = event.headers['content-type'] || event.headers['Content-Type'];
+    if (!contentType) {
+      throw new Error('Content-Type header missing');
+    }
+
+    const boundaryMatch = contentType.match(/boundary=([^;]+)/);
+    if (!boundaryMatch) {
+      throw new Error('Boundary not found in Content-Type header');
+    }
+
+    const boundary = boundaryMatch[1];
+    console.log('Boundary found:', boundary);
+
+    // Parse the body
+    const bodyBuffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
+    console.log('Body buffer length:', bodyBuffer.length);
+
+    // Split by boundary
+    const boundaryBytes = Buffer.from(`--${boundary}`, 'utf8');
+    const parts = [];
+    let start = 0;
+    
+    while (start < bodyBuffer.length) {
+      const boundaryIndex = bodyBuffer.indexOf(boundaryBytes, start);
+      if (boundaryIndex === -1) break;
       
-      if (headers.includes('filename=')) {
-        const filename = headers.match(/filename="([^"]*)"/) ? headers.match(/filename="([^"]*)"/)[1] : 'unknown.pdf';
-        file = {
-          filename: filename,
-          buffer: Buffer.from(content, 'binary')
-        };
+      if (start !== 0) {
+        parts.push(bodyBuffer.slice(start, boundaryIndex));
+      }
+      start = boundaryIndex + boundaryBytes.length;
+    }
+
+    console.log('Found', parts.length, 'parts');
+
+    let file = null;
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const partString = part.toString('utf8');
+      
+      // Look for Content-Disposition header
+      if (partString.includes('Content-Disposition: form-data')) {
+        console.log('Processing form-data part', i + 1);
+        
+        // Split headers from content
+        const headerEndIndex = part.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
+        if (headerEndIndex === -1) continue;
+        
+        const headersBuffer = part.slice(0, headerEndIndex);
+        const contentBuffer = part.slice(headerEndIndex + 4);
+        
+        const headers = headersBuffer.toString('utf8');
+        console.log('Headers:', headers);
+        
+        // Check if this part contains a file
+        if (headers.includes('filename=')) {
+          // Extract filename
+          const filenameMatch = headers.match(/filename="([^"]*)"/);
+          const filename = filenameMatch ? filenameMatch[1] : 'unknown.pdf';
+          
+          console.log('Found file:', filename);
+          console.log('File size:', contentBuffer.length, 'bytes');
+          
+          // Remove any trailing boundary markers from content
+          let fileBuffer = contentBuffer;
+          const trailingBoundary = Buffer.from(`\r\n--${boundary}`, 'utf8');
+          const trailingIndex = fileBuffer.lastIndexOf(trailingBoundary);
+          if (trailingIndex !== -1) {
+            fileBuffer = fileBuffer.slice(0, trailingIndex);
+          }
+          
+          file = {
+            filename: filename,
+            buffer: fileBuffer
+          };
+          
+          console.log('Final file buffer size:', fileBuffer.length, 'bytes');
+          break;
+        }
       }
     }
+    
+    if (!file) {
+      throw new Error('No file found in multipart data');
+    }
+    
+    return { file };
+    
+  } catch (error) {
+    console.error('Multipart parsing error:', error);
+    throw new Error(`Failed to parse multipart data: ${error.message}`);
   }
-  
-  return { file };
 }
 
 // Extract certificate data and test standards from PDF text
