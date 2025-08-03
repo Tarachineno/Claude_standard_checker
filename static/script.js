@@ -402,6 +402,67 @@ function createStandardItem(standard, directive = null) {
     return item;
 }
 
+// Add click handler for CEN/CENELEC links to copy standard number to clipboard
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.cen-cenelec-link')) {
+        const link = e.target.closest('.cen-cenelec-link');
+        const standardNumber = link.getAttribute('data-standard');
+        
+        if (standardNumber) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(standardNumber).then(() => {
+                // Show brief notification
+                showBriefNotification(`Copied "${standardNumber}" to clipboard. Paste it in the Standard Reference field.`);
+            }).catch(() => {
+                // Fallback for older browsers
+                console.log(`Standard number: ${standardNumber}`);
+            });
+        }
+    }
+});
+
+function showBriefNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'copy-notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-size: 14px;
+        max-width: 300px;
+        opacity: 0;
+        transform: translateX(100px);
+        transition: all 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100px)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
 function formatExcelDate(dateValue) {
     if (!dateValue || dateValue === '-' || dateValue.trim() === '') return '';
     
@@ -494,11 +555,13 @@ function generateStandardLink(standardNumber, eso) {
     const searchTerm = encodeURIComponent(standardNumber);
     
     if (eso && (eso.toUpperCase() === 'CEN' || eso.toUpperCase() === 'CENELEC')) {
-        // CEN-CENELEC portal for CEN and CENELEC standards
-        const cenUrl = `https://standards.cencenelec.eu/dyn/www/f?p=205:105:0:::::P105_SEARCH:${searchTerm}`;
+        // CEN-CENELEC portal for CEN and CENELEC standards - go to search page
+        const cenUrl = 'https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::';
         const portalName = eso.toUpperCase() === 'CEN' ? 'CEN Portal' : 'CENELEC Portal';
         
-        return `<a href="${cenUrl}" target="_blank" class="standards-portal-link cen-cenelec-link">
+        return `<a href="${cenUrl}" target="_blank" class="standards-portal-link cen-cenelec-link" 
+                    title="Search for ${standardNumber} in ${portalName}" 
+                    data-standard="${standardNumber}">
             <i class="fas fa-external-link-alt"></i> ${portalName}
         </a>`;
     } else {
