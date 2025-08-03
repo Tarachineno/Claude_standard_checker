@@ -178,11 +178,12 @@ async function fetchStandards() {
     }
 
     if (fetchMethod === 'etsi') {
-        // ETSI Portal redirect method
+        // ETSI Portal redirect method with standardized format
+        const today = new Date().toISOString().split('T')[0];
         const etsiUrls = {
-            'RED': 'https://www.etsi.org/standards/get-standards#page=4&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=RED&sort=1',
-            'EMC': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=EMC&sort=3',
-            'LVD': 'https://www.etsi.org/standards/looking-for-an-etsi-standard/dvds-of-our-standards#page=1&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&withdrawn=1&historical=0&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=2025-08-03&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=LVD&sort=3'
+            'RED': `https://www.etsi.org/standards#page=1&search=&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=RED&sort=1`,
+            'EMC': `https://www.etsi.org/standards#page=1&search=&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=EMC&sort=1`,
+            'LVD': `https://www.etsi.org/standards#page=1&search=&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=LVD&sort=1`
         };
 
         if (etsiUrls[directive]) {
@@ -329,9 +330,10 @@ function formatETSITitle(title) {
 }
 
 function generateETSILink(standardNumber) {
-    // Generate ETSI portal search link
+    // Generate ETSI portal search link with proper format
     const searchTerm = encodeURIComponent(standardNumber);
-    const etsiUrl = `https://www.etsi.org/standards-search?search=${searchTerm}`;
+    const today = new Date().toISOString().split('T')[0];
+    const etsiUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
     
     return `<a href="${etsiUrl}" target="_blank" class="etsi-link">
         <i class="fas fa-external-link-alt"></i> ETSI Portal
