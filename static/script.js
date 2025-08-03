@@ -61,26 +61,109 @@ const PREDEFINED_CERTIFICATES = {
             // Australia / New Zealand Radio
             { standard_number: 'AS/NZS 4268', category: 'Australia / New Zealand Radio', description: 'Radio equipment and systems' },
             
-            // Additional categories following the pattern...
+            // Emissions for Ports
             { standard_number: 'CISPR 32', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
             { standard_number: 'EN 55032', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
             
+            // Harmonic Current Emissions
             { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
             { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
             
+            // Voltage Fluctuations & Flicker
             { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
             { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
             { standard_number: 'IEC 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
             { standard_number: 'EN 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
             
-            // Additional immunity standards...
+            // Electrostatic Discharge (ESD)
             { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
             { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
             { standard_number: 'KS C 9610-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Korean ESD immunity test' },
             
+            // RF Radiated EM Field Immunity
             { standard_number: 'IEC 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
             { standard_number: 'EN 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
-            { standard_number: 'KS C 9610-4-3', category: 'RF Radiated EM Field Immunity', description: 'Korean RF radiated immunity test' }
+            { standard_number: 'KS C 9610-4-3', category: 'RF Radiated EM Field Immunity', description: 'Korean RF radiated immunity test' },
+            
+            // Electrical Fast/Transient Burst (EFT)
+            { standard_number: 'IEC 61000-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Electrical fast transient immunity test' },
+            { standard_number: 'EN 61000-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Electrical fast transient immunity test' },
+            { standard_number: 'KS C 9610-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Korean electrical fast transient immunity test' },
+            
+            // Surge
+            { standard_number: 'IEC 61000-4-5', category: 'Surge', description: 'Surge immunity test' },
+            { standard_number: 'EN 61000-4-5', category: 'Surge', description: 'Surge immunity test' },
+            { standard_number: 'KS C 9610-4-5', category: 'Surge', description: 'Korean surge immunity test' },
+            
+            // Conducted Immunity
+            { standard_number: 'IEC 61000-4-6', category: 'Conducted Immunity', description: 'Conducted RF immunity test' },
+            { standard_number: 'EN 61000-4-6', category: 'Conducted Immunity', description: 'Conducted RF immunity test' },
+            { standard_number: 'KS C 9610-4-6', category: 'Conducted Immunity', description: 'Korean conducted RF immunity test' },
+            
+            // Transients & Surges (Vehicle)
+            { standard_number: 'ISO 7637-2', category: 'Transients & Surges (Vehicle)', description: 'Road vehicles electrical disturbances' },
+            
+            // Magnetic Field Immunity
+            { standard_number: 'IEC 61000-4-8', category: 'Magnetic Field Immunity', description: 'Power frequency magnetic field immunity test' },
+            { standard_number: 'EN 61000-4-8', category: 'Magnetic Field Immunity', description: 'Power frequency magnetic field immunity test' },
+            { standard_number: 'KS C 9610-4-8', category: 'Magnetic Field Immunity', description: 'Korean magnetic field immunity test' },
+            
+            // Voltage Dips/Interruptions/Variations
+            { standard_number: 'IEC 61000-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations immunity test' },
+            { standard_number: 'EN 61000-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations immunity test' },
+            { standard_number: 'KS C 9610-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Korean voltage dips immunity test' },
+            { standard_number: 'KS C IEC 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Korean voltage dips and interruptions test' },
+            { standard_number: 'IEC 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations test' },
+            { standard_number: 'EN 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations test' },
+            
+            // Semiconductor Equipment Voltage Sag Immunity
+            { standard_number: 'SEMI F47', category: 'Semiconductor Equipment Voltage Sag Immunity', description: 'Specification for semiconductor processing equipment voltage sag immunity' },
+            
+            // Common Technical Standards (Machines & Mechanisms)
+            { standard_number: 'S2-W-5', category: 'Common Technical Standards (Machines & Mechanisms)', description: 'Common technical standards for machines and mechanisms' },
+            
+            // Documentation for Semiconductor Equipment Installation
+            { standard_number: 'SEMI E6', category: 'Documentation for Semiconductor Equipment Installation', description: 'Guide for semiconductor equipment installation documentation' },
+            
+            // Generic Immunity – Industrial Environments
+            { standard_number: 'IEC 61000-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Generic immunity standard for industrial environments' },
+            { standard_number: 'EN 61000-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Generic immunity standard for industrial environments' },
+            { standard_number: 'KS C 9610-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Korean generic immunity standard for industrial environments' },
+            
+            // Product Family Standards
+            { standard_number: 'EN 50370-11', category: 'Product Family Standards', description: 'Product family standard for machine tools' },
+            { standard_number: 'EN 50370-21', category: 'Product Family Standards', description: 'Product family standard for lifts, escalators and moving walks' },
+            { standard_number: 'EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52', category: 'Product Family Standards', description: 'Product family standards for radio equipment and services' },
+            
+            // Wi-Fi Devices Interoperability
+            { standard_number: 'Wi-Fi CERTIFIED n', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi n certification' },
+            { standard_number: 'Wi-Fi Protected Setup', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Protected Setup certification' },
+            { standard_number: 'WMM Power Save', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Multimedia Power Save certification' },
+            { standard_number: 'Protected Management Frames', category: 'Wi-Fi Devices Interoperability', description: 'Protected Management Frames certification' },
+            { standard_number: 'Miracast', category: 'Wi-Fi Devices Interoperability', description: 'Miracast wireless display certification' },
+            { standard_number: 'Wi-Fi Direct', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Direct certification' },
+            { standard_number: 'Wi-Fi CERTIFIED ac Test Plans', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi ac certification test plans' },
+            
+            // Unintentional Radiators (FCC Part 15B)
+            { standard_number: 'ANSI C63.4:2014', category: 'Unintentional Radiators (FCC Part 15B)', description: 'American National Standard for Methods of Measurement of Radio-Noise Emissions' },
+            
+            // ISM Equipment (FCC Part 18)
+            { standard_number: 'FCC MP-5 (Feb 1986)', category: 'ISM Equipment (FCC Part 18)', description: 'Measurement procedures for ISM equipment' },
+            
+            // Intentional Radiators (FCC Part 15C)
+            { standard_number: 'ANSI C63.10:2013', category: 'Intentional Radiators (FCC Part 15C)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
+            
+            // U-NII without DFS (FCC Part 15E)
+            { standard_number: 'ANSI C63.10:2013', category: 'U-NII without DFS (FCC Part 15E)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
+            
+            // U-NII with DFS (FCC Part 15E)
+            { standard_number: 'FCC KDB 905462 D02 (v02)', category: 'U-NII with DFS (FCC Part 15E)', description: 'Dynamic Frequency Selection test procedures' },
+            
+            // UWB Radiators (FCC Part 15F)
+            { standard_number: 'ANSI C63.10:2013', category: 'UWB Radiators (FCC Part 15F)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
+            
+            // Microwave & Millimeter Radio Services
+            { standard_number: 'CFR 47 FCC Parts 25/30/74/90/95/97/101 (ANSI C63.26:2015)', category: 'Microwave & Millimeter Radio Services', description: 'Microwave and millimeter wave radio services' }
         ],
         categories: {},
         total_standards: 0,
