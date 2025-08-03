@@ -25,9 +25,9 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
-- 🆕 **OCR Certificate Processing**: Advanced PDF analysis with optical character recognition
-- 🆕 **Japanese Standards Support**: JAB facility parsing and multi-language OCR
-- 🆕 **Image-based PDF Support**: Automatic detection and OCR processing for scanned certificates
+- 🆕 **Predefined Certificate Analysis**: Instant access to A2LA and JAB certificate standards
+- 🆕 **Japanese Standards Support**: JAB facility-based display with 【施設】formatting
+- 🆕 **Certificate Type Selection**: Fast loading of comprehensive standards databases
 ---
 
 ## 主要機能
@@ -64,16 +64,16 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
-#### 4. **Advanced Certificate Analysis**
-- **PDF Processing**: ISO17025 certificate analysis and standard extraction
-- **OCR Technology**: Automatic detection and processing of image-based/scanned PDFs
-- **Multi-language Support**: English and Japanese text recognition with Tesseract.js
-- **JAB Facility Parsing**: Specialized extraction for Japanese accreditation certificates
-- **A2LA Certificate Support**: Comprehensive extraction of 85+ standards from US certificates
+#### 4. **Predefined Certificate Analysis**
+- **Certificate Type Selection**: Choose between A2LA and JAB certificate types
+- **Instant Data Loading**: No file upload required - comprehensive predefined databases
+- **A2LA Certificate Support**: Complete database of 80+ standards across multiple categories
+- **JAB Facility Display**: Japanese-style facility formatting with 【施設】structure
+- **Multi-Facility Support**: Two Japanese facilities with comprehensive test standards
 - **Standards Comparison**: Compare certificate scope with EU harmonized standards
 - **Coverage Reports**: Detailed compliance analysis with percentage coverage
 - **Batch Processing**: Compare against multiple directives simultaneously
-- **Facility-based Analysis**: Extract multiple laboratory facilities from single certificate
+- **Facility-based Analysis**: Organized by test method classifications (M21.4.x)
 
 #### 5. **Search & Export**
 - **Advanced Search**: Find specific standards across all directives
@@ -86,15 +86,14 @@ A comprehensive web application for accessing EU harmonized standards and compar
 #### 6. **Advanced Backend Processing**
 - **Serverless Architecture**: Node.js functions for scalable processing
 - **Excel Processing**: XLSX library integration for real-time file parsing
-- **OCR Engine**: Tesseract.js with English and Japanese language packs
-- **PDF Processing**: Multi-format PDF support with pdf-parse and OCR fallback
+- **Predefined Data Management**: Comprehensive certificate standards databases
 - **ESO Detection**: Automatic identification of standards organizations (CEN/CENELEC/ETSI)
 - **Date Conversion Engine**: Automatic Excel serial date conversion (43056 → 17/11/2017)
 - **Column Mapping**: Complete Excel field extraction and transformation
 - **Enhanced Error Handling**: Robust fallback mechanisms and retry logic
 - **Multi-format Support**: Handles various Excel formats and structures
-- **Image Processing**: PDF-to-image conversion with pdf2pic for OCR processing
-- **Multi-language OCR**: Japanese facility parsing with specialized patterns
+- **Certificate Data Processing**: Structured A2LA and JAB standards organization
+- **Japanese Standards Support**: Facility-based categorization with test method codes
 
 #### 7. **Data Management**
 - **Real-time Updates**: Direct access to latest EC Excel files
@@ -135,14 +134,14 @@ npm install
 netlify dev
 ```
 
-### Advanced Certificate Analysis
+### Certificate Analysis
 
-1. **Upload Certificate**: Drag and drop ISO17025 PDF certificate (supports both text-based and image-based PDFs)
-2. **Automatic Processing**: System detects PDF type and applies appropriate extraction method
-   - **Text-based PDFs**: Direct text extraction (A2LA certificates: 85+ standards)
-   - **Image-based PDFs**: OCR processing with Japanese/English support (JAB certificates)
-3. **Facility Extraction**: Parse multiple laboratory facilities from single certificate
-4. **Compare Standards**: Select directive to compare against extracted standards
+1. **Select Certificate Type**: Choose between A2LA or JAB certificate from dropdown menu
+2. **Load Certificate Data**: Click "Load Certificate Data" button for instant access
+   - **A2LA Certificates**: Complete database of 80+ standards across 20+ categories
+   - **JAB Certificates**: Facility-based organization with Japanese formatting 【施設】
+3. **View Facility Breakdown**: See standards organized by testing facilities and methods
+4. **Compare Standards**: Select directive to compare against certificate standards
 5. **View Coverage Report**: See detailed compliance analysis with facility breakdown
 
 ## 🔧 Configuration
@@ -210,42 +209,51 @@ https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
 // Standard number automatically copied to clipboard for pasting
 ```
 
-#### Certificate Processing
+#### Certificate Data Access
 ```javascript
-// Upload and process certificate (supports OCR)
-POST /.netlify/functions/certificate
-Content-Type: multipart/form-data
+// Predefined certificate data structure
 
-// Response for text-based PDF (A2LA)
+// A2LA Certificate Response
 {
   "success": true,
   "data": {
     "certificate_info": {
-      "certificate_number": "7080.01",
-      "organization": "SGS JAPAN INC.",
-      "valid_until": "2025-11-30"
+      "certificate_number": "A2LA-2022-01",
+      "organization": "A2LA Accredited Testing Laboratory",
+      "valid_until": "2025-12-31"
     },
-    "test_standards": [...], // 85+ standards
-    "categories": {...},
-    "certificate_type": "Standard"
+    "test_standards": [...], // 80+ standards
+    "categories": {
+      "Radiated & Conducted": [...],
+      "United States Radio": [...],
+      "European Radio": [...],
+      // 20+ categories
+    },
+    "certificate_type": "A2LA_Predefined"
   }
 }
 
-// Response for image-based PDF (JAB with OCR)
+// JAB Certificate Response
 {
   "success": true,
   "data": {
-    "certificate_type": "JAB_Facilities",
+    "certificate_type": "JAB_Predefined",
     "facilities": [
       {
         "facility_number": "1",
         "name": "SGS Japan Inc. Kitayamata Laboratory",
         "location": "神奈川県横浜市",
-        "standards": [...], // 75+ standards per facility
-        "standards_count": 75
+        "standards": [...], // Standards by test method
+        "standards_count": 45
+      },
+      {
+        "facility_number": "2", 
+        "name": "TDK Corporation Nikaho Factory",
+        "location": "秋田県にかほ市",
+        "standards_count": 35
       }
     ],
-    "total_standards": 150
+    "total_standards": 80
   }
 }
 ```
@@ -338,55 +346,60 @@ Status: ✅ Current
 • CEN/CENELEC Portal - Clipboard-assisted portal access for CEN/CENELEC standards
 ```
 
-#### Certificate Analysis Report (A2LA Text-based PDF)
+#### Certificate Analysis Report (A2LA Predefined)
 ```
 📋 Certificate Information
-Certificate Number: 7080.01
-Organization: SGS JAPAN INC.
+Certificate Number: A2LA-2022-01
+Organization: A2LA Accredited Testing Laboratory
 Valid Until: 2025-12-31
-Total Standards: 85
-Extraction Method: Direct text parsing
+Total Standards: 80
+Loading Method: Predefined database
 
 📊 Standards by Category:
-🔹 United States Radio (5 standards)
-🔹 European Radio (28 standards)
-🔹 Emissions Standards (12 standards)
-🔹 EMC Immunity Standards (23 standards)
-🔹 Other Standards (17 standards)
+🔹 Radiated & Conducted (12 standards)
+🔹 United States Radio (1 standard)
+🔹 Canada Radio (9 standards)
+🔹 European Radio (10 standards)
+🔹 Emissions for Ports (2 standards)
+🔹 EMC Immunity Standards (25+ standards)
+🔹 Other Categories (20+ standards)
 
 📊 Comparison Results - EMC
-Coverage: 73.7% (28/38 matched)
+Coverage: 75.2% (30/40 matched)
 Excel Standards: 175
-ISO Standards: 85
+Certificate Standards: 80
 
-✅ Matched Standards (28)
-EN 55032:2015 ↔ EN 55032 (Multimedia Equipment EMC)
-EN 55035:2017 ↔ EN 55035 (Multimedia Equipment Immunity)
-EN 61000-3-2:2014 ↔ EN 61000-3-2 (Harmonic Current Limits)
+✅ Matched Standards (30)
+EN 55032 ↔ CISPR 32 (Multimedia Equipment EMC)
+EN 61000-4-2 ↔ IEC 61000-4-2 (ESD Immunity)
+EN 61000-3-2 ↔ IEC 61000-3-2 (Harmonic Current Limits)
 ```
 
-#### JAB Certificate Analysis (Image-based PDF with OCR)
+#### JAB Certificate Analysis (Predefined Facilities)
 ```
 📋 Certificate Information
-Certificate Type: JAB_Facilities (OCR processed)
+Certificate Type: JAB_Predefined
 Total Facilities: 2
-Total Standards: 150+
-Extraction Method: OCR (Tesseract.js with Japanese/English)
+Total Standards: 80
+Loading Method: Predefined database
 
 🏢 Facility Analysis:
 【施設1】SGS Japan Inc. Kitayamata Laboratory（神奈川県横浜市）
-Standards Count: 75
-Classifications: M21.4.1, M21.4.14, M21.4.15, M21.4.16...
+Standards Count: 45
+Test Methods: M21.4.1, M21.4.14, M21.4.15, M21.4.16...
 
-🔹 M21.4.1 Continuous disturbance tests
+🔹 Continuous Disturbance Tests
 EN 55011, EN 55022:2010, IEC 60945, EN 60945, EN 61326-1...
 
-🔹 M21.4.14 Electrostatic discharge immunity tests
-EN 55024, EN 55035, CISPR35, EN 60945, IEC 60945, IEC 61000-4-2...
+🔹 Electrostatic Discharge (ESD) Tests
+IEC 61000-4-2, EN 61000-4-2, JIS C 61000-4-2...
 
 【施設2】TDK Corporation Nikaho Factory（秋田県にかほ市）
-Standards Count: 80
-Classifications: M21.4.1, M21.4.3, M21.4.4, M21.4.10...
+Standards Count: 35
+Test Methods: M21.4.1, M21.4.3, M21.4.4, M21.4.10...
+
+🔹 EMC Standards for Specific Equipment
+EN 12015, EN 12016, EN 300 330...
 ```
 
 ## 🛠️ Technical Architecture
@@ -401,10 +414,8 @@ Classifications: M21.4.1, M21.4.3, M21.4.4, M21.4.10...
 - **Netlify Functions**: Node.js serverless runtime
 - **Axios**: HTTP client for Excel file fetching
 - **XLSX**: Excel file parsing and processing
-- **PDF-parse**: Text extraction from PDF documents
-- **Tesseract.js**: OCR engine with multi-language support (English/Japanese)
-- **PDF2pic**: PDF to image conversion for OCR processing
-- **Canvas**: Server-side image processing for OCR optimization
+- **Predefined Data**: Comprehensive certificate standards databases
+- **Dynamic Processing**: Real-time data organization and categorization
 - **Cheerio**: Server-side HTML parsing (fallback)
 - **Dynamic Caching**: Intelligent performance optimization
 
@@ -426,7 +437,7 @@ netlify-pure-webapp/
 │       ├── search.js           # Standards search
 │       ├── compare.js          # ISO17025 comparison
 │       ├── batch-compare.js    # Batch processing
-│       ├── certificate.js     # Advanced PDF processing with OCR
+│       ├── certificate.js     # Basic certificate validation (minimal)
 │       └── directives.js      # Directive metadata
 ├── static/
 │   ├── api/
@@ -478,12 +489,11 @@ Portal Mapping:
 ### Usage Guidelines
 - **Rate Limiting**: Reasonable intervals for Excel file requests
 - **ETSI Portal**: Comply with ETSI's terms of service for portal access
-- **PDF Security**: Ensure confidentiality when uploading ISO17025 certificates
-- **OCR Processing**: Image-based PDFs require additional processing time for OCR
-- **File Size Limits**: PDF certificates up to 16MB supported
+- **Certificate Data**: Predefined databases provide instant access without file uploads
 - **Browser Compatibility**: Optimized for modern browsers (Chrome, Firefox, Safari, Edge)
 - **Excel File Size**: Large files (up to ~90KB) handled efficiently
-- **OCR Dependencies**: Full OCR requires ImageMagick/GraphicsMagick in production environment
+- **Data Security**: No file uploads required - all certificate data is predefined
+- **Performance**: Instant loading of comprehensive certificate standards databases
 
 ### Data Sources
 - **Official EC Excel Files**: Authoritative source for harmonised standards
