@@ -18,9 +18,11 @@ A comprehensive web application for accessing EU harmonized standards and compar
 **Latest Updates (August 2025):**
 - 🆕 **Excel File Integration**: Parse official EC Excel files for real-time data
 - 🆕 **Three-Directive Support**: RED, EMC, and LVD with directive-specific parsing
+- 🆕 **Excel-Style Display**: Complete Excel column mapping with OJ references, ESO info, and withdrawal dates
+- 🆕 **Date Conversion**: Automatic Excel serial date conversion (43056 → 17/11/2017)
+- 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
-- 🆕 **Professional Display**: ETSI-compliant formatting with comprehensive metadata
 - 🆕 **Dual Access Methods**: Both Excel parsing and ETSI portal access
 ---
 
@@ -39,14 +41,19 @@ A comprehensive web application for accessing EU harmonized standards and compar
 #### 2. **Excel File Integration**
 - **Real-time Parsing**: Automatic download and parsing of latest EC Excel files
 - **Official Sources**: Direct integration with ec.europa.eu document repository
-- **Data Accuracy**: Always current with latest harmonised standards lists
+- **Complete Column Mapping**: All Excel fields including ESO, OJ references, restrictions
+- **Date Conversion**: Automatic Excel serial date conversion (e.g., 43056 → 17/11/2017)
+- **Status Detection**: Automatic identification of withdrawn standards with dates
 - **File Downloads**: Base64-encoded Excel files for offline use
 - **Comprehensive Metadata**: Standard numbers, titles, dates, and OJ references
 
 #### 3. **Professional Display**
-- **ETSI-compliant Formatting**: Standards displayed as "EN 301 489-17 V3.2.1 (2023-08)"
-- **Hierarchical Layout**: Professional typography matching ETSI portal style
-- **Status Indicators**: Current/Withdrawn status with color-coded badges
+- **Excel-Style Layout**: Complete mapping of Excel columns in user-friendly format
+- **ESO Indicators**: Standards organization badges (CEN, CENELEC, ETSI)
+- **OJ References**: Official Journal publication references with dates
+- **Status Indicators**: Current/Withdrawn status with color-coded badges and withdrawal dates
+- **Restriction Alerts**: Clear display of any restrictions or limitations
+- **Date Formatting**: Human-readable dates (17/11/2017) instead of Excel serial numbers
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
@@ -67,6 +74,8 @@ A comprehensive web application for accessing EU harmonized standards and compar
 #### 6. **Netlify Functions Backend**
 - **Serverless Architecture**: Node.js functions for scalable processing
 - **Excel Processing**: XLSX library integration for real-time file parsing
+- **Date Conversion Engine**: Automatic Excel serial date conversion (43056 → 17/11/2017)
+- **Column Mapping**: Complete Excel field extraction and transformation
 - **Enhanced Error Handling**: Robust fallback mechanisms and retry logic
 - **Multi-format Support**: Handles various Excel formats and structures
 
@@ -225,16 +234,25 @@ function parseExcelStandards(buffer, directive) {
 
 ### Web Interface Output
 
-#### Excel File Parsing
+#### Excel File Parsing with Complete Display
 ```
-🔹 EMC Standards (Excel File)
-Successfully fetched 175 standards from Excel file for Electromagnetic Compatibility Directive
+🔹 RED Standards (Excel File)
+Successfully fetched 233 standards from Excel file for Radio Equipment Directive
 📥 Download Excel File button available
 
-📋 Standards List:
-EN 617:2001+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
-EN 618:2002+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
-EN 619:2002+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
+📋 Standards List with Excel Information:
+EN 50360:2017                                               RED | Cenelec
+Product standard to demonstrate the compliance of wireless communication devices...
+
+📋 Excel Details:
+OJ Reference: OJ C 389 - 17/11/2017
+Restriction: -
+⚠️ Withdrawal Date: 31/05/2025  Ref: OJ L, 2023/2669 - 01/12/2023
+Status: ❌ Withdrawn
+
+EN 18031-1:2024                                             RED | CEN  
+Common security requirements for radio equipment - Part 1...
+Status: ✅ Current
 ```
 
 #### Multi-Directive Support
@@ -329,11 +347,19 @@ netlify-pure-webapp/
 - **Total Coverage**: 1,310+ EU harmonised standards
 - **Data Freshness**: Real-time from official EC sources
 
-### Standard Format Examples
+### Standard Format Examples with Excel Data
 ```
-EN 18031-1:2024 - Common security requirements for radio equipment - Part 1
-EN 55032:2015 - Electromagnetic compatibility of multimedia equipment - Emission requirements
-EN ISO 11252:2013 - Lasers and laser-related equipment - Laser device - Minimum requirements
+📋 Current Standards:
+EN 18031-1:2024 (CEN) - Common security requirements for radio equipment - Part 1
+OJ Reference: OJ C 127 - 15/04/2024 | Status: ✅ Current
+
+📋 Withdrawn Standards:  
+EN 50360:2017 (Cenelec) - Product standard for wireless communication devices
+OJ Reference: OJ C 389 - 17/11/2017 | ⚠️ Withdrawn: 31/05/2025 (OJ L, 2023/2669)
+
+📋 With Restrictions:
+EN 55032:2015 (CEN) - Electromagnetic compatibility of multimedia equipment
+Restriction: Limited to specific frequency ranges | Status: ✅ Current
 ```
 
 ## ⚠️ Important Notes

@@ -262,9 +262,22 @@ function parseStandardsFromExcelData(excelData, directive) {
     
     // Extract version and date information
     if (versionOrDate) {
-      if (versionOrDate.match(/^\d{4}$/)) {
-        date = versionOrDate;
-        version = versionOrDate;
+      // Handle Excel serial date numbers (e.g., 43056, 45809)
+      if (versionOrDate.match(/^\d{4,5}$/)) {
+        const excelSerialDate = parseInt(versionOrDate);
+        if (excelSerialDate > 40000 && excelSerialDate < 50000) {
+          // Convert Excel serial date to actual date
+          // Excel serial date: 1900-01-01 is day 1, but Excel incorrectly treats 1900 as leap year
+          // So we use 1899-12-30 as base and add the serial number of days
+          const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
+          const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
+          date = actualDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+          version = actualDate.getFullYear().toString();
+        } else {
+          // Regular 4-digit year
+          date = versionOrDate;
+          version = versionOrDate;
+        }
       } else if (versionOrDate.includes('V')) {
         version = versionOrDate;
       } else if (versionOrDate.match(/\d{4}/)) {
@@ -297,11 +310,39 @@ function parseStandardsFromExcelData(excelData, directive) {
       version: version || date,
       date: date,
       type: 'Harmonised Standard',
-      notes: notes
+      notes: notes,
+      // Excel specific fields
+      legislation_reference: directive === 'EMC' ? '2014/30/EU' : directive === 'RED' ? '2014/53/EU' : '2014/35/EU',
+      eso: row[1] ? String(row[1]).trim() : '',
+      oj_reference: row[5] ? String(row[5]).trim() : '',
+      restriction: row[6] ? String(row[6]).trim() : '',
+      withdrawal_date: convertExcelDate(row[9]),
+      withdrawal_reference: row[10] ? String(row[10]).trim() : ''
     });
   }
   
   return standards;
+}
+
+// Helper function to convert Excel serial dates
+function convertExcelDate(dateValue) {
+  if (!dateValue) return '';
+  
+  const dateStr = String(dateValue).trim();
+  if (!dateStr || dateStr === '-') return '';
+  
+  // Check if it's an Excel serial date number
+  if (dateStr.match(/^\d{4,5}$/)) {
+    const excelSerialDate = parseInt(dateStr);
+    if (excelSerialDate > 40000 && excelSerialDate < 50000) {
+      // Convert Excel serial date to actual date
+      const excelEpoch = new Date(1899, 11, 30);
+      const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
+      return actualDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    }
+  }
+  
+  return dateStr;
 }
 
 // Function to extract OJ links from EC webpage

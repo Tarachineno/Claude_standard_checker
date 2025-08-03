@@ -358,17 +358,24 @@ function createStandardItem(standard, directive = null) {
     const directiveBadge = directive ? 
         `<span class="standard-directive">${directive}</span>` : '';
 
-    // ETSI-style standard number formatting
-    const displayNumber = formatETSIStandardNumber(standard);
-    
-    // ETSI-style date formatting
-    const dateInfo = formatETSIDate(standard.date || standard.year);
-    
+    // Excel-style display with all relevant information
+    const displayNumber = standard.number || standard.full_number;
+    const dateInfo = formatExcelDate(standard.date);
     const etsiLink = generateETSILink(standard.number);
-
-    // ETSI-style title formatting with hierarchical structure
-    const description = formatETSITitle(standard.description || standard.title || '');
-    const hasDescription = description && description.trim().length > 0;
+    const description = standard.description || standard.title || '';
+    
+    // Excel specific information
+    const esoInfo = standard.eso || '';
+    const ojReference = standard.oj_reference || '';
+    const restriction = standard.restriction || '';
+    const withdrawalDate = standard.withdrawal_date || '';
+    const withdrawalRef = standard.withdrawal_reference || '';
+    
+    // Status determination
+    const isWithdrawn = withdrawalDate && withdrawalDate !== '-' && withdrawalDate.trim() !== '';
+    const statusClass = isWithdrawn ? 'withdrawn' : 'current';
+    const statusText = isWithdrawn ? 'Withdrawn' : 'Current';
+    const statusIcon = isWithdrawn ? 'fa-times-circle' : 'fa-check-circle';
 
     item.innerHTML = `
         <div class="standard-header">
@@ -376,17 +383,60 @@ function createStandardItem(standard, directive = null) {
                 <strong class="standard-number-bold">${displayNumber}</strong>
                 ${dateInfo ? `<span class="standard-date">${dateInfo}</span>` : ''}
                 ${directiveBadge}
+                ${esoInfo ? `<span class="standard-eso">${esoInfo}</span>` : ''}
             </div>
         </div>
-        ${hasDescription ? `<div class="standard-description">${description}</div>` : ''}
+        <div class="standard-description">${description}</div>
+        <div class="standard-excel-info">
+            ${ojReference ? `<div class="excel-field"><strong>OJ Reference:</strong> ${ojReference}</div>` : ''}
+            ${restriction && restriction !== '-' ? `<div class="excel-field"><strong>Restriction:</strong> ${restriction}</div>` : ''}
+            ${isWithdrawn ? `<div class="excel-field withdrawal"><strong>Withdrawal Date:</strong> ${formatExcelDate(withdrawalDate)} <strong>Ref:</strong> ${withdrawalRef}</div>` : ''}
+        </div>
         <div class="standard-meta">
-            <span class="standard-type"><i class="fas fa-bookmark"></i> ${standard.type || 'Harmonised Standard'}</span>
-            <span class="standard-status"><i class="fas fa-check-circle"></i> Current</span>
+            <span class="standard-type"><i class="fas fa-bookmark"></i> Harmonised Standard</span>
+            <span class="standard-status ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span>
             ${etsiLink}
         </div>
     `;
 
     return item;
+}
+
+function formatExcelDate(dateValue) {
+    if (!dateValue || dateValue === '-' || dateValue.trim() === '') return '';
+    
+    // Handle Excel serial date numbers
+    if (dateValue.match(/^\d{4,5}$/)) {
+        const excelSerialDate = parseInt(dateValue);
+        if (excelSerialDate > 40000 && excelSerialDate < 50000) {
+            const excelEpoch = new Date(1899, 11, 30);
+            const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
+            return actualDate.toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+        }
+    }
+    
+    // If already formatted date
+    if (dateValue.includes('/') || dateValue.includes('-')) {
+        try {
+            const date = new Date(dateValue);
+            if (!isNaN(date.getTime())) {
+                return date.toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                });
+            }
+        } catch (e) {
+            // Return as-is if can't parse
+            return dateValue;
+        }
+    }
+    
+    return dateValue;
 }
 
 function formatETSIStandardNumber(standard) {

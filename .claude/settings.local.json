@@ -23,7 +23,8 @@
       "Bash(git push:*)",
       "WebFetch(domain:single-market-economy.ec.europa.eu)",
       "WebFetch(domain:eur-lex.europa.eu)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
