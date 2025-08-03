@@ -11,7 +11,19 @@
       "Bash(pkill:*)",
       "Bash(git checkout:*)",
       "Bash(git rm:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:www.etsi.org)",
+      "WebFetch(domain:standards.iteh.ai)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:688ebc5a5b713c0008a32aeb--webstandardchacker.netlify.app)",
+      "WebFetch(domain:688ebcfbab83be0008d162fb--webstandardchacker.netlify.app)",
+      "WebFetch(domain:688ebddaab83be0008d16336--webstandardchacker.netlify.app)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:single-market-economy.ec.europa.eu)",
+      "WebFetch(domain:eur-lex.europa.eu)",
+      "Bash(npm run dev:*)"
     ],
     "deny": []
   }

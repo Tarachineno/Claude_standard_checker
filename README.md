@@ -1,24 +1,27 @@
 # EU Harmonized Standards Checker
 
-A modern web application for checking EU harmonized standards compliance and comparing with ISO17025 certificates. Built with pure JavaScript and deployed on Netlify.
+A comprehensive web application for accessing EU harmonized standards and comparing with ISO17025 certificates. Built with pure JavaScript and deployed on Netlify with advanced Excel file integration.
 
 ---
 **🌟 Pure JavaScript Web Application (2025)**
 
 - ✅ **Zero-dependency Frontend**: Pure JavaScript, HTML5, CSS3
 - ✅ **Netlify Functions Backend**: Node.js serverless functions  
+- ✅ **Excel File Integration**: Direct access to official EC Excel files
+- ✅ **Multi-Directive Support**: RED, EMC, and LVD directives
 - ✅ **ETSI Portal Integration**: Direct redirect to official ETSI standards portal
-- ✅ **ETSI-compliant Display**: Professional formatting matching ETSI standards
+- ✅ **Download Functionality**: Secondary use of official Excel files
 - ✅ **Responsive Design**: Mobile-first, professional interface
-- ✅ **Real-time Processing**: Dynamic EUR-Lex integration with enhanced regex patterns
+- ✅ **Real-time Processing**: Dynamic Excel parsing with comprehensive data extraction
 - ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
 **Latest Updates (August 2025):**
-- 🆕 **ETSI Portal Only**: Streamlined to redirect directly to ETSI portal
-- 🆕 **RED & EMC Support**: Supports Radio Equipment and EMC directives
-- 🆕 **Simplified Interface**: Clean, focused user experience
-- 🆕 **Professional display**: ETSI-compliant redirect URLs
-- 🆕 **Removed LVD**: Low Voltage Directive support removed
+- 🆕 **Excel File Integration**: Parse official EC Excel files for real-time data
+- 🆕 **Three-Directive Support**: RED, EMC, and LVD with directive-specific parsing
+- 🆕 **Download Functionality**: Download original Excel files for secondary use
+- 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
+- 🆕 **Professional Display**: ETSI-compliant formatting with comprehensive metadata
+- 🆕 **Dual Access Methods**: Both Excel parsing and ETSI portal access
 ---
 
 ## 主要機能
@@ -26,24 +29,34 @@ A modern web application for checking EU harmonized standards compliance and com
 ### 🌐 Web Application Features
 
 #### 1. **Standards Access** 
-- **ETSI Portal Redirect**: Direct access to official ETSI standards portal
-- **RED Standards**: Radio Equipment Directive standards
-- **EMC Standards**: Electromagnetic Compatibility Directive standards
-- **Real-time Access**: Opens current ETSI portal in new tab
+- **Excel File Parsing**: Direct access to official EC harmonised standards Excel files
+- **RED Standards**: Radio Equipment Directive (2014/53/EU) - 233+ standards
+- **EMC Standards**: Electromagnetic Compatibility Directive (2014/30/EU) - 175+ standards
+- **LVD Standards**: Low Voltage Directive (2014/35/EU) - 902+ standards
+- **ETSI Portal Integration**: Alternative access via official ETSI portal
+- **Download Capability**: Secondary use of original Excel files
 
-#### 2. **Professional Display**
+#### 2. **Excel File Integration**
+- **Real-time Parsing**: Automatic download and parsing of latest EC Excel files
+- **Official Sources**: Direct integration with ec.europa.eu document repository
+- **Data Accuracy**: Always current with latest harmonised standards lists
+- **File Downloads**: Base64-encoded Excel files for offline use
+- **Comprehensive Metadata**: Standard numbers, titles, dates, and OJ references
+
+#### 3. **Professional Display**
 - **ETSI-compliant Formatting**: Standards displayed as "EN 301 489-17 V3.2.1 (2023-08)"
 - **Hierarchical Layout**: Professional typography matching ETSI portal style
 - **Status Indicators**: Current/Withdrawn status with color-coded badges
 - **Responsive Design**: Optimized for desktop and mobile devices
+- **Download Buttons**: Easy access to original Excel files
 
-#### 3. **Certificate Analysis**
+#### 4. **Certificate Analysis**
 - **PDF Processing**: ISO17025 certificate analysis and standard extraction
 - **Standards Comparison**: Compare certificate scope with EU harmonized standards
 - **Coverage Reports**: Detailed compliance analysis with percentage coverage
 - **Batch Processing**: Compare against multiple directives simultaneously
 
-#### 4. **Search & Export**
+#### 5. **Search & Export**
 - **Advanced Search**: Find specific standards across all directives
 - **Export Functions**: Download results in CSV format
 - **Real-time Results**: Live search and filtering capabilities
@@ -51,15 +64,15 @@ A modern web application for checking EU harmonized standards compliance and com
 
 ### 🔧 Technical Features
 
-#### 5. **Netlify Functions Backend**
+#### 6. **Netlify Functions Backend**
 - **Serverless Architecture**: Node.js functions for scalable processing
-- **Dynamic OJ Links**: Automatic discovery from EC directive pages
-- **Enhanced Parsing**: Comprehensive regex patterns for standard detection
-- **Error Handling**: Robust fallback mechanisms and retry logic
+- **Excel Processing**: XLSX library integration for real-time file parsing
+- **Enhanced Error Handling**: Robust fallback mechanisms and retry logic
+- **Multi-format Support**: Handles various Excel formats and structures
 
-#### 6. **Data Management**
-- **Caching System**: Optimized performance with intelligent caching
-- **Configuration**: External JSON configuration for OJ links
+#### 7. **Data Management**
+- **Real-time Updates**: Direct access to latest EC Excel files
+- **Configuration Management**: External JSON configuration for Excel URLs
 - **API Compatibility**: RESTful endpoints for frontend integration
 - **Cross-platform**: Compatible with web, mobile, and desktop applications
 
@@ -69,11 +82,15 @@ A modern web application for checking EU harmonized standards compliance and com
 
 1. **Visit the Live Application**: [EU Harmonized Standards Checker](https://eu-harmonized-standards.netlify.app)
 
-2. **Select a Directive**: Choose from RED or EMC
+2. **Select a Directive**: Choose from RED, EMC, or LVD
 
-3. **Access Standards**: Click to open ETSI portal in new tab for browsing
+3. **Choose Access Method**: 
+   - **Excel File (Parse hEN list)**: Real-time parsing of official EC Excel files
+   - **ETSI Portal (Open in new tab)**: Direct access to ETSI standards portal
 
-4. **Browse Standards**: Use the official ETSI portal interface for comprehensive standards browsing
+4. **View Standards**: Browse comprehensive standards lists with download options
+
+5. **Download Excel Files**: Use download button for secondary use of official files
 
 ### Local Development
 
@@ -112,8 +129,8 @@ The application is automatically deployed via Netlify with:
 ```bash
 # Optional: Configure custom settings
 NETLIFY_SITE_URL=your-site-url
-ETSI_API_TIMEOUT=15000
-OJ_CACHE_DURATION=86400
+EXCEL_FETCH_TIMEOUT=30000
+XLSX_PARSING_MODE=buffer
 ```
 
 ## 📊 API Endpoints
@@ -122,14 +139,42 @@ OJ_CACHE_DURATION=86400
 
 The application provides RESTful API endpoints:
 
+#### Excel File Processing
+```javascript
+// Parse standards from official Excel files
+GET /.netlify/functions/standards?directive=EMC
+
+// Response: Parsed standards data
+{
+  "success": true,
+  "data": {
+    "directive": "EMC",
+    "directive_name": "Electromagnetic Compatibility Directive",
+    "standards": [...],
+    "count": 175
+  }
+}
+```
+
+#### Excel File Downloads
+```javascript
+// Download original Excel files
+GET /.netlify/functions/download-excel?directive=RED
+
+// Response: Base64-encoded Excel file with proper headers
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+Content-Disposition: attachment; filename="EU_Harmonised_Standards_RED_2025-08-03.xlsx"
+```
+
 #### ETSI Portal Integration
 ```javascript
 // Redirect to ETSI portal for directive
-GET /.netlify/functions/standards?directive=RED
+GET /.netlify/functions/standards?directive=RED&method=etsi
 
 // Response: Opens ETSI portal in new tab
 // RED: https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3
 // EMC: https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3
+// LVD: https://www.etsi.org/standards#version=1&collection=LVD&historical=0&sort=3
 ```
 
 #### Standards Search
@@ -149,27 +194,30 @@ POST /.netlify/functions/compare
 
 #### JavaScript Frontend
 ```javascript
-// Redirect to ETSI portal for RED standards
-function openETSIPortal(directive) {
-  const urls = {
-    'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
-    'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
-  };
-  if (urls[directive]) {
-    window.open(urls[directive], '_blank');
-  }
+// Fetch standards from Excel files
+async function fetchStandardsFromExcel(directive) {
+  const response = await fetch(`/.netlify/functions/standards?directive=${directive}`);
+  const data = await response.json();
+  return data.data.standards;
+}
+
+// Download Excel file
+function downloadExcelFile(directive) {
+  const url = `/.netlify/functions/download-excel?directive=${directive}`;
+  window.open(url, '_blank');
 }
 ```
 
 #### Node.js Backend
 ```javascript
-// Generate ETSI portal URLs
-function getETSIPortalURL(directive) {
-  const urls = {
-    'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
-    'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
-  };
-  return urls[directive] || null;
+// Process Excel files with XLSX
+const XLSX = require('xlsx');
+
+function parseExcelStandards(buffer, directive) {
+  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+  return parseStandardsFromExcelData(jsonData, directive);
 }
 ```
 
@@ -177,15 +225,28 @@ function getETSIPortalURL(directive) {
 
 ### Web Interface Output
 
-#### ETSI Portal Access
+#### Excel File Parsing
 ```
-🔹 RED Standards
-Opening ETSI portal for Radio Equipment Directive (RED) standards in a new tab
-🔗 https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3
+🔹 EMC Standards (Excel File)
+Successfully fetched 175 standards from Excel file for Electromagnetic Compatibility Directive
+📥 Download Excel File button available
 
-🔹 EMC Standards  
-Opening ETSI portal for Electromagnetic Compatibility Directive (EMC) standards in a new tab
-🔗 https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3
+📋 Standards List:
+EN 617:2001+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
+EN 618:2002+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
+EN 619:2002+A1:2010 - Continuous handling equipment and systems - Safety and EMC requirements...
+```
+
+#### Multi-Directive Support
+```
+🔹 Available Directives:
+• RED - Radio Equipment Directive (233 standards)
+• EMC - Electromagnetic Compatibility Directive (175 standards)  
+• LVD - Low Voltage Directive (902 standards)
+
+🔹 Access Methods per Directive:
+• Excel File (Parse hEN list) - Real-time parsing
+• ETSI Portal (Open in new tab) - Official portal access
 ```
 
 #### Certificate Analysis Report
@@ -196,15 +257,15 @@ Organization: SGS JAPAN INC.
 Valid Until: 2025-12-31
 Total Standards: 38
 
-📊 Comparison Results - RED
-Coverage: 57.9% (22/38 matched)
-OJ Standards: 45
+📊 Comparison Results - EMC
+Coverage: 73.7% (28/38 matched)
+Excel Standards: 175
 ISO Standards: 38
 
-✅ Matched Standards (22)
-EN 301 489-17 V3.2.1 ↔ EN 301 489-17 (European Radio)
-EN 301 489-1 V2.2.3 ↔ EN 301 489-1 (European Radio)
-EN 300 328 V2.2.2 ↔ EN 300 328 (2.4 GHz ISM)
+✅ Matched Standards (28)
+EN 55032:2015 ↔ EN 55032 (Multimedia Equipment EMC)
+EN 55035:2017 ↔ EN 55035 (Multimedia Equipment Immunity)
+EN 61000-3-2:2014 ↔ EN 61000-3-2 (Harmonic Current Limits)
 ```
 
 ## 🛠️ Technical Architecture
@@ -217,52 +278,76 @@ EN 300 328 V2.2.2 ↔ EN 300 328 (2.4 GHz ISM)
 
 ### Backend Stack
 - **Netlify Functions**: Node.js serverless runtime
-- **Axios**: HTTP client for EUR-Lex integration
-- **Cheerio**: Server-side HTML parsing and manipulation
+- **Axios**: HTTP client for Excel file fetching
+- **XLSX**: Excel file parsing and processing
+- **Cheerio**: Server-side HTML parsing (fallback)
 - **Dynamic Caching**: Intelligent performance optimization
 
 ### Data Sources
-- **EUR-Lex**: Official Journal of the European Union
-- **EC Directive Pages**: Dynamic OJ link discovery
+- **EC Excel Files**: Official European Commission harmonised standards lists
+  - EMC: `https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native`
+  - RED: `https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native`
+  - LVD: `https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native`
 - **ETSI Portal**: Cross-reference integration
-- **Fallback Data**: Cached standards for reliability
+- **EUR-Lex**: Official Journal fallback system
 
 ### File Structure (Web Application)
 ```
 netlify-pure-webapp/
 ├── netlify/
 │   └── functions/
-│       ├── standards.js      # Main standards fetching
-│       ├── search.js         # Standards search
-│       ├── compare.js        # ISO17025 comparison
-│       ├── batch-compare.js  # Batch processing
-│       ├── certificate.js   # PDF processing
-│       └── directives.js    # Directive metadata
+│       ├── standards.js         # Excel parsing & standards fetching
+│       ├── download-excel.js    # Excel file download service
+│       ├── search.js           # Standards search
+│       ├── compare.js          # ISO17025 comparison
+│       ├── batch-compare.js    # Batch processing
+│       ├── certificate.js     # PDF processing
+│       └── directives.js      # Directive metadata
 ├── static/
-│   ├── index.html           # Main application
-│   ├── script.js            # Frontend logic
-│   └── style.css            # ETSI-compliant styling
-├── package.json             # Node.js dependencies
-└── README.md               # This documentation
+│   ├── api/
+│   │   └── directives.json    # Directive configuration with Excel URLs
+│   ├── index.html             # Main application
+│   ├── script.js              # Frontend logic with Excel integration
+│   └── style.css              # ETSI-compliant styling
+├── package.json               # Node.js dependencies (includes xlsx)
+└── README.md                 # This documentation
 ```
 
 ### Performance Features
 - **CDN Delivery**: Global content distribution via Netlify
+- **Excel Caching**: Intelligent caching of parsed Excel data
 - **Lazy Loading**: Progressive content loading
-- **Caching Strategy**: Multi-level caching for optimal speed
 - **Error Handling**: Graceful degradation and retry logic
+- **Base64 Encoding**: Efficient binary file transfer
+
+## 📈 Standards Coverage
+
+### Current Statistics (August 2025)
+- **RED (Radio Equipment)**: 233 harmonised standards
+- **EMC (Electromagnetic Compatibility)**: 175 harmonised standards
+- **LVD (Low Voltage)**: 902 harmonised standards
+- **Total Coverage**: 1,310+ EU harmonised standards
+- **Data Freshness**: Real-time from official EC sources
+
+### Standard Format Examples
+```
+EN 18031-1:2024 - Common security requirements for radio equipment - Part 1
+EN 55032:2015 - Electromagnetic compatibility of multimedia equipment - Emission requirements
+EN ISO 11252:2013 - Lasers and laser-related equipment - Laser device - Minimum requirements
+```
 
 ## ⚠️ Important Notes
 
 ### Usage Guidelines
-- **Rate Limiting**: Please use reasonable intervals for bulk requests to EUR-Lex
+- **Rate Limiting**: Reasonable intervals for Excel file requests
 - **ETSI Portal**: Comply with ETSI's terms of service for portal access
 - **PDF Security**: Ensure confidentiality when uploading ISO17025 certificates
 - **Browser Compatibility**: Optimized for modern browsers (Chrome, Firefox, Safari, Edge)
+- **Excel File Size**: Large files (up to ~90KB) handled efficiently
 
 ### Data Sources
-- **EUR-Lex**: Official EU legal database - authoritative source
-- **Dynamic Updates**: OJ links automatically discovered from EC webpages
+- **Official EC Excel Files**: Authoritative source for harmonised standards
+- **Real-time Updates**: Always current with latest published lists
 - **Fallback System**: Cached data ensures availability during service interruptions
 - **ETSI Integration**: Cross-referencing with official ETSI portal
 
@@ -272,8 +357,8 @@ netlify-pure-webapp/
 
 ```bash
 # Prerequisites
-node -v  # Requires Node.js 14+
-npm -v   # Requires npm 6+
+node -v  # Requires Node.js 16+
+npm -v   # Requires npm 8+
 
 # Clone and setup
 git clone https://github.com/username/Claude_standard_checker.git
@@ -296,37 +381,50 @@ To add support for new EU directives:
 const DIRECTIVE_CONFIG = {
   NEW_DIR: {
     name: 'New Directive Name',
+    excel_url: 'https://ec.europa.eu/docsroom/documents/XXXXX/attachments/1/translations/en/renditions/native',
     ec_webpage: 'https://single-market-economy.ec.europa.eu/new-directive',
     fallback_urls: ['https://eur-lex.europa.eu/new-oj-link']
   }
 };
 ```
 
-2. **Add frontend support** in `static/script.js` for new directive handling
+2. **Update directives.json** in `static/api/directives.json`:
+```json
+{
+  "code": "NEW_DIR",
+  "name": "New Directive Name",
+  "description": "New Directive Description",
+  "directive_number": "2024/XX/EU",
+  "excel_url": "https://ec.europa.eu/docsroom/documents/XXXXX/..."
+}
+```
 
-3. **Test thoroughly** with real OJ documents to ensure proper parsing
+3. **Add frontend support** in `static/script.js` for new directive handling
 
-### Regex Pattern Enhancement
+4. **Test thoroughly** with real Excel files to ensure proper parsing
 
-Improve standard detection by updating patterns in `parseStandardsFromHtml()`:
+### Excel Parsing Enhancement
+
+Improve Excel parsing by updating column mappings in `parseStandardsFromExcelData()`:
 
 ```javascript
-const patterns = [
-  // Add new patterns for different standard formats
-  /NEW_PATTERN_HERE/gi,
-  // Existing patterns...
-];
+// Adjust column indexes based on Excel file structure
+if (directive === 'NEW_DIR') {
+  standardNumber = row[X] ? String(row[X]).trim() : '';  // Adjust X
+  title = row[Y] ? String(row[Y]).trim() : '';           // Adjust Y
+  versionOrDate = row[Z] ? String(row[Z]).trim() : '';   // Adjust Z
+}
 ```
 
 ## 🌐 Browser Support
 
-| Browser | Version | Status |
-|---------|---------|--------|
-| Chrome | 90+ | ✅ Full Support |
-| Firefox | 88+ | ✅ Full Support |
-| Safari | 14+ | ✅ Full Support |
-| Edge | 90+ | ✅ Full Support |
-| Mobile | iOS 14+, Android 10+ | ✅ Responsive |
+| Browser | Version | Excel Support | Download Support | Status |
+|---------|---------|---------------|------------------|--------|
+| Chrome | 90+ | ✅ Full | ✅ Base64 | ✅ Full Support |
+| Firefox | 88+ | ✅ Full | ✅ Base64 | ✅ Full Support |
+| Safari | 14+ | ✅ Full | ✅ Base64 | ✅ Full Support |
+| Edge | 90+ | ✅ Full | ✅ Base64 | ✅ Full Support |
+| Mobile | iOS 14+, Android 10+ | ✅ Responsive | ✅ Mobile | ✅ Responsive |
 
 ## 📄 License
 
@@ -335,9 +433,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
+2. Create a feature branch (`git checkout -b feature/excel-enhancement`)
+3. Commit changes (`git commit -am 'Add Excel parsing improvements'`)
+4. Push to branch (`git push origin feature/excel-enhancement`)
 5. Create Pull Request
 
 ## 📧 Support
@@ -349,3 +447,5 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Built with ❤️ for EU compliance professionals**
+
+*Featuring comprehensive Excel integration for real-time access to official EC harmonised standards data across RED, EMC, and LVD directives.*

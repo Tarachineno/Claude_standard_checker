@@ -184,14 +184,21 @@ function updateFetchMethodOptions() {
     }
     
     if (directive === 'EMC') {
-        // EMC: OJ Parse first, then ETSI Portal
+        // EMC: Excel Parse first, then ETSI Portal
         fetchMethodSelect.innerHTML = `
-            <option value="oj">Official Journal (Parse and display)</option>
+            <option value="excel">Excel File (Parse hEN list)</option>
             <option value="etsi">ETSI Portal (Open in new tab)</option>
         `;
     } else if (directive === 'RED') {
-        // RED: ETSI Portal only
+        // RED: Excel Parse first, then ETSI Portal
         fetchMethodSelect.innerHTML = `
+            <option value="excel">Excel File (Parse hEN list)</option>
+            <option value="etsi">ETSI Portal (Open in new tab)</option>
+        `;
+    } else if (directive === 'LVD') {
+        // LVD: Excel Parse first, then ETSI Portal
+        fetchMethodSelect.innerHTML = `
+            <option value="excel">Excel File (Parse hEN list)</option>
             <option value="etsi">ETSI Portal (Open in new tab)</option>
         `;
     } else {
@@ -216,7 +223,8 @@ async function fetchStandards() {
         // ETSI Portal redirect method with standardized format
         const etsiUrls = {
             'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
-            'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
+            'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3',
+            'LVD': 'https://www.etsi.org/standards#version=1&collection=LVD&historical=0&sort=3'
         };
 
         if (etsiUrls[directive]) {
@@ -227,33 +235,36 @@ async function fetchStandards() {
             
             const directiveNames = {
                 'RED': 'Radio Equipment Directive',
-                'EMC': 'Electromagnetic Compatibility Directive'
+                'EMC': 'Electromagnetic Compatibility Directive',
+                'LVD': 'Low Voltage Directive'
             };
             
             showSuccess(`Opening ETSI portal for ${directiveNames[directive]} (${directive}) standards in a new tab`);
             return;
         }
-    } else if (fetchMethod === 'oj') {
-        // Official Journal parsing method - only supported for EMC
-        if (directive !== 'EMC') {
-            showError('OJ Parse is only supported for EMC directive');
+    } else if (fetchMethod === 'excel') {
+        // Excel file parsing method - supported for EMC, RED, and LVD
+        if (!['EMC', 'RED', 'LVD'].includes(directive)) {
+            showError('Excel Parse is only supported for EMC, RED, and LVD directives');
             return;
         }
         
         try {
-            console.log('Fetching standards from Official Journal for directive:', directive);
+            console.log('Fetching standards from Excel file for directive:', directive);
             
             const response = await apiCall(`/standards?directive=${directive}`);
             
             if (response && response.success) {
                 displayStandards(response.data);
-                showSuccess(`Successfully fetched ${response.data.count} standards from Official Journal for ${response.data.directive_name}`);
+                // Show download button for Excel file
+                addDownloadButton(directive);
+                showSuccess(`Successfully fetched ${response.data.count} standards from Excel file for ${response.data.directive_name}`);
             } else {
-                throw new Error(response?.error || 'Failed to fetch standards from Official Journal');
+                throw new Error(response?.error || 'Failed to fetch standards from Excel file');
             }
         } catch (error) {
-            console.error('Failed to fetch OJ standards:', error);
-            showError(`Failed to fetch OJ standards: ${error.message}`);
+            console.error('Failed to fetch Excel standards:', error);
+            showError(`Failed to fetch Excel standards: ${error.message}`);
         }
         return;
     }
@@ -276,6 +287,68 @@ function displayStandards(data) {
     });
 
     resultsSection.classList.remove('hidden');
+}
+
+function addDownloadButton(directive) {
+    const resultsSection = document.getElementById('standards-results');
+    
+    // Remove existing download button if present
+    const existingButton = resultsSection.querySelector('.download-excel-btn');
+    if (existingButton) {
+        existingButton.remove();
+    }
+    
+    // Add download button for Excel file
+    const downloadButton = document.createElement('button');
+    downloadButton.className = 'btn btn-secondary download-excel-btn';
+    downloadButton.innerHTML = '<i class="fas fa-download"></i> Download Excel File';
+    downloadButton.style.marginTop = '10px';
+    downloadButton.onclick = () => downloadExcelFile(directive);
+    
+    const countElement = document.getElementById('standards-count');
+    countElement.parentNode.insertBefore(downloadButton, countElement.nextSibling);
+}
+
+async function downloadExcelFile(directive) {
+    try {
+        showLoading();
+        console.log(`Downloading Excel file for ${directive} directive`);
+        
+        const response = await fetch(`${API_BASE}/download-excel?directive=${directive}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        // Get filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `EU_Harmonised_Standards_${directive}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch) {
+                filename = filenameMatch[1];
+            }
+        }
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showSuccess(`Excel file downloaded: ${filename}`);
+    } catch (error) {
+        console.error('Excel download failed:', error);
+        showError(`Excel download failed: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
 }
 
 function createStandardItem(standard, directive = null) {

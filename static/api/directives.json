@@ -5,13 +5,22 @@
       "code": "RED",
       "name": "Radio Equipment Directive",
       "description": "Radio Equipment Directive (RED)",
-      "directive_number": "2014/53/EU"
+      "directive_number": "2014/53/EU",
+      "excel_url": "https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native"
     },
     {
       "code": "EMC", 
       "name": "Electromagnetic Compatibility Directive",
       "description": "EMC Directive",
-      "directive_number": "2014/30/EU"
+      "directive_number": "2014/30/EU",
+      "excel_url": "https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native"
+    },
+    {
+      "code": "LVD",
+      "name": "Low Voltage Directive", 
+      "description": "Low Voltage Directive",
+      "directive_number": "2014/35/EU",
+      "excel_url": "https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native"
     }
   ]
 }

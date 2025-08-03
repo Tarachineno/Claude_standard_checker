@@ -8,6 +8,7 @@ const DIRECTIVE_CONFIG = {
   RED: {
     name: 'Radio Equipment Directive',
     ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en',
+    excel_url: 'https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native',
     fallback_urls: [
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC',
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392',
@@ -19,6 +20,7 @@ const DIRECTIVE_CONFIG = {
   EMC: {
     name: 'Electromagnetic Compatibility Directive',
     ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en',
+    excel_url: 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native',
     fallback_urls: [
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG',
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC',
@@ -26,6 +28,16 @@ const DIRECTIVE_CONFIG = {
       'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2021.089.01.0017.01.ENG',
       'https://eur-lex.europa.eu/eli/dec_impl/2022/622/oj',
       'https://eur-lex.europa.eu/eli/dec_impl/2022/910/oj'
+    ]
+  },
+  LVD: {
+    name: 'Low Voltage Directive',
+    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en',
+    excel_url: 'https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native',
+    fallback_urls: [
+      'https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj',
+      'https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj',
+      'https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj'
     ]
   }
 };
@@ -52,19 +64,7 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'Invalid directive code. Use EMC.'
-        })
-      };
-    }
-    
-    // RED directive is not supported for OJ parsing
-    if (directive === 'RED') {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          error: 'RED directive only supports ETSI Portal redirect. Please use ETSI Portal option.'
+          error: 'Invalid directive code. Use EMC, RED, or LVD.'
         })
       };
     }
@@ -107,9 +107,9 @@ exports.handler = async (event, context) => {
 };
 
 async function fetchStandardsFromEurlex(directive) {
-  // For EMC, fetch from the official Excel file
-  if (directive === 'EMC') {
-    return await fetchEMCStandardsFromExcel();
+  // For EMC, RED, and LVD, fetch from the official Excel files
+  if (['EMC', 'RED', 'LVD'].includes(directive)) {
+    return await fetchStandardsFromExcel(directive);
   }
 
   const config = DIRECTIVE_CONFIG[directive];
@@ -176,12 +176,13 @@ async function fetchStandardsFromEurlex(directive) {
   return allStandards;
 }
 
-// Function to fetch EMC standards from official Excel file
-async function fetchEMCStandardsFromExcel() {
-  const excelUrl = 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native';
+// Function to fetch standards from official Excel files
+async function fetchStandardsFromExcel(directive) {
+  const config = DIRECTIVE_CONFIG[directive];
+  const excelUrl = config.excel_url;
   
   try {
-    console.log('Fetching EMC standards from official Excel file:', excelUrl);
+    console.log(`Fetching ${directive} standards from official Excel file:`, excelUrl);
     
     const response = await axios.get(excelUrl, {
       timeout: 30000,
@@ -206,20 +207,20 @@ async function fetchEMCStandardsFromExcel() {
     console.log(`Excel file parsed, found ${jsonData.length} rows`);
     
     // Parse standards from Excel data
-    const standards = parseStandardsFromExcelData(jsonData);
+    const standards = parseStandardsFromExcelData(jsonData, directive);
     
     console.log(`Parsed ${standards.length} standards from Excel file`);
     
     return standards;
     
   } catch (error) {
-    console.error('Error fetching EMC standards from Excel:', error.message);
+    console.error(`Error fetching ${directive} standards from Excel:`, error.message);
     throw error;
   }
 }
 
 // Function to parse standards from Excel data
-function parseStandardsFromExcelData(excelData) {
+function parseStandardsFromExcelData(excelData, directive) {
   const standards = [];
   
   // Skip header rows and process data
@@ -228,13 +229,30 @@ function parseStandardsFromExcelData(excelData) {
     
     if (!row || row.length < 2) continue;
     
-    // Assuming Excel format: [Standard Number, Title, Version/Date, Other fields...]
-    const standardNumber = row[0] ? String(row[0]).trim() : '';
-    const title = row[1] ? String(row[1]).trim() : '';
-    const versionOrDate = row[2] ? String(row[2]).trim() : '';
-    const notes = row[3] ? String(row[3]).trim() : '';
+    // Different Excel formats for different directives
+    let standardNumber, title, versionOrDate, notes;
     
-    // Skip if no standard number
+    if (directive === 'EMC') {
+      // EMC Excel format: [Legislation, ESO, Standard Number, Title, Date, OJ, ...]
+      standardNumber = row[2] ? String(row[2]).trim() : '';
+      title = row[3] ? String(row[3]).trim() : '';
+      versionOrDate = row[4] ? String(row[4]).trim() : '';
+      notes = row[5] ? String(row[5]).trim() : '';
+    } else if (directive === 'RED') {
+      // RED Excel format - similar structure expected
+      standardNumber = row[2] ? String(row[2]).trim() : '';
+      title = row[3] ? String(row[3]).trim() : '';
+      versionOrDate = row[4] ? String(row[4]).trim() : '';
+      notes = row[5] ? String(row[5]).trim() : '';
+    } else if (directive === 'LVD') {
+      // LVD Excel format - similar structure expected
+      standardNumber = row[2] ? String(row[2]).trim() : '';
+      title = row[3] ? String(row[3]).trim() : '';
+      versionOrDate = row[4] ? String(row[4]).trim() : '';
+      notes = row[5] ? String(row[5]).trim() : '';
+    }
+    
+    // Skip if no standard number or doesn't contain EN
     if (!standardNumber || !standardNumber.includes('EN')) continue;
     
     // Clean up standard number
