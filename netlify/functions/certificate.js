@@ -11,11 +11,20 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
+  // Debug logging
+  console.log('=== CERTIFICATE FUNCTION CALLED ===');
+  console.log('HTTP Method:', event.httpMethod);
+  console.log('Content-Type:', event.headers['content-type']);
+  console.log('Body length:', event.body ? event.body.length : 0);
+  console.log('Is Base64 encoded:', event.isBase64Encoded);
+
   if (event.httpMethod === 'OPTIONS') {
+    console.log('OPTIONS request - returning CORS headers');
     return { statusCode: 200, headers, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
+    console.log('Invalid method:', event.httpMethod);
     return {
       statusCode: 405,
       headers,
@@ -31,18 +40,37 @@ exports.handler = async (event, context) => {
     console.log('HTTP Method:', event.httpMethod);
     console.log('Headers:', JSON.stringify(event.headers, null, 2));
     
-    // Simple approach: expect JSON body with base64 encoded file
-    let requestData;
-    try {
-      requestData = JSON.parse(event.body);
-    } catch (parseError) {
-      console.error('JSON parsing failed:', parseError);
+    // Check if body exists
+    if (!event.body) {
+      console.error('No body in request');
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'Invalid request format. Expected JSON with base64 encoded file.'
+          error: 'No request body provided'
+        })
+      };
+    }
+
+    console.log('Body preview (first 200 chars):', event.body.substring(0, 200));
+
+    // Simple approach: expect JSON body with base64 encoded file
+    let requestData;
+    try {
+      requestData = JSON.parse(event.body);
+      console.log('JSON parsed successfully');
+      console.log('Request data keys:', Object.keys(requestData));
+    } catch (parseError) {
+      console.error('JSON parsing failed:', parseError);
+      console.error('Body type:', typeof event.body);
+      console.error('Body content (first 500 chars):', event.body.substring(0, 500));
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: `Invalid JSON format: ${parseError.message}`
         })
       };
     }

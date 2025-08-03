@@ -764,12 +764,17 @@ async function handleFile(file) {
 
     try {
         showLoading();
+        console.log('Converting file to base64...');
         const fileData = await fileDataPromise;
+        console.log('Base64 conversion complete, length:', fileData.length);
         
         const requestBody = {
             fileName: file.name,
             fileData: fileData
         };
+        
+        console.log('Sending request to:', `${API_BASE}/certificate`);
+        console.log('Request body size:', JSON.stringify(requestBody).length);
 
         const response = await fetch(`${API_BASE}/certificate`, {
             method: 'POST',
@@ -778,11 +783,22 @@ async function handleFile(file) {
             },
             body: JSON.stringify(requestBody)
         });
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+            console.log('Response data:', data);
+        } catch (jsonError) {
+            console.error('Failed to parse response JSON:', jsonError);
+            throw new Error(`Server returned invalid JSON (Status: ${response.status})`);
+        }
         
         if (!response.ok) {
-            throw new Error(data.error || `HTTP ${response.status}`);
+            console.error('Server error:', data);
+            throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
         }
 
         uploadedCertificateData = data.data;
