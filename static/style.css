@@ -198,6 +198,43 @@ main {
     flex: 3;
 }
 
+/* Search info section */
+.search-info {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.search-info h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.search-info ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.search-info li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.search-info li:last-child {
+    border-bottom: none;
+}
+
+.search-info p {
+    margin: 0;
+    padding: 1rem;
+    background: #e8f4fd;
+    border-radius: 6px;
+    color: #1976d2;
+}
+
 /* Upload section */
 .upload-section {
     margin-bottom: 2rem;

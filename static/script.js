@@ -348,19 +348,15 @@ async function searchStandards() {
         return;
     }
 
-    try {
-        console.log('Searching for:', query);
-        const response = await apiCall(`/search?q=${encodeURIComponent(query)}`);
-        
-        if (response.success) {
-            displaySearchResults(response.data);
-        } else {
-            throw new Error(response.error || 'Search failed');
-        }
-    } catch (error) {
-        console.error('Search failed:', error);
-        showError(`Search failed: ${error.message}`);
-    }
+    // Redirect to ETSI Portal search instead of OJ search
+    const searchTerm = encodeURIComponent(query);
+    const today = new Date().toISOString().split('T')[0];
+    const etsiSearchUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
+    
+    console.log(`Redirecting to ETSI portal search for: ${query}`);
+    window.open(etsiSearchUrl, '_blank');
+    
+    showSuccess(`Opening ETSI portal search for "${query}" in a new tab`);
 }
 
 function displaySearchResults(data) {
