@@ -312,16 +312,37 @@ main {
 
 .standard-number-bold {
     font-weight: 700;
-    color: #333;
+    color: #2c3e50;
     font-size: 1.2rem;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+.standard-date {
+    background: #e8f4fd;
+    color: #1976d2;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: monospace;
 }
 
 .standard-description {
-    color: #666;
+    color: #555;
     font-size: 0.95rem;
-    line-height: 1.4;
-    margin-bottom: 10px;
+    line-height: 1.5;
+    margin-bottom: 12px;
     margin-top: 8px;
+    font-weight: 400;
+}
+
+.standard-status {
+    background: #e8f5e8;
+    color: #2e7d32;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .standard-number {

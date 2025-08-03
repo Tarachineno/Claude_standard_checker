@@ -247,40 +247,85 @@ function createStandardItem(standard, directive = null) {
     const directiveBadge = directive ? 
         `<span class="standard-directive">${directive}</span>` : '';
 
-    // Use full_number if available (includes version), otherwise use number
-    const displayNumber = standard.full_number || standard.number;
-    const hasVersion = standard.version && standard.version.length > 0;
+    // ETSI-style standard number formatting
+    const displayNumber = formatETSIStandardNumber(standard);
     
-    // Enhanced formatting for version display
-    const versionInfo = hasVersion ? 
-        `<span class="version-info"><i class="fas fa-tag"></i> ${standard.version}</span>` : '';
+    // ETSI-style date formatting
+    const dateInfo = formatETSIDate(standard.date || standard.year);
     
-    const date = standard.date ? 
-        `<span class="date-info"><i class="fas fa-calendar"></i> ${standard.date}</span>` : '';
-
     const etsiLink = generateETSILink(standard.number);
 
-    // Enhanced description handling
-    const description = standard.description || standard.title || 'No description available';
+    // ETSI-style title formatting with hierarchical structure
+    const description = formatETSITitle(standard.description || standard.title || '');
     const hasDescription = description && description.trim().length > 0;
 
     item.innerHTML = `
         <div class="standard-header">
             <div class="standard-number-container">
                 <strong class="standard-number-bold">${displayNumber}</strong>
+                ${dateInfo ? `<span class="standard-date">${dateInfo}</span>` : ''}
                 ${directiveBadge}
             </div>
         </div>
         ${hasDescription ? `<div class="standard-description">${description}</div>` : ''}
         <div class="standard-meta">
-            ${!hasVersion && standard.version ? versionInfo : ''}
-            ${date}
             <span class="standard-type"><i class="fas fa-bookmark"></i> ${standard.type || 'Harmonised Standard'}</span>
+            <span class="standard-status"><i class="fas fa-check-circle"></i> Current</span>
             ${etsiLink}
         </div>
     `;
 
     return item;
+}
+
+function formatETSIStandardNumber(standard) {
+    // ETSI format: EN [series]-[part] V[version] or EN [series] V[version]
+    let number = standard.number || '';
+    let version = standard.version || '';
+    
+    // Clean up version format to match ETSI style
+    if (version && !version.startsWith('V') && !version.startsWith('(')) {
+        if (version.match(/^\d+\.\d+\.\d+$/)) {
+            version = `V${version}`;
+        }
+    }
+    
+    // Combine number and version in ETSI style
+    if (version && version.startsWith('V')) {
+        return `${number} ${version}`;
+    } else if (version && version.startsWith('(')) {
+        return `${number} ${version}`;
+    }
+    
+    return number;
+}
+
+function formatETSIDate(dateValue) {
+    if (!dateValue) return '';
+    
+    // Convert various date formats to ETSI (YYYY-MM) format
+    if (dateValue.length === 4) {
+        // Year only format
+        return `(${dateValue})`;
+    } else if (dateValue.match(/^\d{4}-\d{2}$/)) {
+        // Already in YYYY-MM format
+        return `(${dateValue})`;
+    } else if (dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // Convert YYYY-MM-DD to YYYY-MM
+        return `(${dateValue.substring(0, 7)})`;
+    }
+    
+    return `(${dateValue})`;
+}
+
+function formatETSITitle(title) {
+    if (!title) return '';
+    
+    // Clean up title formatting to match ETSI style
+    return title
+        .replace(/^[-–—]\s*/, '') // Remove leading dashes
+        .replace(/\s+/g, ' ')     // Normalize spaces
+        .trim();
 }
 
 function generateETSILink(standardNumber) {
