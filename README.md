@@ -6,383 +6,373 @@ A modern web application for checking EU harmonized standards compliance and com
 **🌟 Pure JavaScript Web Application (2025)**
 
 - ✅ **Zero-dependency Frontend**: Pure JavaScript, HTML5, CSS3
-- ✅ **Netlify Functions Backend**: Node.js serverless functions
-- ✅ **Real-time OJ Standards**: Direct EUR-Lex integration
+- ✅ **Netlify Functions Backend**: Node.js serverless functions  
+- ✅ **Dual Fetch Methods**: Official Journal parsing + ETSI Portal integration
+- ✅ **ETSI-compliant Display**: Professional formatting matching ETSI standards
 - ✅ **Responsive Design**: Mobile-first, professional interface
-- ✅ **No Python Dependencies**: Fully web-native implementation
+- ✅ **Real-time Processing**: Dynamic EUR-Lex integration with enhanced regex patterns
 - ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
-**Latest Updates:**
-- Complete rewrite as pure JavaScript web application
-- Netlify Functions for serverless backend
-- Real-time EUR-Lex Official Journal integration
-- Modern responsive user interface
-- Cross-platform compatibility
+**Latest Updates (August 2025):**
+- 🆕 **ETSI-style formatting**: Complete standard numbers with versions in bold (e.g., "EN 301 489-17 V3.2.1")
+- 🆕 **Dual fetch methods**: Choose between Official Journal parsing or ETSI Portal redirects
+- 🆕 **Enhanced regex patterns**: Improved standard detection from OJ documents
+- 🆕 **Professional display**: ETSI-compliant typography and layout
+- 🆕 **Dynamic OJ discovery**: Automatic detection of new Official Journal links
 ---
 
-## 機能
+## 主要機能
 
-### 1. OJ Checker モジュール
-（実装済み・動作確認済み）
-- Official Journal (OJ)からのharmonized standards自動取得
-- RED、EMC、LVDディレクティブ対応
-- キャッシュ機能による高速化
-- 外部JSON設定による柔軟なOJリンク管理
+### 🌐 Web Application Features
 
-### 2. ETSI Portal検索モジュール
-（実装済み・動作確認済み）
-- ETSI Portal APIを使用した規格詳細検索
-- 規格番号による自動検索とブラウザ表示
-- 一括検索機能
+#### 1. **Standards Fetching** 
+- **Official Journal Method**: Direct parsing of EUR-Lex documents with enhanced regex patterns
+- **ETSI Portal Method**: Seamless integration with ETSI standards portal
+- **Dynamic Discovery**: Automatic detection of new OJ links from EC webpages
+- **Real-time Processing**: Live fetching and display of harmonized standards
 
-### 3. ISO17025スコープ抽出モジュール
-（実装済み・動作確認済み）
-- PDF認証書からの規格自動抽出
-- 証明書情報（番号、有効期限、認証機関）の抽出
-- 複数の規格パターン対応
+#### 2. **Professional Display**
+- **ETSI-compliant Formatting**: Standards displayed as "EN 301 489-17 V3.2.1 (2023-08)"
+- **Hierarchical Layout**: Professional typography matching ETSI portal style
+- **Status Indicators**: Current/Withdrawn status with color-coded badges
+- **Responsive Design**: Optimized for desktop and mobile devices
 
-### 4. 統合比較機能
-（実装済み・動作確認済み）
-- OJ CheckerとISO17025の結果を比較
-- カバレッジ計算と詳細レポート生成
-- 規格マッチング精度の向上
+#### 3. **Certificate Analysis**
+- **PDF Processing**: ISO17025 certificate analysis and standard extraction
+- **Standards Comparison**: Compare certificate scope with EU harmonized standards
+- **Coverage Reports**: Detailed compliance analysis with percentage coverage
+- **Batch Processing**: Compare against multiple directives simultaneously
 
-### 5. 外部設定システム（NEW）
-（実装済み）
-- `oj_config.json`による設定外部化
-- 動的なOJリンク追加・更新機能
-- モバイルアプリ対応の分離された設定
-- 設定検証とエラーハンドリング
+#### 4. **Search & Export**
+- **Advanced Search**: Find specific standards across all directives
+- **Export Functions**: Download results in CSV format
+- **Real-time Results**: Live search and filtering capabilities
+- **Cross-referencing**: Direct links to ETSI portal for detailed specifications
 
-## セットアップ
+### 🔧 Technical Features
 
-### 1. 依存関係のインストール
+#### 5. **Netlify Functions Backend**
+- **Serverless Architecture**: Node.js functions for scalable processing
+- **Dynamic OJ Links**: Automatic discovery from EC directive pages
+- **Enhanced Parsing**: Comprehensive regex patterns for standard detection
+- **Error Handling**: Robust fallback mechanisms and retry logic
+
+#### 6. **Data Management**
+- **Caching System**: Optimized performance with intelligent caching
+- **Configuration**: External JSON configuration for OJ links
+- **API Compatibility**: RESTful endpoints for frontend integration
+- **Cross-platform**: Compatible with web, mobile, and desktop applications
+
+## 🚀 Quick Start
+
+### Web Application (Recommended)
+
+1. **Visit the Live Application**: [EU Harmonized Standards Checker](https://eu-harmonized-standards.netlify.app)
+
+2. **Select a Directive**: Choose from RED, EMC, or LVD
+
+3. **Choose Fetch Method**:
+   - **Official Journal**: Parse standards directly from EUR-Lex documents
+   - **ETSI Portal**: Open ETSI portal in new tab for manual browsing
+
+4. **View Results**: Standards displayed in ETSI-compliant format with versions and descriptions
+
+### Local Development
 
 ```bash
-# 仮想環境を作成（推奨）
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# または
-venv\\Scripts\\activate  # Windows
+# Clone the repository
+git clone https://github.com/username/Claude_standard_checker.git
+cd Claude_standard_checker
 
-# 必要なパッケージをインストール
-pip install -r requirements.txt
+# Switch to web application branch
+git checkout netlify-pure-webapp
+
+# Install dependencies (for Netlify Functions)
+npm install
+
+# Start local development server
+netlify dev
 ```
 
-### 2. 必要なファイル
-- `data/`フォルダにISO17025認証書PDFファイルを配置
-- `oj_config.json`設定ファイル（自動生成済み）
+### Certificate Analysis
 
-## 使用方法
+1. **Upload Certificate**: Drag and drop ISO17025 PDF certificate
+2. **Compare Standards**: Select directive to compare against
+3. **View Coverage Report**: See detailed compliance analysis
 
-### コマンドライン使用法
+## 🔧 Configuration
+
+### Netlify Deployment
+
+The application is automatically deployed via Netlify with:
+- **Netlify Functions**: Serverless backend processing
+- **Static Hosting**: Frontend served from CDN
+- **Continuous Deployment**: Automatic updates from Git
+
+### Environment Variables
 
 ```bash
-# 対話式モード
-python main.py interactive
-
-# 指定DirectiveのOJ規格を取得（REDに変更）
-python main.py check RED
-
-# 全DirectiveのOJ規格を取得
-python main.py check
-
-# ISO17025証明書との比較
-python main.py compare data/certificate.pdf RED
-
-# 規格検索
-python main.py search "301 489"
-
-# デバッグモード
-python main.py debug RED
+# Optional: Configure custom settings
+NETLIFY_SITE_URL=your-site-url
+ETSI_API_TIMEOUT=15000
+OJ_CACHE_DURATION=86400
 ```
 
-### 単独モジュール使用例
+## 📊 API Endpoints
 
-```python
-# OJ Checkerのみ使用
-from oj_checker import OJChecker
+### Netlify Functions
 
-checker = OJChecker()
-result = checker.fetch_standards('RED')  # REDに変更
-if result.success:
-    standards = result.data
-    print(checker.format_standards_display(standards))
+The application provides RESTful API endpoints:
 
-# ETSI Portal検索のみ使用
-from etsi_searcher import ETSIPortalSearcher
+#### Standards Fetching
+```javascript
+// Fetch standards for a directive
+GET /.netlify/functions/standards?directive=RED
 
-searcher = ETSIPortalSearcher()
-result = searcher.search_and_open("EN 301 489-17")
-
-# ISO17025スコープ抽出のみ使用
-from iso17025_extractor import ISO17025ScopeExtractor
-
-extractor = ISO17025ScopeExtractor()
-result = extractor.extract_from_pdf("data/certificate.pdf")
-if result.success:
-    scope = result.data
-    print(f"Found {len(scope.test_standards)} standards")
+// Response format
+{
+  "success": true,
+  "data": {
+    "directive": "RED",
+    "directive_name": "Radio Equipment Directive",
+    "standards": [
+      {
+        "number": "EN 301 489-17",
+        "full_number": "EN 301 489-17 V3.2.1",
+        "version": "V3.2.1",
+        "title": "EMC standard for radio equipment",
+        "description": "Specific conditions for Broadband Data Transmission Systems",
+        "date": "2023-08",
+        "type": "Harmonised Standard"
+      }
+    ],
+    "count": 45
+  }
+}
 ```
 
-### 統合使用例
+#### Standards Search
+```javascript
+// Search across all standards
+GET /.netlify/functions/search?q=301%20489
 
-```python
-from main import HarmonizedStandardsChecker
-
-app = HarmonizedStandardsChecker()
-
-# 完全統合使用
-app.run_full_check('RED')  # REDに変更
-
-# ISO17025証明書との比較
-app.compare_with_iso17025("data/certificate.pdf", "RED")
-
-# 対話式モード
-app.interactive_mode()
+// Certificate comparison
+POST /.netlify/functions/compare
+{
+  "directive": "RED",
+  "iso_standards": [...]
+}
 ```
 
-### 設定管理の使用例（NEW）
+### Integration Examples
 
-```python
-from config_manager import ConfigurationManager
+#### JavaScript Frontend
+```javascript
+// Fetch RED standards
+const response = await fetch('/.netlify/functions/standards?directive=RED');
+const data = await response.json();
 
-config_mgr = ConfigurationManager()
-
-# 新しいamendment URLを追加
-config_mgr.add_amendment_to_json(
-    "RED", 
-    "https://eur-lex.europa.eu/new-amendment-2025", 
-    "2025-12-01",
-    "New amendment description"
-)
-
-# 新しいディレクティブを追加
-config_mgr.add_new_directive_to_json(
-    directive_code="NEWDIR",
-    name="New Directive",
-    directive_number="2025/XX/EU",
-    main_url="https://eur-lex.europa.eu/main-url",
-    ec_webpage="https://single-market-economy.ec.europa.eu/new-directive",
-    decision="Commission Implementing Decision (EU) 2025/XXXX"
-)
-
-# 設定状況の確認
-config_mgr.print_configuration_summary()
+if (data.success) {
+  console.log(`Found ${data.data.count} standards`);
+  data.data.standards.forEach(standard => {
+    console.log(`${standard.full_number}: ${standard.description}`);
+  });
+}
 ```
 
-## 出力例
+#### Node.js Backend
+```javascript
+const axios = require('axios');
 
-### OJ Checker出力
-```
-=== Radio Equipment Directive (RED) ===
-Found 45 standards:
-EN 301 489-17 V3.3.1 - Generic immunity and emission standard
-EN 301 489-1 V2.2.3 - Common technical requirements
-EN 301 489-3 V2.1.1 - Short Range Devices (SRD)
-...
+async function fetchStandards(directive) {
+  try {
+    const response = await axios.get(`/.netlify/functions/standards?directive=${directive}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch standards:', error);
+  }
+}
 ```
 
-### 比較レポート出力
+## 📱 Usage Examples
+
+### Web Interface Output
+
+#### Standards Display (ETSI Format)
 ```
-=== Standards Comparison Report ===
-Certificate: 7080.01
+🔹 RED Standards (45 found)
+
+EN 301 489-17 V3.2.1 (2023-08)
+ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems
+🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
+
+EN 301 489-1 V2.2.3 (2019-11)
+ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements
+🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
+
+EN 300 328 V2.2.2 (2016-11)
+Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band
+🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
+```
+
+#### Certificate Analysis Report
+```
+📋 Certificate Information
+Certificate Number: 7080.01
 Organization: SGS JAPAN INC.
-Total ISO17025 Standards: 38
+Valid Until: 2025-12-31
+Total Standards: 38
 
-Radio Equipment Directive (RED):
-  Coverage: 57.9%
-  Matched: 22
-  OJ Only: 23
+📊 Comparison Results - RED
+Coverage: 57.9% (22/38 matched)
+OJ Standards: 45
+ISO Standards: 38
 
-=== Matched Standards ===
-✓ EN 301 489-17 V3.3.1 ↔ EN 301 489-17 (European Radio)
-✓ EN 301 489-1 V2.2.3 ↔ EN 301 489-1 (European Radio)
-...
+✅ Matched Standards (22)
+EN 301 489-17 V3.2.1 ↔ EN 301 489-17 (European Radio)
+EN 301 489-1 V2.2.3 ↔ EN 301 489-1 (European Radio)
+EN 300 328 V2.2.2 ↔ EN 300 328 (2.4 GHz ISM)
 ```
 
-## 設定
+## 🛠️ Technical Architecture
 
-### 設定ファイル構成（更新）
+### Frontend Stack
+- **HTML5**: Semantic markup with accessibility features
+- **CSS3**: Modern responsive design with Flexbox/Grid
+- **JavaScript ES6+**: Pure vanilla JavaScript, no frameworks
+- **Font Awesome**: Professional iconography
 
-#### oj_config.json（NEW）
-外部JSON設定ファイル：
-- 各ディレクティブのOJリンク情報
-- Amendment URLの動的管理
-- モバイルアプリ対応の分離された設定
-- メタデータとAPI互換性情報
+### Backend Stack
+- **Netlify Functions**: Node.js serverless runtime
+- **Axios**: HTTP client for EUR-Lex integration
+- **Cheerio**: Server-side HTML parsing and manipulation
+- **Dynamic Caching**: Intelligent performance optimization
 
-#### config.py
-システム設定：
-- ETSI Portal設定
-- 規格抽出パターン
-- キャッシュ・HTTP・ログ設定
-- 外部JSON設定の読み込み機能
+### Data Sources
+- **EUR-Lex**: Official Journal of the European Union
+- **EC Directive Pages**: Dynamic OJ link discovery
+- **ETSI Portal**: Cross-reference integration
+- **Fallback Data**: Cached standards for reliability
 
-### OJリンクの追加方法
-
-**方法1: 設定ファイル直接編集**
-```json
-{
-  "directives": {
-    "RED": {
-      "oj_links": {
-        "amendments": [
-          {
-            "url": "https://eur-lex.europa.eu/new-amendment",
-            "date": "2025-12-01",
-            "description": "New amendment description"
-          }
-        ]
-      }
-    }
-  }
-}
+### File Structure (Web Application)
+```
+netlify-pure-webapp/
+├── netlify/
+│   └── functions/
+│       ├── standards.js      # Main standards fetching
+│       ├── search.js         # Standards search
+│       ├── compare.js        # ISO17025 comparison
+│       ├── batch-compare.js  # Batch processing
+│       ├── certificate.js   # PDF processing
+│       └── directives.js    # Directive metadata
+├── static/
+│   ├── index.html           # Main application
+│   ├── script.js            # Frontend logic
+│   └── style.css            # ETSI-compliant styling
+├── package.json             # Node.js dependencies
+└── README.md               # This documentation
 ```
 
-**方法2: プログラムで追加**
-```python
-from config_manager import ConfigurationManager
-mgr = ConfigurationManager()
-mgr.add_amendment_to_json("RED", "https://eur-lex.europa.eu/new-url", "2025-12-01")
-```
+### Performance Features
+- **CDN Delivery**: Global content distribution via Netlify
+- **Lazy Loading**: Progressive content loading
+- **Caching Strategy**: Multi-level caching for optimal speed
+- **Error Handling**: Graceful degradation and retry logic
 
-### 設定検証
+## ⚠️ Important Notes
+
+### Usage Guidelines
+- **Rate Limiting**: Please use reasonable intervals for bulk requests to EUR-Lex
+- **ETSI Portal**: Comply with ETSI's terms of service for portal access
+- **PDF Security**: Ensure confidentiality when uploading ISO17025 certificates
+- **Browser Compatibility**: Optimized for modern browsers (Chrome, Firefox, Safari, Edge)
+
+### Data Sources
+- **EUR-Lex**: Official EU legal database - authoritative source
+- **Dynamic Updates**: OJ links automatically discovered from EC webpages
+- **Fallback System**: Cached data ensures availability during service interruptions
+- **ETSI Integration**: Cross-referencing with official ETSI portal
+
+## 🔧 Development & Contributing
+
+### Local Development Setup
+
 ```bash
-python3 oj_config_validator.py
+# Prerequisites
+node -v  # Requires Node.js 14+
+npm -v   # Requires npm 6+
+
+# Clone and setup
+git clone https://github.com/username/Claude_standard_checker.git
+cd Claude_standard_checker
+git checkout netlify-pure-webapp
+
+# Install dependencies
+npm install
+
+# Start local development
+netlify dev --port 3000
 ```
 
-### キャッシュ機能
-- 24時間のキャッシュで性能向上
-- `cache/`フォルダに保存
-- 自動期限切れ管理
+### Adding New Directives
 
-## ログ機能
-- `standards_checker.log`に詳細ログを出力
-- `debug_standards.log`にデバッグ情報を出力
-- エラー追跡とデバッグ情報
+To add support for new EU directives:
 
-## 注意事項
-
-- 2025年4月以降、要約リストは保守作業により更新されない可能性があります
-- ETSIポータルの利用規約を遵守してください
-- 認証書PDFの機密性保護にご注意ください
-- 大量のリクエストを行う場合は適切な間隔を設けてください
-- REディレクティブコードはREDに変更されています
-
-## ファイル構成
-
-```
-Claude_standard_checker/
-├── main.py                    # メインアプリケーション
-├── oj_checker.py             # OJ Checkerモジュール
-├── etsi_searcher.py          # ETSI Portal検索モジュール
-├── iso17025_extractor.py     # ISO17025スコープ抽出モジュール
-├── comparator.py             # 規格比較モジュール
-├── data_models.py            # データモデル定義
-├── utils.py                  # ユーティリティ関数
-├── config.py                 # 設定ファイル（更新）
-├── config_manager.py         # 設定管理モジュール（NEW）
-├── oj_config.json            # 外部JSON設定ファイル（NEW）
-├── oj_config_validator.py    # 設定検証モジュール（NEW）
-├── requirements.txt          # 依存パッケージ
-├── README.md                 # このファイル
-├── design_specification.md   # 設計指示書
-├── data/                     # データフォルダ
-│   ├── 7080-01.pdf          # サンプル認証書
-│   └── JAB Accreditation... # サンプル認証書
-└── cache/                    # キャッシュフォルダ（自動生成）
-```
-
-## トラブルシューティング
-
-### よくある問題
-
-1. **PDFから文字が抽出できない**
-   - 画像ベースのPDFの場合、OCR機能の検討が必要
-   - 複数のPDFライブラリを順次試行
-
-2. **ネットワークエラー**
-   - プロキシ設定の確認
-   - リトライ機能が自動実行される
-
-3. **規格マッチングの精度**
-   - 類似度閾値の調整（`comparator.py`）
-   - 規格番号の正規化ルールの調整
-
-4. **設定ファイルエラー（NEW）**
-   - `oj_config_validator.py`で設定を検証
-   - JSON形式とURL形式の確認
-
-### ログの確認
-```bash
-tail -f standards_checker.log
-tail -f debug_standards.log
-```
-
-## 開発者向け情報
-
-### 新しい規格パターンの追加
-`config.py`の`STANDARD_PATTERNS`に新しいパターンを追加：
-
-```python
-STANDARD_PATTERNS = {
-    'YOUR_STANDARD': r'YOUR_PATTERN_HERE',
-    # 既存のパターン...
-}
-```
-
-### 新しいDirectiveの追加（更新）
-`oj_config.json`に新しいディレクティブを追加：
-
-```json
-{
-  "directives": {
-    "NEW_DIRECTIVE": {
-      "name": "New Directive Name",
-      "directive_number": "2025/XX/EU",
-      "decision": "Commission Implementing Decision (EU) 2025/XXXX",
-      "ec_webpage": "https://example.com/new-directive",
-      "description": "New directive description",
-      "oj_links": {
-        "main": "https://eur-lex.europa.eu/main-url",
-        "amendments": []
-      }
-    }
+1. **Update DIRECTIVE_CONFIG** in `netlify/functions/standards.js`:
+```javascript
+const DIRECTIVE_CONFIG = {
+  NEW_DIR: {
+    name: 'New Directive Name',
+    ec_webpage: 'https://single-market-economy.ec.europa.eu/new-directive',
+    fallback_urls: ['https://eur-lex.europa.eu/new-oj-link']
   }
-}
+};
 ```
 
-またはプログラムで追加：
+2. **Add frontend support** in `static/script.js` for new directive handling
 
-```python
-from config_manager import ConfigurationManager
-mgr = ConfigurationManager()
-mgr.add_new_directive_to_json(
-    directive_code="NEW_DIRECTIVE",
-    name="New Directive Name",
-    directive_number="2025/XX/EU",
-    main_url="https://eur-lex.europa.eu/main-url",
-    ec_webpage="https://example.com/new-directive",
-    decision="Commission Implementing Decision (EU) 2025/XXXX"
-)
+3. **Test thoroughly** with real OJ documents to ensure proper parsing
+
+### Regex Pattern Enhancement
+
+Improve standard detection by updating patterns in `parseStandardsFromHtml()`:
+
+```javascript
+const patterns = [
+  // Add new patterns for different standard formats
+  /NEW_PATTERN_HERE/gi,
+  // Existing patterns...
+];
 ```
 
-### モバイルアプリ開発者向け
-- `oj_config.json`はプラットフォーム非依存
-- JSON形式でAPIとの互換性確保
-- 設定の動的更新に対応
-- バリデーション機能を活用
+## 🌐 Browser Support
 
-## API互換性
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome | 90+ | ✅ Full Support |
+| Firefox | 88+ | ✅ Full Support |
+| Safari | 14+ | ✅ Full Support |
+| Edge | 90+ | ✅ Full Support |
+| Mobile | iOS 14+, Android 10+ | ✅ Responsive |
 
-このシステムは以下のプラットフォームでの使用を想定しています：
-- ✅ デスクトップアプリケーション
-- ✅ Webサービス
-- ✅ モバイルアプリケーション
+## 📄 License
 
-## ライセンス
-このプロジェクトはMITライセンスの下で公開されています。
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## サポート
-問題や提案がある場合は、GitHubのIssueまたはプルリクエストを作成してください。
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -am 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Create Pull Request
+
+## 📧 Support
+
+- **Issues**: [GitHub Issues](https://github.com/username/Claude_standard_checker/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/username/Claude_standard_checker/discussions)
+- **Email**: support@eu-harmonized-standards.com
+
+---
+
+**Built with ❤️ for EU compliance professionals**
