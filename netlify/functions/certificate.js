@@ -2,6 +2,7 @@
 const pdf = require('pdf-parse');
 const { createWorker } = require('tesseract.js');
 const pdf2pic = require('pdf2pic');
+const Busboy = require('busboy');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -194,107 +195,91 @@ async function performOCR(pdfBuffer, filename) {
   }
 }
 
-// Parse multipart form data from Netlify Functions
+// Parse multipart form data using Busboy
 async function parseMultipartFormData(event) {
-  try {
-    console.log('Parsing multipart form data...');
-    console.log('Content-Type:', event.headers['content-type']);
-    console.log('Body length:', event.body ? event.body.length : 0);
-    console.log('Is Base64 encoded:', event.isBase64Encoded);
+  return new Promise((resolve, reject) => {
+    try {
+      console.log('Parsing multipart form data with Busboy...');
+      console.log('Content-Type:', event.headers['content-type']);
+      console.log('Body length:', event.body ? event.body.length : 0);
+      console.log('Is Base64 encoded:', event.isBase64Encoded);
 
-    // Extract boundary from content-type header
-    const contentType = event.headers['content-type'] || event.headers['Content-Type'];
-    if (!contentType) {
-      throw new Error('Content-Type header missing');
-    }
-
-    const boundaryMatch = contentType.match(/boundary=([^;]+)/);
-    if (!boundaryMatch) {
-      throw new Error('Boundary not found in Content-Type header');
-    }
-
-    const boundary = boundaryMatch[1];
-    console.log('Boundary found:', boundary);
-
-    // Parse the body
-    const bodyBuffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
-    console.log('Body buffer length:', bodyBuffer.length);
-
-    // Split by boundary
-    const boundaryBytes = Buffer.from(`--${boundary}`, 'utf8');
-    const parts = [];
-    let start = 0;
-    
-    while (start < bodyBuffer.length) {
-      const boundaryIndex = bodyBuffer.indexOf(boundaryBytes, start);
-      if (boundaryIndex === -1) break;
-      
-      if (start !== 0) {
-        parts.push(bodyBuffer.slice(start, boundaryIndex));
+      const contentType = event.headers['content-type'] || event.headers['Content-Type'];
+      if (!contentType) {
+        return reject(new Error('Content-Type header missing'));
       }
-      start = boundaryIndex + boundaryBytes.length;
-    }
 
-    console.log('Found', parts.length, 'parts');
+      // Convert body to buffer
+      const bodyBuffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
+      console.log('Body buffer length:', bodyBuffer.length);
 
-    let file = null;
-    
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      const partString = part.toString('utf8');
+      // Create busboy instance
+      const busboy = new Busboy({ headers: { 'content-type': contentType } });
       
-      // Look for Content-Disposition header
-      if (partString.includes('Content-Disposition: form-data')) {
-        console.log('Processing form-data part', i + 1);
+      let file = null;
+      const chunks = [];
+
+      // Handle file uploads
+      busboy.on('file', (fieldname, stream, info) => {
+        const { filename, encoding, mimeType } = info;
+        console.log('File upload detected:', { fieldname, filename, encoding, mimeType });
         
-        // Split headers from content
-        const headerEndIndex = part.indexOf(Buffer.from('\r\n\r\n', 'utf8'));
-        if (headerEndIndex === -1) continue;
+        // Collect file data
+        stream.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
         
-        const headersBuffer = part.slice(0, headerEndIndex);
-        const contentBuffer = part.slice(headerEndIndex + 4);
-        
-        const headers = headersBuffer.toString('utf8');
-        console.log('Headers:', headers);
-        
-        // Check if this part contains a file
-        if (headers.includes('filename=')) {
-          // Extract filename
-          const filenameMatch = headers.match(/filename="([^"]*)"/);
-          const filename = filenameMatch ? filenameMatch[1] : 'unknown.pdf';
-          
-          console.log('Found file:', filename);
-          console.log('File size:', contentBuffer.length, 'bytes');
-          
-          // Remove any trailing boundary markers from content
-          let fileBuffer = contentBuffer;
-          const trailingBoundary = Buffer.from(`\r\n--${boundary}`, 'utf8');
-          const trailingIndex = fileBuffer.lastIndexOf(trailingBoundary);
-          if (trailingIndex !== -1) {
-            fileBuffer = fileBuffer.slice(0, trailingIndex);
-          }
+        stream.on('end', () => {
+          console.log('File stream ended, total chunks:', chunks.length);
+          const buffer = Buffer.concat(chunks);
+          console.log('File buffer size:', buffer.length, 'bytes');
           
           file = {
-            filename: filename,
-            buffer: fileBuffer
+            filename: filename || 'unknown.pdf',
+            buffer: buffer,
+            mimeType: mimeType
           };
-          
-          console.log('Final file buffer size:', fileBuffer.length, 'bytes');
-          break;
+        });
+      });
+
+      // Handle form fields (if any)
+      busboy.on('field', (fieldname, value) => {
+        console.log('Form field:', fieldname, '=', value);
+      });
+
+      // Handle parsing completion
+      busboy.on('finish', () => {
+        console.log('Busboy parsing finished');
+        console.log('File object:', file ? 'exists' : 'null');
+        if (file) {
+          console.log('File details:', {
+            filename: file.filename,
+            bufferSize: file.buffer ? file.buffer.length : 0,
+            mimeType: file.mimeType
+          });
         }
-      }
+        
+        if (!file || !file.buffer || file.buffer.length === 0) {
+          return reject(new Error('No file found in multipart data or file is empty'));
+        }
+        resolve({ file });
+      });
+
+      // Handle errors
+      busboy.on('error', (error) => {
+        console.error('Busboy error:', error);
+        reject(new Error(`Multipart parsing failed: ${error.message}`));
+      });
+
+      // Start parsing
+      busboy.write(bodyBuffer);
+      busboy.end();
+
+    } catch (error) {
+      console.error('Multipart parsing setup error:', error);
+      reject(new Error(`Failed to setup multipart parser: ${error.message}`));
     }
-    
-    if (!file) {
-      throw new Error('No file found in multipart data');
-    }
-    
-    return { file };
-    
-  } catch (error) {
-    console.error('Multipart parsing error:', error);
-    throw new Error(`Failed to parse multipart data: ${error.message}`);
-  }
+  });
 }
 
 // Extract certificate data and test standards from PDF text
