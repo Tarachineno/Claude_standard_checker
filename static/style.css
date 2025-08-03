@@ -303,6 +303,27 @@ main {
     gap: 10px;
 }
 
+.standard-number-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.standard-number-bold {
+    font-weight: 700;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.standard-description {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    margin-top: 8px;
+}
+
 .standard-number {
     font-weight: 600;
     color: #333;

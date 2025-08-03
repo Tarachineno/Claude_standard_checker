@@ -247,24 +247,35 @@ function createStandardItem(standard, directive = null) {
     const directiveBadge = directive ? 
         `<span class="standard-directive">${directive}</span>` : '';
 
-    const version = standard.version ? 
-        `<span><i class="fas fa-tag"></i> ${standard.version}</span>` : '';
+    // Use full_number if available (includes version), otherwise use number
+    const displayNumber = standard.full_number || standard.number;
+    const hasVersion = standard.version && standard.version.length > 0;
+    
+    // Enhanced formatting for version display
+    const versionInfo = hasVersion ? 
+        `<span class="version-info"><i class="fas fa-tag"></i> ${standard.version}</span>` : '';
     
     const date = standard.date ? 
-        `<span><i class="fas fa-calendar"></i> ${standard.date}</span>` : '';
+        `<span class="date-info"><i class="fas fa-calendar"></i> ${standard.date}</span>` : '';
 
     const etsiLink = generateETSILink(standard.number);
 
+    // Enhanced description handling
+    const description = standard.description || standard.title || 'No description available';
+    const hasDescription = description && description.trim().length > 0;
+
     item.innerHTML = `
         <div class="standard-header">
-            <span class="standard-number">${standard.number}</span>
-            ${directiveBadge}
+            <div class="standard-number-container">
+                <strong class="standard-number-bold">${displayNumber}</strong>
+                ${directiveBadge}
+            </div>
         </div>
-        <div class="standard-title">${standard.title || 'No title available'}</div>
+        ${hasDescription ? `<div class="standard-description">${description}</div>` : ''}
         <div class="standard-meta">
-            ${version}
+            ${!hasVersion && standard.version ? versionInfo : ''}
             ${date}
-            <span><i class="fas fa-bookmark"></i> ${standard.type || 'Standard'}</span>
+            <span class="standard-type"><i class="fas fa-bookmark"></i> ${standard.type || 'Harmonised Standard'}</span>
             ${etsiLink}
         </div>
     `;
