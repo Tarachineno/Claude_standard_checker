@@ -523,6 +523,42 @@ main {
     color: #333;
 }
 
+/* Facility display (JAB style) */
+.facility-item {
+    background: #fff;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.facility-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+}
+
+.facility-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.facility-categories {
+    padding: 15px;
+}
+
+.facility-categories .category-item {
+    background: #f8f9fc;
+    border: 1px solid #e1e8ed;
+    margin-bottom: 12px;
+}
+
+.facility-categories .category-header {
+    background: #fff;
+    border-bottom: 1px solid #e1e8ed;
+}
+
 /* Comparison results */
 .comparison-summary {
     background: #f8f9fc;

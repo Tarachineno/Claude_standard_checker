@@ -7,6 +7,165 @@ let uploadedCertificateData = null;
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
 
+// Predefined Certificate Data
+const PREDEFINED_CERTIFICATES = {
+    a2la: {
+        certificate_info: {
+            certificate_number: 'A2LA-2022-01',
+            organization: 'A2LA Accredited Testing Laboratory',
+            valid_until: '2025-12-31',
+            accreditation_body: 'A2LA',
+            revision_date: '2024-01-01'
+        },
+        test_standards: [
+            // Radiated & Conducted
+            { standard_number: 'CFR 47 FCC Part 15B (ANSI C63.4:2014)', category: 'Radiated & Conducted', description: 'Unintentional Radiators' },
+            { standard_number: 'FCC Part 18 (MP-5:1986)', category: 'Radiated & Conducted', description: 'Industrial, Scientific, and Medical Equipment' },
+            { standard_number: 'FCC Parts 15C (ANSI C63.10:2013)', category: 'Radiated & Conducted', description: 'Intentional Radiators' },
+            { standard_number: 'FCC Part 15E (ANSI C63.10:2013 & FCC KDB 905462 D02 v02)', category: 'Radiated & Conducted', description: 'U-NII Equipment' },
+            { standard_number: 'FCC Parts 15F (ANSI C63.10:2013)', category: 'Radiated & Conducted', description: 'Ultra-Wideband Operation' },
+            { standard_number: 'UNII-MP', category: 'Radiated & Conducted', description: 'Unlicensed National Information Infrastructure' },
+            { standard_number: 'CISPR 11', category: 'Radiated & Conducted', description: 'Industrial, scientific and medical equipment' },
+            { standard_number: 'EN 55011', category: 'Radiated & Conducted', description: 'Industrial, scientific and medical equipment' },
+            { standard_number: 'KS C 9811', category: 'Radiated & Conducted', description: 'Korean EMC Standard' },
+            { standard_number: 'IEC 61000-6-4', category: 'Radiated & Conducted', description: 'Generic emission standard for industrial environments' },
+            { standard_number: 'EN 61000-6-4', category: 'Radiated & Conducted', description: 'Generic emission standard for industrial environments' },
+            { standard_number: 'KS C 9610-6-4', category: 'Radiated & Conducted', description: 'Korean generic emission standard' },
+            
+            // United States Radio
+            { standard_number: 'CFR 47 FCC Parts 25, 30, 74, 90 (>3 GHz), 95 (>3 GHz), 97 (>3 GHz) & 101 (ANSI C63.26:2015)', category: 'United States Radio', description: 'Radio Service Rules' },
+            
+            // Canada Radio
+            { standard_number: 'ICES-Gen', category: 'Canada Radio', description: 'General EMC requirements' },
+            { standard_number: 'ICES-003', category: 'Canada Radio', description: 'Information Technology Equipment' },
+            { standard_number: 'RSS-GEN', category: 'Canada Radio', description: 'General Requirements for Radio Equipment' },
+            { standard_number: 'RSS-210', category: 'Canada Radio', description: 'Low-power Licence-exempt Radio Communication Devices' },
+            { standard_number: 'RSS-215', category: 'Canada Radio', description: 'Wireless Microphones' },
+            { standard_number: 'RSS-220', category: 'Canada Radio', description: 'Devices Using Ultra-Wideband Technology' },
+            { standard_number: 'RSS-247', category: 'Canada Radio', description: '2.4 GHz Band Spread Spectrum Equipment' },
+            { standard_number: 'RSS-248', category: 'Canada Radio', description: '5 GHz Band Equipment' },
+            { standard_number: 'RSS-251', category: 'Canada Radio', description: 'Fixed Wireless Access Equipment' },
+            
+            // European Radio
+            { standard_number: 'ETSI EN 301 091-1/-2/-3', category: 'European Radio', description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM)' },
+            { standard_number: 'EN 301 783', category: 'European Radio', description: 'Land Mobile Service' },
+            { standard_number: 'EN 301 893', category: 'European Radio', description: '5 GHz high performance RLAN' },
+            { standard_number: 'EN 302 065-1/-2/-3/-4', category: 'European Radio', description: 'Short Range Devices' },
+            { standard_number: 'EN 302 264', category: 'European Radio', description: 'Meteor Burst Communications' },
+            { standard_number: 'EN 305 550-1/-2', category: 'European Radio', description: 'Direct Sequence Spread Spectrum (DSSS)' },
+            { standard_number: 'EN 300 328', category: 'European Radio', description: '2,4 GHz wideband transmission systems' },
+            { standard_number: 'EN 300 330', category: 'European Radio', description: 'Short Range Devices' },
+            { standard_number: 'EN 300 220-1/-2', category: 'European Radio', description: 'Short Range Devices' },
+            { standard_number: 'EN 303 413', category: 'European Radio', description: 'Satellite Earth Stations and Systems' },
+            
+            // Australia / New Zealand Radio
+            { standard_number: 'AS/NZS 4268', category: 'Australia / New Zealand Radio', description: 'Radio equipment and systems' },
+            
+            // Additional categories following the pattern...
+            { standard_number: 'CISPR 32', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
+            { standard_number: 'EN 55032', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
+            
+            { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
+            { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
+            
+            { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
+            { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
+            { standard_number: 'IEC 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
+            { standard_number: 'EN 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
+            
+            // Additional immunity standards...
+            { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
+            { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
+            { standard_number: 'KS C 9610-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Korean ESD immunity test' },
+            
+            { standard_number: 'IEC 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
+            { standard_number: 'EN 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
+            { standard_number: 'KS C 9610-4-3', category: 'RF Radiated EM Field Immunity', description: 'Korean RF radiated immunity test' }
+        ],
+        categories: {},
+        total_standards: 0,
+        extraction_date: new Date().toISOString(),
+        pdf_source: 'A2LA Predefined Certificate',
+        certificate_type: 'A2LA_Predefined'
+    },
+    
+    jab: {
+        certificate_info: {
+            certificate_number: 'JAB-2023-01',
+            organization: 'JAB Accredited Testing Facilities',
+            valid_until: '2025-12-31',
+            accreditation_body: 'JAB',
+            revision_date: '2024-01-01'
+        },
+        test_standards: [
+            // Facility 1: SGS Japan Inc. Kitayamata Laboratory
+            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'VCCI rule V-3', category: 'Continuous Disturbance Tests', description: 'VCCI technical conditions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'VCCI-CISPR 32', category: 'Continuous Disturbance Tests', description: 'Multimedia equipment EMC', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'CISPR32', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // Vehicle EMC Tests
+            { standard_number: 'CISPR 25', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 55025', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 13766-1', category: 'Vehicle EMC Tests', description: 'Earth-moving machinery EMC', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 7637-2', category: 'Vehicle EMC Tests', description: 'Road vehicles electrical disturbances', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // Harmonic Current Emission Tests
+            { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // Voltage Fluctuation & Flicker Tests
+            { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // ESD Tests
+            { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Japanese ESD immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // RF Radiated Electromagnetic Field Immunity
+            { standard_number: 'IEC 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Japanese RF radiated immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // Facility 2: TDK Corporation Nikaho Factory
+            { standard_number: 'EN 12015', category: 'EMC Standards for Specific Equipment', description: 'Electromagnetic compatibility for lifts', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 12016', category: 'EMC Immunity Standards', description: 'Electromagnetic compatibility for lifts', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 300 330', category: 'Radio Transmitter Tests', description: 'Short Range Devices (SRD)', facility: '施設2: TDK Corporation Nikaho Factory' }
+        ],
+        categories: {},
+        total_standards: 0,
+        extraction_date: new Date().toISOString(),
+        pdf_source: 'JAB Predefined Certificate',
+        certificate_type: 'JAB_Predefined',
+        facilities: [
+            {
+                facility_number: '1',
+                name: 'SGS Japan Inc. Kitayamata Laboratory',
+                location: '神奈川県横浜市',
+                standards_count: 45
+            },
+            {
+                facility_number: '2',
+                name: 'TDK Corporation Nikaho Factory (North site)',
+                location: '秋田県にかほ市',
+                standards_count: 15
+            }
+        ]
+    }
+};
+
 // DOM elements
 const loadingOverlay = document.getElementById('loading-overlay');
 const errorModal = document.getElementById('error-modal');
@@ -42,14 +201,11 @@ function setupEventListeners() {
     });
 
     // Certificate tab
-    const uploadArea = document.getElementById('upload-area');
-    const fileInput = document.getElementById('file-input');
+    const certificateTypeSelect = document.getElementById('certificate-type-select');
+    const loadCertificateBtn = document.getElementById('load-certificate-btn');
 
-    uploadArea.addEventListener('click', () => fileInput.click());
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('dragleave', handleDragLeave);
-    uploadArea.addEventListener('drop', handleDrop);
-    fileInput.addEventListener('change', handleFileSelect);
+    certificateTypeSelect.addEventListener('change', handleCertificateTypeChange);
+    loadCertificateBtn.addEventListener('click', loadCertificateData);
 
     // Compare tab
     document.getElementById('single-compare-btn').addEventListener('click', singleCompare);
@@ -711,110 +867,67 @@ function downloadFile(content, filename, mimeType) {
     URL.revokeObjectURL(url);
 }
 
-// File upload functions
-function handleDragOver(e) {
-    e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
+// Certificate selection functions
+function handleCertificateTypeChange(e) {
+    const selectedType = e.target.value;
+    const loadBtn = document.getElementById('load-certificate-btn');
     
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        handleFile(files[0]);
+    if (selectedType) {
+        loadBtn.disabled = false;
+        loadBtn.innerHTML = `<i class="fas fa-download"></i> Load ${selectedType.toUpperCase()} Certificate Data`;
+    } else {
+        loadBtn.disabled = true;
+        loadBtn.innerHTML = '<i class="fas fa-download"></i> Load Certificate Data';
     }
 }
 
-function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (file) {
-        handleFile(file);
-    }
-}
-
-async function handleFile(file) {
-    if (file.type !== 'application/pdf') {
-        showError('Please select a PDF file');
+function loadCertificateData() {
+    const selectedType = document.getElementById('certificate-type-select').value;
+    
+    if (!selectedType || !PREDEFINED_CERTIFICATES[selectedType]) {
+        showError('Please select a valid certificate type');
         return;
     }
-
-    if (file.size > 16 * 1024 * 1024) {
-        showError('File size must be less than 16MB');
-        return;
-    }
-
-    // Convert file to base64
-    const fileReader = new FileReader();
-    const fileDataPromise = new Promise((resolve, reject) => {
-        fileReader.onload = () => {
-            const base64Data = fileReader.result.split(',')[1]; // Remove data:application/pdf;base64,
-            resolve(base64Data);
-        };
-        fileReader.onerror = reject;
-    });
     
-    fileReader.readAsDataURL(file);
-
+    showLoading();
+    
     try {
-        showLoading();
-        console.log('Converting file to base64...');
-        const fileData = await fileDataPromise;
-        console.log('Base64 conversion complete, length:', fileData.length);
+        // Get the predefined certificate data
+        const certificateData = JSON.parse(JSON.stringify(PREDEFINED_CERTIFICATES[selectedType]));
         
-        const requestBody = {
-            fileName: file.name,
-            fileData: fileData
-        };
+        // Calculate categories and totals
+        certificateData.categories = categorizeStandards(certificateData.test_standards);
+        certificateData.total_standards = certificateData.test_standards.length;
         
-        console.log('Sending request to:', `${API_BASE}/certificate`);
-        console.log('Request body size:', JSON.stringify(requestBody).length);
-
-        const response = await fetch(`${API_BASE}/certificate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        });
+        // Set global variable
+        uploadedCertificateData = certificateData;
         
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-
-        let data;
-        try {
-            data = await response.json();
-            console.log('Response data:', data);
-        } catch (jsonError) {
-            console.error('Failed to parse response JSON:', jsonError);
-            throw new Error(`Server returned invalid JSON (Status: ${response.status})`);
-        }
-        
-        if (!response.ok) {
-            console.error('Server error:', data);
-            throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        uploadedCertificateData = data.data;
-        displayCertificateResults(data.data);
+        // Display the results
+        displayCertificateResults(certificateData);
         updateCompareTabState();
         
-        const message = data.note ? 
-            `Certificate processed (demo mode): ${data.note}` : 
-            'Certificate processed successfully!';
-        showSuccess(message);
+        showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully!`);
     } catch (error) {
-        console.error('File upload failed:', error);
-        showError(`Certificate processing failed: ${error.message}`);
+        console.error('Error loading certificate data:', error);
+        showError(`Failed to load certificate data: ${error.message}`);
     } finally {
         hideLoading();
     }
+}
+
+// Helper function to categorize standards
+function categorizeStandards(testStandards) {
+    const categories = {};
+    
+    testStandards.forEach(standard => {
+        const category = standard.category;
+        if (!categories[category]) {
+            categories[category] = [];
+        }
+        categories[category].push(standard.standard_number);
+    });
+    
+    return categories;
 }
 
 function displayCertificateResults(data) {
@@ -826,28 +939,75 @@ function displayCertificateResults(data) {
     document.getElementById('cert-valid-until').textContent = data.certificate_info.valid_until || '-';
     document.getElementById('cert-standards-count').textContent = data.total_standards;
 
-    // Display categories
+    // Display categories or facilities based on certificate type
     const categoriesElement = document.getElementById('standards-categories');
     categoriesElement.innerHTML = '';
 
-    Object.entries(data.categories).forEach(([category, standards]) => {
-        const categoryItem = document.createElement('div');
-        categoryItem.className = 'category-item';
+    if (data.certificate_type === 'JAB_Predefined' && data.facilities) {
+        // JAB style display with facilities
+        data.facilities.forEach(facility => {
+            const facilityItem = document.createElement('div');
+            facilityItem.className = 'facility-item';
+            
+            // Get standards for this facility
+            const facilityStandards = data.test_standards.filter(std => 
+                std.facility && std.facility.includes(facility.name)
+            );
+            
+            // Group standards by category for this facility
+            const facilityCategories = {};
+            facilityStandards.forEach(standard => {
+                const category = standard.category;
+                if (!facilityCategories[category]) {
+                    facilityCategories[category] = [];
+                }
+                facilityCategories[category].push(standard.standard_number);
+            });
 
-        categoryItem.innerHTML = `
-            <div class="category-header" onclick="toggleCategory(this)">
-                <span class="category-name">${category}</span>
-                <span class="category-count">${standards.length}</span>
-            </div>
-            <div class="category-standards">
-                <ul>
-                    ${standards.map(std => `<li>${std}</li>`).join('')}
-                </ul>
-            </div>
-        `;
+            facilityItem.innerHTML = `
+                <div class="facility-header">
+                    <h4>【施設${facility.facility_number}】${facility.name}（${facility.location}）</h4>
+                </div>
+                <div class="facility-categories">
+                    ${Object.entries(facilityCategories).map(([category, standards]) => `
+                        <div class="category-item">
+                            <div class="category-header" onclick="toggleCategory(this)">
+                                <span class="category-name">${category}</span>
+                                <span class="category-count">${standards.length}</span>
+                            </div>
+                            <div class="category-standards">
+                                <ul>
+                                    ${standards.map(std => `<li>${std}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
 
-        categoriesElement.appendChild(categoryItem);
-    });
+            categoriesElement.appendChild(facilityItem);
+        });
+    } else {
+        // A2LA style display with categories
+        Object.entries(data.categories).forEach(([category, standards]) => {
+            const categoryItem = document.createElement('div');
+            categoryItem.className = 'category-item';
+
+            categoryItem.innerHTML = `
+                <div class="category-header" onclick="toggleCategory(this)">
+                    <span class="category-name">${category}</span>
+                    <span class="category-count">${standards.length}</span>
+                </div>
+                <div class="category-standards">
+                    <ul>
+                        ${standards.map(std => `<li>${std}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            categoriesElement.appendChild(categoryItem);
+        });
+    }
 
     resultsSection.classList.remove('hidden');
 }

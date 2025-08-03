@@ -116,15 +116,18 @@
         <section id="certificate-tab" class="tab-content">
             <div class="card">
                 <h2><i class="fas fa-certificate"></i> ISO17025 Certificate Analysis</h2>
-                <div class="upload-section">
-                    <div class="upload-area" id="upload-area">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Drop PDF certificate here or <span class="upload-link">browse</span></p>
-                        <input type="file" id="file-input" accept=".pdf" hidden>
+                <div class="certificate-selection">
+                    <div class="form-group">
+                        <label for="certificate-type-select">Select Certificate Type:</label>
+                        <select id="certificate-type-select">
+                            <option value="">-- Select a Certificate Type --</option>
+                            <option value="a2la">A2LA Certificate</option>
+                            <option value="jab">JAB Certificate</option>
+                        </select>
                     </div>
-                    <div class="upload-info">
-                        <small>Maximum file size: 16MB. Only PDF files are supported.</small>
-                    </div>
+                    <button id="load-certificate-btn" class="btn btn-primary" disabled>
+                        <i class="fas fa-download"></i> Load Certificate Data
+                    </button>
                 </div>
                 
                 <div id="certificate-results" class="results-section hidden">
