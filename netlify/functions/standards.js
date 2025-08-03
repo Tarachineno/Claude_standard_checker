@@ -104,7 +104,7 @@ exports.handler = async (event, context) => {
 
 async function fetchStandardsFromEurlex(directive) {
   const config = DIRECTIVE_CONFIG[directive];
-  const allStandards = [];
+  let allStandards = [];
   const standardsSet = new Set(); // To avoid duplicates
 
   // First, try to get dynamic OJ links from EC webpage
