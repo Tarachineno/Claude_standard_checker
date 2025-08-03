@@ -1,6 +1,7 @@
 // EU Harmonized Standards Checker - Netlify Function
 const axios = require('axios');
 const cheerio = require('cheerio');
+const XLSX = require('xlsx');
 
 // Directive configuration with EC webpage URLs for dynamic OJ link discovery
 const DIRECTIVE_CONFIG = {
@@ -106,6 +107,11 @@ exports.handler = async (event, context) => {
 };
 
 async function fetchStandardsFromEurlex(directive) {
+  // For EMC, fetch from the official Excel file
+  if (directive === 'EMC') {
+    return await fetchEMCStandardsFromExcel();
+  }
+
   const config = DIRECTIVE_CONFIG[directive];
   let allStandards = [];
   const standardsSet = new Set(); // To avoid duplicates
@@ -168,6 +174,116 @@ async function fetchStandardsFromEurlex(directive) {
   
   console.log(`Total unique standards found: ${allStandards.length}`);
   return allStandards;
+}
+
+// Function to fetch EMC standards from official Excel file
+async function fetchEMCStandardsFromExcel() {
+  const excelUrl = 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native';
+  
+  try {
+    console.log('Fetching EMC standards from official Excel file:', excelUrl);
+    
+    const response = await axios.get(excelUrl, {
+      timeout: 30000,
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,*/*',
+        'Accept-Language': 'en-US,en;q=0.5'
+      }
+    });
+    
+    console.log('Excel file downloaded, parsing...');
+    
+    // Parse Excel file
+    const workbook = XLSX.read(response.data, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0]; // Use first sheet
+    const worksheet = workbook.Sheets[sheetName];
+    
+    // Convert to JSON
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    
+    console.log(`Excel file parsed, found ${jsonData.length} rows`);
+    
+    // Parse standards from Excel data
+    const standards = parseStandardsFromExcelData(jsonData);
+    
+    console.log(`Parsed ${standards.length} standards from Excel file`);
+    
+    return standards;
+    
+  } catch (error) {
+    console.error('Error fetching EMC standards from Excel:', error.message);
+    throw error;
+  }
+}
+
+// Function to parse standards from Excel data
+function parseStandardsFromExcelData(excelData) {
+  const standards = [];
+  
+  // Skip header rows and process data
+  for (let i = 1; i < excelData.length; i++) {
+    const row = excelData[i];
+    
+    if (!row || row.length < 2) continue;
+    
+    // Assuming Excel format: [Standard Number, Title, Version/Date, Other fields...]
+    const standardNumber = row[0] ? String(row[0]).trim() : '';
+    const title = row[1] ? String(row[1]).trim() : '';
+    const versionOrDate = row[2] ? String(row[2]).trim() : '';
+    const notes = row[3] ? String(row[3]).trim() : '';
+    
+    // Skip if no standard number
+    if (!standardNumber || !standardNumber.includes('EN')) continue;
+    
+    // Clean up standard number
+    let cleanNumber = standardNumber;
+    let version = '';
+    let date = '';
+    
+    // Extract version and date information
+    if (versionOrDate) {
+      if (versionOrDate.match(/^\d{4}$/)) {
+        date = versionOrDate;
+        version = versionOrDate;
+      } else if (versionOrDate.includes('V')) {
+        version = versionOrDate;
+      } else if (versionOrDate.match(/\d{4}/)) {
+        date = versionOrDate.match(/\d{4}/)[0];
+        version = versionOrDate;
+      }
+    }
+    
+    // Handle amendments in standard number
+    if (standardNumber.includes('(+A') || standardNumber.includes('+A')) {
+      const amendmentMatch = standardNumber.match(/\(\+A\d+\)|\+A\d+/);
+      if (amendmentMatch) {
+        cleanNumber = standardNumber.replace(amendmentMatch[0], '').trim();
+        cleanNumber += ` ${amendmentMatch[0]}`;
+      }
+    }
+    
+    if (standardNumber.includes('(+AC)')) {
+      cleanNumber = standardNumber.replace('(+AC)', '').trim() + ' (+AC)';
+    }
+    
+    // Create full number
+    const fullNumber = version && version.startsWith('V') ? `${cleanNumber} ${version}` : cleanNumber;
+    
+    standards.push({
+      number: cleanNumber,
+      full_number: fullNumber,
+      title: title,
+      description: title,
+      version: version || date,
+      date: date,
+      type: 'Harmonised Standard',
+      notes: notes
+    });
+  }
+  
+  return standards;
 }
 
 // Function to extract OJ links from EC webpage
