@@ -1,7 +1,8 @@
 // Upload and process ISO17025 certificate - Netlify Function
 const pdf = require('pdf-parse');
-const { createWorker } = require('tesseract.js');
-const pdf2pic = require('pdf2pic');
+// OCR dependencies temporarily disabled due to server limitations
+// const { createWorker } = require('tesseract.js');
+// const pdf2pic = require('pdf2pic');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -126,37 +127,31 @@ exports.handler = async (event, context) => {
 
     // Check if PDF appears to be image-based (very little text extracted)
     if (text.length < 100 || text.trim().split(' ').length < 20) {
-      console.log('PDF appears to be image-based, attempting OCR...');
-      try {
-        text = await performOCR(fileBuffer, requestData.fileName);
-        console.log('OCR text extracted, length:', text.length);
-      } catch (ocrError) {
-        console.error('OCR failed, returning with limited text:', ocrError.message);
-        // Return with a special indicator for image-based PDFs that need OCR
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            success: true,
-            data: {
-              certificate_info: {
-                certificate_number: 'Image-based PDF detected',
-                organization: 'OCR Required',
-                valid_until: 'Unknown',
-                accreditation_body: 'Unknown',
-                revision_date: 'Unknown'
-              },
-              test_standards: [],
-              categories: {},
-              total_standards: 0,
-              extraction_date: new Date().toISOString(),
-              pdf_source: requestData.fileName || 'uploaded_certificate.pdf',
-              certificate_type: 'Image_Based_PDF',
-              note: 'This PDF appears to be scanned/image-based. OCR functionality is implemented but requires additional server configuration (ImageMagick/GraphicsMagick). Please ensure the PDF contains machine-readable text for optimal extraction.'
-            }
-          })
-        };
-      }
+      console.log('PDF appears to be image-based - OCR disabled for now');
+      // Return with a special indicator for image-based PDFs
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            certificate_info: {
+              certificate_number: 'Image-based PDF detected',
+              organization: 'OCR Currently Disabled',
+              valid_until: 'Unknown',
+              accreditation_body: 'Unknown',
+              revision_date: 'Unknown'
+            },
+            test_standards: [],
+            categories: {},
+            total_standards: 0,
+            extraction_date: new Date().toISOString(),
+            pdf_source: requestData.fileName || 'uploaded_certificate.pdf',
+            certificate_type: 'Image_Based_PDF',
+            note: 'This PDF appears to be scanned/image-based. OCR functionality is temporarily disabled due to server limitations. Please use a text-based PDF for optimal results.'
+          }
+        })
+      };
     }
 
     // Extract certificate information and test standards
@@ -185,7 +180,8 @@ exports.handler = async (event, context) => {
   }
 };
 
-// Perform OCR on image-based PDF
+// OCR functionality temporarily disabled due to server limitations
+/*
 async function performOCR(pdfBuffer, filename) {
   try {
     console.log('Starting OCR process for:', filename);
@@ -237,6 +233,7 @@ async function performOCR(pdfBuffer, filename) {
     throw new Error(`OCR processing failed: ${error.message}`);
   }
 }
+*/
 
 // Simple file processing - no multipart parsing needed
 
