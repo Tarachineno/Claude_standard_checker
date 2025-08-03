@@ -71,24 +71,43 @@
         <section id="search-tab" class="tab-content">
             <div class="card">
                 <h2><i class="fas fa-search"></i> Search Standards</h2>
-                <p>Search for specific standards on the ETSI Portal. Enter a standard number or keyword and click search to open the ETSI portal in a new tab.</p>
+                <p>Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.</p>
                 <div class="search-form">
                     <div class="form-group">
-                        <input type="text" id="search-input" placeholder="Enter standard number or keyword (e.g., EN 301 489)" />
-                        <button id="search-btn" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt"></i> Search on ETSI Portal
-                        </button>
+                        <input type="text" id="search-input" placeholder="Enter standard number or keyword (e.g., 50360:2017, 18031-1)" />
+                        <div class="search-buttons">
+                            <button id="search-etsi-btn" class="btn btn-primary etsi-search-btn">
+                                <i class="fas fa-external-link-alt"></i> Search on ETSI Portal
+                            </button>
+                            <button id="search-cen-btn" class="btn btn-secondary cen-search-btn">
+                                <i class="fas fa-external-link-alt"></i> Search on CEN-CENELEC Portal
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="search-info">
                     <h3><i class="fas fa-info-circle"></i> How to Search</h3>
-                    <ul>
-                        <li><strong>Standard Number:</strong> EN 301 489-12, EN 300 328, etc.</li>
-                        <li><strong>Keywords:</strong> EMC, radio equipment, bluetooth, etc.</li>
-                        <li><strong>Technology:</strong> 5G, WiFi, LTE, etc.</li>
-                    </ul>
-                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> The search will open the official ETSI standards portal where you can access the complete database of harmonized standards.</p>
+                    <div class="search-help-grid">
+                        <div class="portal-help">
+                            <h4><i class="fas fa-satellite"></i> ETSI Portal</h4>
+                            <ul>
+                                <li><strong>Standard Number:</strong> EN 301 489-12, EN 300 328, etc.</li>
+                                <li><strong>Keywords:</strong> EMC, radio equipment, bluetooth, etc.</li>
+                                <li><strong>Technology:</strong> 5G, WiFi, LTE, etc.</li>
+                            </ul>
+                            <p><i class="fas fa-lightbulb"></i> <strong>Direct search:</strong> Opens ETSI portal with automatic search.</p>
+                        </div>
+                        <div class="portal-help">
+                            <h4><i class="fas fa-cogs"></i> CEN-CENELEC Portal</h4>
+                            <ul>
+                                <li><strong>Standard Number:</strong> 18031-1:2024, 50360:2017, etc.</li>
+                                <li><strong>Keywords:</strong> Safety, EMC, machinery, etc.</li>
+                                <li><strong>Product Type:</strong> Medical devices, machinery, etc.</li>
+                            </ul>
+                            <p><i class="fas fa-copy"></i> <strong>Manual search:</strong> Standard number copied to clipboard for pasting.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -35,9 +35,10 @@ function setupEventListeners() {
     document.getElementById('directive-select').addEventListener('change', updateFetchMethodOptions);
 
     // Search tab
-    document.getElementById('search-btn').addEventListener('click', searchStandards);
+    document.getElementById('search-etsi-btn').addEventListener('click', () => searchStandards('etsi'));
+    document.getElementById('search-cen-btn').addEventListener('click', () => searchStandards('cen'));
     document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchStandards();
+        if (e.key === 'Enter') searchStandards('etsi'); // Default to ETSI on Enter
     });
 
     // Certificate tab
@@ -597,7 +598,7 @@ function generateStandardLink(standardNumber, eso) {
     }
 }
 
-async function searchStandards() {
+async function searchStandards(portal = 'etsi') {
     const query = document.getElementById('search-input').value.trim();
     
     if (!query) {
@@ -605,15 +606,34 @@ async function searchStandards() {
         return;
     }
 
-    // Redirect to ETSI Portal search instead of OJ search
-    const searchTerm = encodeURIComponent(query);
-    const today = new Date().toISOString().split('T')[0];
-    const etsiSearchUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
-    
-    console.log(`Redirecting to ETSI portal search for: ${query}`);
-    window.open(etsiSearchUrl, '_blank');
-    
-    showSuccess(`Opening ETSI portal search for "${query}" in a new tab`);
+    if (portal === 'etsi') {
+        // Redirect to ETSI Portal search
+        const searchTerm = encodeURIComponent(query);
+        const today = new Date().toISOString().split('T')[0];
+        const etsiSearchUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
+        
+        console.log(`Redirecting to ETSI portal search for: ${query}`);
+        window.open(etsiSearchUrl, '_blank');
+        
+        showSuccess(`Opening ETSI portal search for "${query}" in a new tab`);
+    } else if (portal === 'cen') {
+        // Clean the search term and copy to clipboard, then open CEN-CENELEC portal
+        const cleanedQuery = cleanStandardNumber(query);
+        const cenUrl = 'https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::';
+        
+        // Copy cleaned search term to clipboard
+        try {
+            await navigator.clipboard.writeText(cleanedQuery);
+            showBriefNotification(`Copied "${cleanedQuery}" to clipboard. Paste it in the Standard Reference field.`);
+        } catch (err) {
+            console.log(`Search term: ${cleanedQuery}`);
+        }
+        
+        console.log(`Redirecting to CEN-CENELEC portal for: ${query} (cleaned: ${cleanedQuery})`);
+        window.open(cenUrl, '_blank');
+        
+        showSuccess(`Opening CEN-CENELEC portal for "${query}" in a new tab. Search term copied to clipboard.`);
+    }
 }
 
 function displaySearchResults(data) {

@@ -892,6 +892,89 @@ footer {
     font-size: 1rem;
 }
 
+/* Search form enhancements */
+.search-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.search-buttons .btn {
+    flex: 1;
+    min-width: 200px;
+}
+
+.etsi-search-btn {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+}
+
+.etsi-search-btn:hover {
+    background: linear-gradient(135deg, #0d47a1 0%, #01579b 100%);
+}
+
+.cen-search-btn {
+    background: linear-gradient(135deg, #7b1fa2 0%, #4a148c 100%);
+}
+
+.cen-search-btn:hover {
+    background: linear-gradient(135deg, #4a148c 0%, #38006b 100%);
+}
+
+.search-help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.portal-help {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.portal-help:nth-child(2) {
+    border-left-color: #7b1fa2;
+}
+
+.portal-help h4 {
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.portal-help ul {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+.portal-help li {
+    margin-bottom: 6px;
+}
+
+.portal-help p {
+    margin-top: 12px;
+    font-style: italic;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .search-buttons {
+        flex-direction: column;
+    }
+    
+    .search-buttons .btn {
+        min-width: unset;
+    }
+    
+    .search-help-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
 /* Standards portal links styling */
 .standards-portal-link {
     text-decoration: none;
