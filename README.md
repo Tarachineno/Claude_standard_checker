@@ -25,6 +25,9 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
+- 🆕 **OCR Certificate Processing**: Advanced PDF analysis with optical character recognition
+- 🆕 **Japanese Standards Support**: JAB facility parsing and multi-language OCR
+- 🆕 **Image-based PDF Support**: Automatic detection and OCR processing for scanned certificates
 ---
 
 ## 主要機能
@@ -61,11 +64,16 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
-#### 4. **Certificate Analysis**
+#### 4. **Advanced Certificate Analysis**
 - **PDF Processing**: ISO17025 certificate analysis and standard extraction
+- **OCR Technology**: Automatic detection and processing of image-based/scanned PDFs
+- **Multi-language Support**: English and Japanese text recognition with Tesseract.js
+- **JAB Facility Parsing**: Specialized extraction for Japanese accreditation certificates
+- **A2LA Certificate Support**: Comprehensive extraction of 85+ standards from US certificates
 - **Standards Comparison**: Compare certificate scope with EU harmonized standards
 - **Coverage Reports**: Detailed compliance analysis with percentage coverage
 - **Batch Processing**: Compare against multiple directives simultaneously
+- **Facility-based Analysis**: Extract multiple laboratory facilities from single certificate
 
 #### 5. **Search & Export**
 - **Advanced Search**: Find specific standards across all directives
@@ -75,14 +83,18 @@ A comprehensive web application for accessing EU harmonized standards and compar
 
 ### 🔧 Technical Features
 
-#### 6. **Netlify Functions Backend**
+#### 6. **Advanced Backend Processing**
 - **Serverless Architecture**: Node.js functions for scalable processing
 - **Excel Processing**: XLSX library integration for real-time file parsing
+- **OCR Engine**: Tesseract.js with English and Japanese language packs
+- **PDF Processing**: Multi-format PDF support with pdf-parse and OCR fallback
 - **ESO Detection**: Automatic identification of standards organizations (CEN/CENELEC/ETSI)
 - **Date Conversion Engine**: Automatic Excel serial date conversion (43056 → 17/11/2017)
 - **Column Mapping**: Complete Excel field extraction and transformation
 - **Enhanced Error Handling**: Robust fallback mechanisms and retry logic
 - **Multi-format Support**: Handles various Excel formats and structures
+- **Image Processing**: PDF-to-image conversion with pdf2pic for OCR processing
+- **Multi-language OCR**: Japanese facility parsing with specialized patterns
 
 #### 7. **Data Management**
 - **Real-time Updates**: Direct access to latest EC Excel files
@@ -123,11 +135,15 @@ npm install
 netlify dev
 ```
 
-### Certificate Analysis
+### Advanced Certificate Analysis
 
-1. **Upload Certificate**: Drag and drop ISO17025 PDF certificate
-2. **Compare Standards**: Select directive to compare against
-3. **View Coverage Report**: See detailed compliance analysis
+1. **Upload Certificate**: Drag and drop ISO17025 PDF certificate (supports both text-based and image-based PDFs)
+2. **Automatic Processing**: System detects PDF type and applies appropriate extraction method
+   - **Text-based PDFs**: Direct text extraction (A2LA certificates: 85+ standards)
+   - **Image-based PDFs**: OCR processing with Japanese/English support (JAB certificates)
+3. **Facility Extraction**: Parse multiple laboratory facilities from single certificate
+4. **Compare Standards**: Select directive to compare against extracted standards
+5. **View Coverage Report**: See detailed compliance analysis with facility breakdown
 
 ## 🔧 Configuration
 
@@ -192,6 +208,46 @@ https://www.etsi.org/standards#page=1&search={standard_number}...
 // CEN-CENELEC Portal (manual search with clipboard assistance)
 https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
 // Standard number automatically copied to clipboard for pasting
+```
+
+#### Certificate Processing
+```javascript
+// Upload and process certificate (supports OCR)
+POST /.netlify/functions/certificate
+Content-Type: multipart/form-data
+
+// Response for text-based PDF (A2LA)
+{
+  "success": true,
+  "data": {
+    "certificate_info": {
+      "certificate_number": "7080.01",
+      "organization": "SGS JAPAN INC.",
+      "valid_until": "2025-11-30"
+    },
+    "test_standards": [...], // 85+ standards
+    "categories": {...},
+    "certificate_type": "Standard"
+  }
+}
+
+// Response for image-based PDF (JAB with OCR)
+{
+  "success": true,
+  "data": {
+    "certificate_type": "JAB_Facilities",
+    "facilities": [
+      {
+        "facility_number": "1",
+        "name": "SGS Japan Inc. Kitayamata Laboratory",
+        "location": "神奈川県横浜市",
+        "standards": [...], // 75+ standards per facility
+        "standards_count": 75
+      }
+    ],
+    "total_standards": 150
+  }
+}
 ```
 
 #### Standards Search
@@ -282,23 +338,55 @@ Status: ✅ Current
 • CEN/CENELEC Portal - Clipboard-assisted portal access for CEN/CENELEC standards
 ```
 
-#### Certificate Analysis Report
+#### Certificate Analysis Report (A2LA Text-based PDF)
 ```
 📋 Certificate Information
 Certificate Number: 7080.01
 Organization: SGS JAPAN INC.
 Valid Until: 2025-12-31
-Total Standards: 38
+Total Standards: 85
+Extraction Method: Direct text parsing
+
+📊 Standards by Category:
+🔹 United States Radio (5 standards)
+🔹 European Radio (28 standards)
+🔹 Emissions Standards (12 standards)
+🔹 EMC Immunity Standards (23 standards)
+🔹 Other Standards (17 standards)
 
 📊 Comparison Results - EMC
 Coverage: 73.7% (28/38 matched)
 Excel Standards: 175
-ISO Standards: 38
+ISO Standards: 85
 
 ✅ Matched Standards (28)
 EN 55032:2015 ↔ EN 55032 (Multimedia Equipment EMC)
 EN 55035:2017 ↔ EN 55035 (Multimedia Equipment Immunity)
 EN 61000-3-2:2014 ↔ EN 61000-3-2 (Harmonic Current Limits)
+```
+
+#### JAB Certificate Analysis (Image-based PDF with OCR)
+```
+📋 Certificate Information
+Certificate Type: JAB_Facilities (OCR processed)
+Total Facilities: 2
+Total Standards: 150+
+Extraction Method: OCR (Tesseract.js with Japanese/English)
+
+🏢 Facility Analysis:
+【施設1】SGS Japan Inc. Kitayamata Laboratory（神奈川県横浜市）
+Standards Count: 75
+Classifications: M21.4.1, M21.4.14, M21.4.15, M21.4.16...
+
+🔹 M21.4.1 Continuous disturbance tests
+EN 55011, EN 55022:2010, IEC 60945, EN 60945, EN 61326-1...
+
+🔹 M21.4.14 Electrostatic discharge immunity tests
+EN 55024, EN 55035, CISPR35, EN 60945, IEC 60945, IEC 61000-4-2...
+
+【施設2】TDK Corporation Nikaho Factory（秋田県にかほ市）
+Standards Count: 80
+Classifications: M21.4.1, M21.4.3, M21.4.4, M21.4.10...
 ```
 
 ## 🛠️ Technical Architecture
@@ -313,6 +401,10 @@ EN 61000-3-2:2014 ↔ EN 61000-3-2 (Harmonic Current Limits)
 - **Netlify Functions**: Node.js serverless runtime
 - **Axios**: HTTP client for Excel file fetching
 - **XLSX**: Excel file parsing and processing
+- **PDF-parse**: Text extraction from PDF documents
+- **Tesseract.js**: OCR engine with multi-language support (English/Japanese)
+- **PDF2pic**: PDF to image conversion for OCR processing
+- **Canvas**: Server-side image processing for OCR optimization
 - **Cheerio**: Server-side HTML parsing (fallback)
 - **Dynamic Caching**: Intelligent performance optimization
 
@@ -334,7 +426,7 @@ netlify-pure-webapp/
 │       ├── search.js           # Standards search
 │       ├── compare.js          # ISO17025 comparison
 │       ├── batch-compare.js    # Batch processing
-│       ├── certificate.js     # PDF processing
+│       ├── certificate.js     # Advanced PDF processing with OCR
 │       └── directives.js      # Directive metadata
 ├── static/
 │   ├── api/
@@ -387,8 +479,11 @@ Portal Mapping:
 - **Rate Limiting**: Reasonable intervals for Excel file requests
 - **ETSI Portal**: Comply with ETSI's terms of service for portal access
 - **PDF Security**: Ensure confidentiality when uploading ISO17025 certificates
+- **OCR Processing**: Image-based PDFs require additional processing time for OCR
+- **File Size Limits**: PDF certificates up to 16MB supported
 - **Browser Compatibility**: Optimized for modern browsers (Chrome, Firefox, Safari, Edge)
 - **Excel File Size**: Large files (up to ~90KB) handled efficiently
+- **OCR Dependencies**: Full OCR requires ImageMagick/GraphicsMagick in production environment
 
 ### Data Sources
 - **Official EC Excel Files**: Authoritative source for harmonised standards
