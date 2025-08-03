@@ -2,7 +2,6 @@
 const pdf = require('pdf-parse');
 const { createWorker } = require('tesseract.js');
 const pdf2pic = require('pdf2pic');
-const Busboy = require('busboy');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -29,43 +28,59 @@ exports.handler = async (event, context) => {
 
   try {
     console.log('Certificate function called');
+    console.log('HTTP Method:', event.httpMethod);
+    console.log('Headers:', JSON.stringify(event.headers, null, 2));
     
-    // Parse multipart form data
-    let parseResult;
+    // Simple approach: expect JSON body with base64 encoded file
+    let requestData;
     try {
-      parseResult = await parseMultipartFormData(event);
+      requestData = JSON.parse(event.body);
     } catch (parseError) {
-      console.error('Multipart parsing failed:', parseError);
+      console.error('JSON parsing failed:', parseError);
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
           success: false,
-          error: `File upload parsing failed: ${parseError.message}`
+          error: 'Invalid request format. Expected JSON with base64 encoded file.'
         })
       };
     }
     
-    const { file } = parseResult;
-    
-    if (!file || !file.buffer) {
+    if (!requestData.fileData || !requestData.fileName) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'No PDF file found in upload. Please ensure you are uploading a valid PDF file.'
+          error: 'Missing fileData or fileName in request'
         })
       };
     }
 
-    console.log('Processing PDF file:', file.filename || 'unknown.pdf');
-    console.log('File size:', file.buffer.length, 'bytes');
+    console.log('Processing PDF file:', requestData.fileName);
+    
+    // Decode base64 file data
+    let fileBuffer;
+    try {
+      fileBuffer = Buffer.from(requestData.fileData, 'base64');
+      console.log('File size:', fileBuffer.length, 'bytes');
+    } catch (decodeError) {
+      console.error('Base64 decode failed:', decodeError);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: 'Failed to decode file data'
+        })
+      };
+    }
 
     // Parse PDF content
     let pdfData, text;
     try {
-      pdfData = await pdf(file.buffer);
+      pdfData = await pdf(fileBuffer);
       text = pdfData.text;
       console.log('PDF text extracted, length:', text.length);
       console.log('PDF pages:', pdfData.numpages);
@@ -85,7 +100,7 @@ exports.handler = async (event, context) => {
     if (text.length < 100 || text.trim().split(' ').length < 20) {
       console.log('PDF appears to be image-based, attempting OCR...');
       try {
-        text = await performOCR(file.buffer, file.filename);
+        text = await performOCR(fileBuffer, requestData.fileName);
         console.log('OCR text extracted, length:', text.length);
       } catch (ocrError) {
         console.error('OCR failed, returning with limited text:', ocrError.message);
@@ -107,7 +122,7 @@ exports.handler = async (event, context) => {
               categories: {},
               total_standards: 0,
               extraction_date: new Date().toISOString(),
-              pdf_source: file.filename || 'uploaded_certificate.pdf',
+              pdf_source: requestData.fileName || 'uploaded_certificate.pdf',
               certificate_type: 'Image_Based_PDF',
               note: 'This PDF appears to be scanned/image-based. OCR functionality is implemented but requires additional server configuration (ImageMagick/GraphicsMagick). Please ensure the PDF contains machine-readable text for optimal extraction.'
             }
@@ -117,7 +132,7 @@ exports.handler = async (event, context) => {
     }
 
     // Extract certificate information and test standards
-    const certificateData = await extractCertificateData(text, file.filename);
+    const certificateData = await extractCertificateData(text, requestData.fileName);
 
     return {
       statusCode: 200,
@@ -195,92 +210,7 @@ async function performOCR(pdfBuffer, filename) {
   }
 }
 
-// Parse multipart form data using Busboy
-async function parseMultipartFormData(event) {
-  return new Promise((resolve, reject) => {
-    try {
-      console.log('Parsing multipart form data with Busboy...');
-      console.log('Content-Type:', event.headers['content-type']);
-      console.log('Body length:', event.body ? event.body.length : 0);
-      console.log('Is Base64 encoded:', event.isBase64Encoded);
-
-      const contentType = event.headers['content-type'] || event.headers['Content-Type'];
-      if (!contentType) {
-        return reject(new Error('Content-Type header missing'));
-      }
-
-      // Convert body to buffer
-      const bodyBuffer = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8');
-      console.log('Body buffer length:', bodyBuffer.length);
-
-      // Create busboy instance
-      const busboy = new Busboy({ headers: { 'content-type': contentType } });
-      
-      let file = null;
-      const chunks = [];
-
-      // Handle file uploads
-      busboy.on('file', (fieldname, stream, info) => {
-        const { filename, encoding, mimeType } = info;
-        console.log('File upload detected:', { fieldname, filename, encoding, mimeType });
-        
-        // Collect file data
-        stream.on('data', (chunk) => {
-          chunks.push(chunk);
-        });
-        
-        stream.on('end', () => {
-          console.log('File stream ended, total chunks:', chunks.length);
-          const buffer = Buffer.concat(chunks);
-          console.log('File buffer size:', buffer.length, 'bytes');
-          
-          file = {
-            filename: filename || 'unknown.pdf',
-            buffer: buffer,
-            mimeType: mimeType
-          };
-        });
-      });
-
-      // Handle form fields (if any)
-      busboy.on('field', (fieldname, value) => {
-        console.log('Form field:', fieldname, '=', value);
-      });
-
-      // Handle parsing completion
-      busboy.on('finish', () => {
-        console.log('Busboy parsing finished');
-        console.log('File object:', file ? 'exists' : 'null');
-        if (file) {
-          console.log('File details:', {
-            filename: file.filename,
-            bufferSize: file.buffer ? file.buffer.length : 0,
-            mimeType: file.mimeType
-          });
-        }
-        
-        if (!file || !file.buffer || file.buffer.length === 0) {
-          return reject(new Error('No file found in multipart data or file is empty'));
-        }
-        resolve({ file });
-      });
-
-      // Handle errors
-      busboy.on('error', (error) => {
-        console.error('Busboy error:', error);
-        reject(new Error(`Multipart parsing failed: ${error.message}`));
-      });
-
-      // Start parsing
-      busboy.write(bodyBuffer);
-      busboy.end();
-
-    } catch (error) {
-      console.error('Multipart parsing setup error:', error);
-      reject(new Error(`Failed to setup multipart parser: ${error.message}`));
-    }
-  });
-}
+// Simple file processing - no multipart parsing needed
 
 // Extract certificate data and test standards from PDF text
 async function extractCertificateData(text, filename) {

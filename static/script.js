@@ -750,14 +750,33 @@ async function handleFile(file) {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
+    // Convert file to base64
+    const fileReader = new FileReader();
+    const fileDataPromise = new Promise((resolve, reject) => {
+        fileReader.onload = () => {
+            const base64Data = fileReader.result.split(',')[1]; // Remove data:application/pdf;base64,
+            resolve(base64Data);
+        };
+        fileReader.onerror = reject;
+    });
+    
+    fileReader.readAsDataURL(file);
 
     try {
         showLoading();
+        const fileData = await fileDataPromise;
+        
+        const requestBody = {
+            fileName: file.name,
+            fileData: fileData
+        };
+
         const response = await fetch(`${API_BASE}/certificate`, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
         });
 
         const data = await response.json();
