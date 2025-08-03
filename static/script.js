@@ -409,13 +409,16 @@ document.addEventListener('click', function(e) {
         const standardNumber = link.getAttribute('data-standard');
         
         if (standardNumber) {
-            // Copy to clipboard
-            navigator.clipboard.writeText(standardNumber).then(() => {
+            // Clean standard number - remove EN, ETSI, CEN, CENELEC prefixes and keep only the number part
+            const cleanedNumber = cleanStandardNumber(standardNumber);
+            
+            // Copy cleaned number to clipboard
+            navigator.clipboard.writeText(cleanedNumber).then(() => {
                 // Show brief notification
-                showBriefNotification(`Copied "${standardNumber}" to clipboard. Paste it in the Standard Reference field.`);
+                showBriefNotification(`Copied "${cleanedNumber}" to clipboard. Paste it in the Standard Reference field.`);
             }).catch(() => {
                 // Fallback for older browsers
-                console.log(`Standard number: ${standardNumber}`);
+                console.log(`Standard number: ${cleanedNumber}`);
             });
         }
     }
@@ -461,6 +464,25 @@ function showBriefNotification(message) {
             }
         }, 300);
     }, 3000);
+}
+
+function cleanStandardNumber(standardNumber) {
+    // Remove common prefixes and clean up the standard number
+    let cleaned = standardNumber;
+    
+    // Remove EN prefix
+    cleaned = cleaned.replace(/^EN\s+/i, '');
+    
+    // Remove ETSI prefix (if any)
+    cleaned = cleaned.replace(/^ETSI\s+/i, '');
+    
+    // Remove EN IEC, EN ISO patterns
+    cleaned = cleaned.replace(/^EN\s+(IEC|ISO)\s+/i, '');
+    
+    // Remove any remaining leading/trailing whitespace
+    cleaned = cleaned.trim();
+    
+    return cleaned;
 }
 
 function formatExcelDate(dateValue) {
