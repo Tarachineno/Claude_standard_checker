@@ -274,75 +274,43 @@ function parseStandardsFromHtml($, directive) {
 function extractStandardsFromText(text) {
   const standards = [];
   
-  // Enhanced regex patterns for comprehensive standard detection
+  // Simplified but effective regex patterns
   const patterns = [
-    // EN 301 489-17 V3.2.1 format
-    /EN\s+(\d+(?:\s+\d+)*(?:-\d+)*(?:-\d+)*)\s+V(\d+\.\d+\.\d+)\s*([^;]*?)(?:;|$|\.)/gi,
-    // EN 301 489-17 V3.2.1 (year) format  
-    /EN\s+(\d+(?:\s+\d+)*(?:-\d+)*(?:-\d+)*)\s+V(\d+\.\d+\.\d+)\s*\((\d{4})\)\s*([^;]*?)(?:;|$|\.)/gi,
-    // EN 301 489-17 (2017) format
-    /EN\s+(\d+(?:\s+\d+)*(?:-\d+)*(?:-\d+)*)\s*\((\d{4})\)\s*([^;]*?)(?:;|$|\.)/gi,
-    // EN 301 489-17 format without version
-    /EN\s+(\d+(?:\s+\d+)*(?:-\d+)*(?:-\d+)*)\s*([^;]*?)(?:;|$|\.)/gi,
-    // EN IEC format
-    /EN\s+IEC\s+(\d+(?:-\d+)*)\s*(?:V(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$|\.)/gi,
-    // EN ISO format
-    /EN\s+ISO\s+(\d+(?:-\d+)*)\s*(?:V(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$|\.)/gi
+    /EN\s+(\d+(?:\s*-\s*\d+)*(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi,
+    /EN\s+IEC\s+(\d+(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi,
+    /EN\s+ISO\s+(\d+(?:\s*-\s*\d+)*)\s*(?:V?(\d+\.\d+\.\d+))?\s*([^;]*?)(?:;|$)/gi
   ];
 
   patterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(text)) !== null) {
-      let number, version, year, title, description;
-      
+      let number = match[1].replace(/\s+/g, ' ');
       if (pattern.source.includes('IEC')) {
-        number = `EN IEC ${match[1].replace(/\s+/g, ' ')}`;
-        version = match[2] ? `V${match[2]}` : '';
-        title = match[3] ? match[3].trim() : '';
+        number = `EN IEC ${number}`;
       } else if (pattern.source.includes('ISO')) {
-        number = `EN ISO ${match[1].replace(/\s+/g, ' ')}`;
-        version = match[2] ? `V${match[2]}` : '';
-        title = match[3] ? match[3].trim() : '';
+        number = `EN ISO ${number}`;
       } else {
-        // Regular EN format
-        const baseNumber = match[1].replace(/\s+/g, ' ');
-        number = `EN ${baseNumber}`;
-        
-        if (match.length === 5) { // V3.2.1 (year) format
-          version = `V${match[2]}`;
-          year = match[3];
-          title = match[4] ? match[4].trim() : '';
-        } else if (match.length === 4 && match[2] && match[2].includes('.')) { // V3.2.1 format
-          version = `V${match[2]}`;
-          title = match[3] ? match[3].trim() : '';
-        } else if (match.length === 4 && match[2] && match[2].length === 4) { // (year) format
-          year = match[2];
-          title = match[3] ? match[3].trim() : '';
-          version = `(${year})`;
-        } else {
-          title = match[2] ? match[2].trim() : '';
-          version = '';
-        }
+        number = `EN ${number}`;
       }
+      
+      const version = match[2] ? `V${match[2]}` : '';
+      const title = match[3] ? match[3].trim() : '';
       
       // Create full number with version
       const fullNumber = version ? `${number} ${version}` : number;
       
-      // Clean up title/description
-      description = title
-        .replace(/^\s*[-–—]\s*/, '') // Remove leading dashes
-        .replace(/\s+/g, ' ')        // Normalize spaces
-        .trim();
+      // Extract date if present
+      const dateMatch = text.match(/(\d{1,2}[.\s]\d{1,2}[.\s]\d{4})/);
+      const date = dateMatch ? dateMatch[1] : null;
 
-      if (number.length > 3) { // Basic validation
+      if (number.length > 5) { // Basic validation
         standards.push({
           number: number,
           full_number: fullNumber,
           title: title,
-          description: description,
+          description: title.replace(/^\s*[-–—]\s*/, '').trim(),
           version: version,
-          year: year,
-          date: year || null
+          date: date
         });
       }
     }
