@@ -32,6 +32,7 @@ function setupEventListeners() {
     // Standards tab
     document.getElementById('fetch-standards-btn').addEventListener('click', fetchStandards);
     document.getElementById('export-standards-btn').addEventListener('click', exportStandards);
+    document.getElementById('directive-select').addEventListener('change', updateFetchMethodOptions);
 
     // Search tab
     document.getElementById('search-btn').addEventListener('click', searchStandards);
@@ -161,9 +162,43 @@ async function loadDirectives() {
             
             console.log(`Populated ${selectId} with ${directives.length} directives`);
         });
+        
+        // Initialize fetch method options
+        updateFetchMethodOptions();
     } catch (error) {
         console.error('Failed to load directives:', error);
         showError(`Failed to load directives: ${error.message}`);
+    }
+}
+
+// Update fetch method options based on selected directive
+function updateFetchMethodOptions() {
+    const directive = document.getElementById('directive-select').value;
+    const fetchMethodSelect = document.getElementById('fetch-method');
+    
+    fetchMethodSelect.innerHTML = '';
+    
+    if (!directive) {
+        fetchMethodSelect.innerHTML = '<option value="">Select directive first...</option>';
+        return;
+    }
+    
+    if (directive === 'EMC') {
+        // EMC: OJ Parse first, then ETSI Portal
+        fetchMethodSelect.innerHTML = `
+            <option value="oj">Official Journal (Parse and display)</option>
+            <option value="etsi">ETSI Portal (Open in new tab)</option>
+        `;
+    } else if (directive === 'RED') {
+        // RED: ETSI Portal only
+        fetchMethodSelect.innerHTML = `
+            <option value="etsi">ETSI Portal (Open in new tab)</option>
+        `;
+    } else {
+        // Other directives: ETSI Portal only
+        fetchMethodSelect.innerHTML = `
+            <option value="etsi">ETSI Portal (Open in new tab)</option>
+        `;
     }
 }
 
@@ -199,9 +234,9 @@ async function fetchStandards() {
             return;
         }
     } else if (fetchMethod === 'oj') {
-        // Official Journal parsing method - supported for EMC and RED
-        if (directive !== 'EMC' && directive !== 'RED') {
-            showError('OJ Parse is only supported for EMC and RED directives');
+        // Official Journal parsing method - only supported for EMC
+        if (directive !== 'EMC') {
+            showError('OJ Parse is only supported for EMC directive');
             return;
         }
         

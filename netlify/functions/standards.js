@@ -51,7 +51,19 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'Invalid directive code. Use RED or EMC.'
+          error: 'Invalid directive code. Use EMC.'
+        })
+      };
+    }
+    
+    // RED directive is not supported for OJ parsing
+    if (directive === 'RED') {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: 'RED directive only supports ETSI Portal redirect. Please use ETSI Portal option.'
         })
       };
     }
