@@ -361,7 +361,7 @@ function createStandardItem(standard, directive = null) {
     // Excel-style display with all relevant information
     const displayNumber = standard.number || standard.full_number;
     const dateInfo = formatExcelDate(standard.date);
-    const etsiLink = generateETSILink(standard.number);
+    const standardsLink = generateStandardLink(standard.number, standard.eso);
     const description = standard.description || standard.title || '';
     
     // Excel specific information
@@ -395,7 +395,7 @@ function createStandardItem(standard, directive = null) {
         <div class="standard-meta">
             <span class="standard-type"><i class="fas fa-bookmark"></i> Harmonised Standard</span>
             <span class="standard-status ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span>
-            ${etsiLink}
+            ${standardsLink}
         </div>
     `;
 
@@ -489,15 +489,27 @@ function formatETSITitle(title) {
         .trim();
 }
 
-function generateETSILink(standardNumber) {
-    // Generate ETSI portal search link with proper format
+function generateStandardLink(standardNumber, eso) {
+    // Generate appropriate portal link based on ESO (European Standards Organization)
     const searchTerm = encodeURIComponent(standardNumber);
-    const today = new Date().toISOString().split('T')[0];
-    const etsiUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
     
-    return `<a href="${etsiUrl}" target="_blank" class="etsi-link">
-        <i class="fas fa-external-link-alt"></i> ETSI Portal
-    </a>`;
+    if (eso && (eso.toUpperCase() === 'CEN' || eso.toUpperCase() === 'CENELEC')) {
+        // CEN-CENELEC portal for CEN and CENELEC standards
+        const cenUrl = `https://standards.cencenelec.eu/dyn/www/f?p=205:105:0:::::P105_SEARCH:${searchTerm}`;
+        const portalName = eso.toUpperCase() === 'CEN' ? 'CEN Portal' : 'CENELEC Portal';
+        
+        return `<a href="${cenUrl}" target="_blank" class="standards-portal-link cen-cenelec-link">
+            <i class="fas fa-external-link-alt"></i> ${portalName}
+        </a>`;
+    } else {
+        // ETSI portal for ETSI standards and fallback
+        const today = new Date().toISOString().split('T')[0];
+        const etsiUrl = `https://www.etsi.org/standards#page=1&search=${searchTerm}&title=0&etsiNumber=1&content=0&version=0&onApproval=1&published=1&withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=${today}&harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1`;
+        
+        return `<a href="${etsiUrl}" target="_blank" class="standards-portal-link etsi-link">
+            <i class="fas fa-external-link-alt"></i> ETSI Portal
+        </a>`;
+    }
 }
 
 async function searchStandards() {
