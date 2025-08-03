@@ -7,29 +7,29 @@ A modern web application for checking EU harmonized standards compliance and com
 
 - ✅ **Zero-dependency Frontend**: Pure JavaScript, HTML5, CSS3
 - ✅ **Netlify Functions Backend**: Node.js serverless functions  
-- ✅ **Dual Fetch Methods**: Official Journal parsing + ETSI Portal integration
+- ✅ **ETSI Portal Integration**: Direct redirect to official ETSI standards portal
 - ✅ **ETSI-compliant Display**: Professional formatting matching ETSI standards
 - ✅ **Responsive Design**: Mobile-first, professional interface
 - ✅ **Real-time Processing**: Dynamic EUR-Lex integration with enhanced regex patterns
 - ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
 **Latest Updates (August 2025):**
-- 🆕 **ETSI-style formatting**: Complete standard numbers with versions in bold (e.g., "EN 301 489-17 V3.2.1")
-- 🆕 **Dual fetch methods**: Choose between Official Journal parsing or ETSI Portal redirects
-- 🆕 **Enhanced regex patterns**: Improved standard detection from OJ documents
-- 🆕 **Professional display**: ETSI-compliant typography and layout
-- 🆕 **Dynamic OJ discovery**: Automatic detection of new Official Journal links
+- 🆕 **ETSI Portal Only**: Streamlined to redirect directly to ETSI portal
+- 🆕 **RED & EMC Support**: Supports Radio Equipment and EMC directives
+- 🆕 **Simplified Interface**: Clean, focused user experience
+- 🆕 **Professional display**: ETSI-compliant redirect URLs
+- 🆕 **Removed LVD**: Low Voltage Directive support removed
 ---
 
 ## 主要機能
 
 ### 🌐 Web Application Features
 
-#### 1. **Standards Fetching** 
-- **Official Journal Method**: Direct parsing of EUR-Lex documents with enhanced regex patterns
-- **ETSI Portal Method**: Seamless integration with ETSI standards portal
-- **Dynamic Discovery**: Automatic detection of new OJ links from EC webpages
-- **Real-time Processing**: Live fetching and display of harmonized standards
+#### 1. **Standards Access** 
+- **ETSI Portal Redirect**: Direct access to official ETSI standards portal
+- **RED Standards**: Radio Equipment Directive standards
+- **EMC Standards**: Electromagnetic Compatibility Directive standards
+- **Real-time Access**: Opens current ETSI portal in new tab
 
 #### 2. **Professional Display**
 - **ETSI-compliant Formatting**: Standards displayed as "EN 301 489-17 V3.2.1 (2023-08)"
@@ -69,13 +69,11 @@ A modern web application for checking EU harmonized standards compliance and com
 
 1. **Visit the Live Application**: [EU Harmonized Standards Checker](https://eu-harmonized-standards.netlify.app)
 
-2. **Select a Directive**: Choose from RED, EMC, or LVD
+2. **Select a Directive**: Choose from RED or EMC
 
-3. **Choose Fetch Method**:
-   - **Official Journal**: Parse standards directly from EUR-Lex documents
-   - **ETSI Portal**: Open ETSI portal in new tab for manual browsing
+3. **Access Standards**: Click to open ETSI portal in new tab for browsing
 
-4. **View Results**: Standards displayed in ETSI-compliant format with versions and descriptions
+4. **Browse Standards**: Use the official ETSI portal interface for comprehensive standards browsing
 
 ### Local Development
 
@@ -124,31 +122,14 @@ OJ_CACHE_DURATION=86400
 
 The application provides RESTful API endpoints:
 
-#### Standards Fetching
+#### ETSI Portal Integration
 ```javascript
-// Fetch standards for a directive
+// Redirect to ETSI portal for directive
 GET /.netlify/functions/standards?directive=RED
 
-// Response format
-{
-  "success": true,
-  "data": {
-    "directive": "RED",
-    "directive_name": "Radio Equipment Directive",
-    "standards": [
-      {
-        "number": "EN 301 489-17",
-        "full_number": "EN 301 489-17 V3.2.1",
-        "version": "V3.2.1",
-        "title": "EMC standard for radio equipment",
-        "description": "Specific conditions for Broadband Data Transmission Systems",
-        "date": "2023-08",
-        "type": "Harmonised Standard"
-      }
-    ],
-    "count": 45
-  }
-}
+// Response: Opens ETSI portal in new tab
+// RED: https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3
+// EMC: https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3
 ```
 
 #### Standards Search
@@ -168,29 +149,27 @@ POST /.netlify/functions/compare
 
 #### JavaScript Frontend
 ```javascript
-// Fetch RED standards
-const response = await fetch('/.netlify/functions/standards?directive=RED');
-const data = await response.json();
-
-if (data.success) {
-  console.log(`Found ${data.data.count} standards`);
-  data.data.standards.forEach(standard => {
-    console.log(`${standard.full_number}: ${standard.description}`);
-  });
+// Redirect to ETSI portal for RED standards
+function openETSIPortal(directive) {
+  const urls = {
+    'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
+    'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
+  };
+  if (urls[directive]) {
+    window.open(urls[directive], '_blank');
+  }
 }
 ```
 
 #### Node.js Backend
 ```javascript
-const axios = require('axios');
-
-async function fetchStandards(directive) {
-  try {
-    const response = await axios.get(`/.netlify/functions/standards?directive=${directive}`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch standards:', error);
-  }
+// Generate ETSI portal URLs
+function getETSIPortalURL(directive) {
+  const urls = {
+    'RED': 'https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3',
+    'EMC': 'https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3'
+  };
+  return urls[directive] || null;
 }
 ```
 
@@ -198,21 +177,15 @@ async function fetchStandards(directive) {
 
 ### Web Interface Output
 
-#### Standards Display (ETSI Format)
+#### ETSI Portal Access
 ```
-🔹 RED Standards (45 found)
+🔹 RED Standards
+Opening ETSI portal for Radio Equipment Directive (RED) standards in a new tab
+🔗 https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3
 
-EN 301 489-17 V3.2.1 (2023-08)
-ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems
-🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
-
-EN 301 489-1 V2.2.3 (2019-11)
-ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements
-🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
-
-EN 300 328 V2.2.2 (2016-11)
-Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band
-🏷️ Harmonised Standard  ✅ Current  🔗 ETSI Portal
+🔹 EMC Standards  
+Opening ETSI portal for Electromagnetic Compatibility Directive (EMC) standards in a new tab
+🔗 https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3
 ```
 
 #### Certificate Analysis Report

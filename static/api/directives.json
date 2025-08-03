@@ -12,12 +12,6 @@
       "name": "Electromagnetic Compatibility Directive",
       "description": "EMC Directive",
       "directive_number": "2014/30/EU"
-    },
-    {
-      "code": "LVD",
-      "name": "Low Voltage Directive", 
-      "description": "Low Voltage Directive",
-      "directive_number": "2014/35/EU"
     }
   ]
 }
