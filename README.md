@@ -18,12 +18,13 @@ A comprehensive web application for accessing EU harmonized standards and compar
 **Latest Updates (August 2025):**
 - 🆕 **Excel File Integration**: Parse official EC Excel files for real-time data
 - 🆕 **Three-Directive Support**: RED, EMC, and LVD with directive-specific parsing
+- 🆕 **ESO-Specific Portal Links**: Intelligent redirection to appropriate standards portals
+- 🆕 **Clipboard Integration**: Auto-copy standard numbers for CEN/CENELEC portal searches
 - 🆕 **Excel-Style Display**: Complete Excel column mapping with OJ references, ESO info, and withdrawal dates
 - 🆕 **Date Conversion**: Automatic Excel serial date conversion (43056 → 17/11/2017)
 - 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
-- 🆕 **Dual Access Methods**: Both Excel parsing and ETSI portal access
 ---
 
 ## 主要機能
@@ -35,7 +36,8 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **RED Standards**: Radio Equipment Directive (2014/53/EU) - 233+ standards
 - **EMC Standards**: Electromagnetic Compatibility Directive (2014/30/EU) - 175+ standards
 - **LVD Standards**: Low Voltage Directive (2014/35/EU) - 902+ standards
-- **ETSI Portal Integration**: Alternative access via official ETSI portal
+- **ESO-Aware Portal Links**: Intelligent routing to ETSI, CEN, or CENELEC portals
+- **Clipboard Integration**: Auto-copy standard numbers for efficient searching
 - **Download Capability**: Secondary use of original Excel files
 
 #### 2. **Excel File Integration**
@@ -49,11 +51,13 @@ A comprehensive web application for accessing EU harmonized standards and compar
 
 #### 3. **Professional Display**
 - **Excel-Style Layout**: Complete mapping of Excel columns in user-friendly format
-- **ESO Indicators**: Standards organization badges (CEN, CENELEC, ETSI)
+- **ESO Indicators**: Standards organization badges (CEN, CENELEC, ETSI) with portal links
+- **Smart Portal Links**: Automatic redirection to appropriate standards portals
 - **OJ References**: Official Journal publication references with dates
 - **Status Indicators**: Current/Withdrawn status with color-coded badges and withdrawal dates
 - **Restriction Alerts**: Clear display of any restrictions or limitations
 - **Date Formatting**: Human-readable dates (17/11/2017) instead of Excel serial numbers
+- **Clipboard Features**: One-click copy of standard numbers for manual searches
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
@@ -74,6 +78,7 @@ A comprehensive web application for accessing EU harmonized standards and compar
 #### 6. **Netlify Functions Backend**
 - **Serverless Architecture**: Node.js functions for scalable processing
 - **Excel Processing**: XLSX library integration for real-time file parsing
+- **ESO Detection**: Automatic identification of standards organizations (CEN/CENELEC/ETSI)
 - **Date Conversion Engine**: Automatic Excel serial date conversion (43056 → 17/11/2017)
 - **Column Mapping**: Complete Excel field extraction and transformation
 - **Enhanced Error Handling**: Robust fallback mechanisms and retry logic
@@ -175,15 +180,18 @@ Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 Content-Disposition: attachment; filename="EU_Harmonised_Standards_RED_2025-08-03.xlsx"
 ```
 
-#### ETSI Portal Integration
+#### ESO-Specific Portal Integration
 ```javascript
-// Redirect to ETSI portal for directive
-GET /.netlify/functions/standards?directive=RED&method=etsi
+// Smart portal redirection based on standards organization
+// ETSI standards → ETSI Portal (with direct search)
+// CEN/CENELEC standards → CEN-CENELEC Portal (with clipboard copy)
 
-// Response: Opens ETSI portal in new tab
-// RED: https://www.etsi.org/standards#version=1&collection=RED&historical=0&sort=3
-// EMC: https://www.etsi.org/standards#version=1&collection=EMC&historical=0&sort=3
-// LVD: https://www.etsi.org/standards#version=1&collection=LVD&historical=0&sort=3
+// ETSI Portal (direct search)
+https://www.etsi.org/standards#page=1&search={standard_number}...
+
+// CEN-CENELEC Portal (manual search with clipboard assistance)
+https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
+// Standard number automatically copied to clipboard for pasting
 ```
 
 #### Standards Search
@@ -252,6 +260,12 @@ Status: ❌ Withdrawn
 
 EN 18031-1:2024                                             RED | CEN  
 Common security requirements for radio equipment - Part 1...
+🔗 CEN Portal (click to copy standard number and open portal)
+Status: ✅ Current
+
+EN 300 065 V2.1.2                                          RED | ETSI
+Radio equipment in the 40 GHz to 246 GHz frequency range...
+🔗 ETSI Portal (direct search)  
 Status: ✅ Current
 ```
 
@@ -263,8 +277,9 @@ Status: ✅ Current
 • LVD - Low Voltage Directive (902 standards)
 
 🔹 Access Methods per Directive:
-• Excel File (Parse hEN list) - Real-time parsing
-• ETSI Portal (Open in new tab) - Official portal access
+• Excel File (Parse hEN list) - Real-time parsing with ESO-specific portal links
+• ETSI Portal (Open in new tab) - Direct portal access for ETSI standards
+• CEN/CENELEC Portal - Clipboard-assisted portal access for CEN/CENELEC standards
 ```
 
 #### Certificate Analysis Report
@@ -347,19 +362,23 @@ netlify-pure-webapp/
 - **Total Coverage**: 1,310+ EU harmonised standards
 - **Data Freshness**: Real-time from official EC sources
 
-### Standard Format Examples with Excel Data
+### Standard Format Examples with Portal Integration
 ```
-📋 Current Standards:
+📋 Current Standards with Portal Links:
 EN 18031-1:2024 (CEN) - Common security requirements for radio equipment - Part 1
-OJ Reference: OJ C 127 - 15/04/2024 | Status: ✅ Current
+OJ Reference: OJ C 127 - 15/04/2024 | 🔗 CEN Portal (auto-copy) | Status: ✅ Current
 
 📋 Withdrawn Standards:  
 EN 50360:2017 (Cenelec) - Product standard for wireless communication devices
-OJ Reference: OJ C 389 - 17/11/2017 | ⚠️ Withdrawn: 31/05/2025 (OJ L, 2023/2669)
+OJ Reference: OJ C 389 - 17/11/2017 | 🔗 CENELEC Portal (auto-copy) | ⚠️ Withdrawn: 31/05/2025
 
-📋 With Restrictions:
-EN 55032:2015 (CEN) - Electromagnetic compatibility of multimedia equipment
-Restriction: Limited to specific frequency ranges | Status: ✅ Current
+📋 ETSI Standards:
+EN 300 065 V2.1.2 (ETSI) - Radio equipment in the 40 GHz to 246 GHz frequency range
+🔗 ETSI Portal (direct search) | Status: ✅ Current
+
+Portal Mapping:
+• CEN/CENELEC → https://standards.cencenelec.eu/ (with clipboard copy)
+• ETSI → https://www.etsi.org/standards (direct search)
 ```
 
 ## ⚠️ Important Notes
