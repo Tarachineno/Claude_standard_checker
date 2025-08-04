@@ -174,76 +174,219 @@ const PREDEFINED_CERTIFICATES = {
     
     jab: {
         certificate_info: {
-            certificate_number: 'JAB-2023-01',
-            organization: 'JAB Accredited Testing Facilities',
-            valid_until: '2025-12-31',
+            certificate_number: 'RTL02770',
+            organization: 'SGS Japan Inc. & TDK Corporation - JAB Accredited Testing Facilities',
+            valid_until: '2028-12-31',
             accreditation_body: 'JAB',
-            revision_date: '2024-01-01'
+            revision_date: '2025-03-06'
         },
         test_standards: [
-            // Facility 1: SGS Japan Inc. Kitayamata Laboratory
-            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            // 【施設1】SGS Japan Inc. Kitayamata Laboratory（神奈川県横浜市）
+            // M21.4.1 Continuous disturbance tests
+            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment (except 7)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'IEC 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'IEC 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'IEC 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-1', category: 'Continuous Disturbance Tests', description: 'ElectroMagnetic Compatibility and Radio spectrum Matters; General', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-3', category: 'Continuous Disturbance Tests', description: 'Short Range Devices', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-7', category: 'Continuous Disturbance Tests', description: 'Mobile radio and fixed radio networks', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-9', category: 'Continuous Disturbance Tests', description: 'Radio equipment with GNSS receivers', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-15', category: 'Continuous Disturbance Tests', description: 'Radio equipment for CDMA direct spread systems', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-17', category: 'Continuous Disturbance Tests', description: 'Wideband data transmission systems', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-19', category: 'Continuous Disturbance Tests', description: 'IMT-2000 CDMA direct spread radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-24', category: 'Continuous Disturbance Tests', description: 'IMT-2000 multi-carrier radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-51', category: 'Continuous Disturbance Tests', description: 'LTE radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 489-52', category: 'Continuous Disturbance Tests', description: 'GSM/EDGE radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 843-1', category: 'Continuous Disturbance Tests', description: 'S-PCS radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 301 843-2', category: 'Continuous Disturbance Tests', description: 'S-PCS radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS T 0601-1-2', category: 'Continuous Disturbance Tests', description: 'Japanese medical electrical equipment standard', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'VCCI rule V-3', category: 'Continuous Disturbance Tests', description: 'VCCI technical conditions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'VCCI-CISPR 32', category: 'Continuous Disturbance Tests', description: 'Multimedia equipment EMC', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'CISPR32', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment (ITE only)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // Vehicle EMC Tests
+            // M21.4.2 Continuous disturbance tests (on board vehicle)
             { standard_number: 'CISPR 25', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 55025', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 13766-1', category: 'Vehicle EMC Tests', description: 'Earth-moving machinery EMC', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 13766-1', category: 'Vehicle EMC Tests', description: 'Earth-moving machinery EMC (except bodies of construction machinery)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'ISO 7637-2', category: 'Vehicle EMC Tests', description: 'Road vehicles electrical disturbances', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // Harmonic Current Emission Tests
+            // M21.4.10 Harmonic current emission tests
             { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // Voltage Fluctuation & Flicker Tests
+            // M21.4.12 Voltage fluctuation and flicker tests
             { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // ESD Tests
+            // M21.4.14 Electrostatic discharge immunity tests
+            { standard_number: 'EN 55024', category: 'Electrostatic Discharge (ESD) Tests', description: 'Information technology equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 55035', category: 'Electrostatic Discharge (ESD) Tests', description: 'Multimedia equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'CISPR35', category: 'Electrostatic Discharge (ESD) Tests', description: 'Multimedia equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'JIS C 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Japanese ESD immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-6-1', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61000-6-1', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-6-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61000-6-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // RF Radiated Electromagnetic Field Immunity
+            // M21.4.15 RF radiated electromagnetic field immunity tests
             { standard_number: 'IEC 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'EN 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             { standard_number: 'JIS C 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Japanese RF radiated immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
             
-            // Facility 2: TDK Corporation Nikaho Factory
-            { standard_number: 'EN 12015', category: 'EMC Standards for Specific Equipment', description: 'Electromagnetic compatibility for lifts', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 12016', category: 'EMC Immunity Standards', description: 'Electromagnetic compatibility for lifts', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 300 330', category: 'Radio Transmitter Tests', description: 'Short Range Devices (SRD)', facility: '施設2: TDK Corporation Nikaho Factory' }
+            // M21.4.16 Electrical fast transient / burst tests
+            { standard_number: 'IEC 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Japanese electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.17 Surge immunity tests
+            { standard_number: 'IEC 61000-4-5', category: 'Surge Immunity Tests', description: 'Surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-5', category: 'Surge Immunity Tests', description: 'Surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-5', category: 'Surge Immunity Tests', description: 'Japanese surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.18 RF conducted immunity tests
+            { standard_number: 'IEC 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Japanese conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.19 Power frequency magnetic field immunity tests
+            { standard_number: 'IEC 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Power frequency magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Power frequency magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Japanese magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.20 A.C. power supply fluctuation immunity tests
+            { standard_number: 'IEC 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Japanese voltage dips immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'IEC 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'JIS C 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Japanese voltage dips and interruptions test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.22 Immunity tests for Equipment installed on road vehicles
+            { standard_number: 'ISO 11452-2', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 2', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 11452-3', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 3', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 11452-4', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 4', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 11452-8', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 8', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 11452-9', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 9', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 7637-2(2004)', category: 'Vehicle Immunity Tests', description: 'Road vehicles electrical disturbances from conduction and coupling - Part 2 (2004)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 7637-3', category: 'Vehicle Immunity Tests', description: 'Road vehicles electrical disturbances from conduction and coupling - Part 3', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'ISO 10605', category: 'Vehicle Immunity Tests', description: 'Road vehicles test methods for electrical disturbances from electrostatic discharge', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // M21.4.30 Radiated fields in close proximity immunity test
+            { standard_number: 'IEC 61000-4-39', category: 'Close Proximity Radiated Field Tests', description: 'Radiated fields in close proximity immunity test (Limited to 26MHz or less)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            { standard_number: 'EN 61000-4-39', category: 'Close Proximity Radiated Field Tests', description: 'Radiated fields in close proximity immunity test (Limited to 26MHz or less)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
+            
+            // 【施設2】TDK Corporation Nikaho Factory (North site)（秋田県にかほ市）
+            // M21.4.1 Continuous disturbance tests (TDK)
+            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment (except 7)', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'IEC 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'IEC 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'IEC 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'IEC 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'JIS T 0601-1-2', category: 'Continuous Disturbance Tests', description: 'Japanese medical electrical equipment standard', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'VCCI rule V-3', category: 'Continuous Disturbance Tests', description: 'VCCI technical conditions', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'VCCI-CISPR 32', category: 'Continuous Disturbance Tests', description: 'Multimedia equipment EMC', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'CISPR32', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment (ITE only)', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 12015', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility for lifts, escalators and moving walks', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 301 489-1', category: 'Continuous Disturbance Tests', description: 'ElectroMagnetic Compatibility and Radio spectrum Matters; General', facility: '施設2: TDK Corporation Nikaho Factory' },
+            { standard_number: 'EN 301 489-3', category: 'Continuous Disturbance Tests', description: 'Short Range Devices', facility: '施設2: TDK Corporation Nikaho Factory' },
+            
+            // M21.4.3 Discontinuous disturbance tests (TDK only)
+            { standard_number: 'EN 12015', category: 'Discontinuous Disturbance Tests', description: 'Electromagnetic compatibility for lifts, escalators and moving walks', facility: '施設2: TDK Corporation Nikaho Factory' },
+            
+            // M21.27.3 Spurious emission intensity (TDK only)
+            { standard_number: 'EN 300 330', category: 'Radio Transmitter Tests', description: 'Short Range Devices (This test is limited to magnetic field strengths below 30 MHz)', facility: '施設2: TDK Corporation Nikaho Factory' },
+            
+            // M21.28.1 Limit of radio waves which are secondarily emitted (TDK only)
+            { standard_number: 'EN 300 330', category: 'Radio Receiver Tests', description: 'Short Range Devices (This test is limited to magnetic field strength below 30 MHz)', facility: '施設2: TDK Corporation Nikaho Factory' }
         ],
         categories: {},
         total_standards: 0,
         extraction_date: new Date().toISOString(),
-        pdf_source: 'JAB Predefined Certificate',
-        certificate_type: 'JAB_Predefined',
+        pdf_source: 'JAB SIO17025 Certificate RTL02770',
+        certificate_type: 'JAB_SIO17025',
+        accreditation_details: {
+            accreditation_number: 'RTL02770',
+            valid_until: '2028-12-31',
+            accreditation_standard: 'ISO/IEC 17025:2017 (JIS Q 17025:2018)',
+            issue_date: '2025-03-06',
+            notes: [
+                'The scope of accreditation is limited to the test activities listed',
+                'Referenced activities such as risk management or risk assessment are not included in the accreditation scope',
+                'If standard version information is not specified, adaptation to the latest version is required within 6 months from the issue date',
+                'EMC test laboratory FCC accreditation does not imply approval in the FCC equipment certification program'
+            ]
+        },
         facilities: [
             {
                 facility_number: '1',
                 name: 'SGS Japan Inc. Kitayamata Laboratory',
                 location: '神奈川県横浜市',
-                standards_count: 45
+                standards_count: 95,
+                test_categories: [
+                    'M21.4.1 Continuous disturbance tests',
+                    'M21.4.2 Continuous disturbance tests (on board vehicle)',
+                    'M21.4.4 Conducted emission tests at telecommunication ports',
+                    'M21.4.5 Magnetic/Electric field test (up to 30MHz)',
+                    'M21.4.6 Electric field test (30MHz to 1 GHz)',
+                    'M21.4.7 Electric field test (1GHz and over)',
+                    'M21.4.8 Electric field test (on board vehicle)',
+                    'M21.4.10 Harmonic current emission tests',
+                    'M21.4.12 Voltage fluctuation and flicker tests',
+                    'M21.4.14 Electrostatic discharge immunity tests',
+                    'M21.4.15 RF radiated electromagnetic field immunity tests',
+                    'M21.4.16 Electrical fast transient / burst tests',
+                    'M21.4.17 Surge immunity tests',
+                    'M21.4.18 RF conducted immunity tests',
+                    'M21.4.19 Power frequency magnetic field immunity tests',
+                    'M21.4.20 A.C. power supply fluctuation immunity tests',
+                    'M21.4.22 Immunity tests for Equipment installed on road vehicles',
+                    'M21.4.30 Radiated fields in close proximity immunity test'
+                ]
             },
             {
                 facility_number: '2',
                 name: 'TDK Corporation Nikaho Factory (North site)',
                 location: '秋田県にかほ市',
-                standards_count: 15
+                standards_count: 25,
+                test_categories: [
+                    'M21.4.1 Continuous disturbance tests',
+                    'M21.4.3 Discontinuous disturbance tests',
+                    'M21.4.4 Conducted emission tests at telecommunication ports',
+                    'M21.4.5 Magnetic/Electric field test (up to 30MHz)',
+                    'M21.4.6 Electric field test (30MHz to 1 GHz)',
+                    'M21.4.7 Electric field test (1GHz and over)',
+                    'M21.4.10 Harmonic current emission tests',
+                    'M21.4.14 Electrostatic discharge immunity tests',
+                    'M21.4.15 RF radiated electromagnetic field immunity tests',
+                    'M21.4.16 Electrical fast transient / burst tests',
+                    'M21.4.17 Surge immunity tests',
+                    'M21.4.18 RF conducted immunity tests',
+                    'M21.4.19 Power frequency magnetic field immunity tests',
+                    'M21.4.20 A.C. power supply fluctuation immunity tests',
+                    'M21.27.3 Spurious emission intensity',
+                    'M21.28.1 Limit of radio waves which are secondarily emitted'
+                ]
             }
         ]
     }
