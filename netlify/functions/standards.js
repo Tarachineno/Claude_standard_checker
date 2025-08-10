@@ -522,10 +522,10 @@ function parseStandardsFromExcelData(excelData, directive) {
       withdrawal_date: convertExcelDate(row[9]),                                  // Withdrawal date from row[9] (Excel serial like 45809)
       withdrawal_reference: row[10] ? String(row[10]).trim() : '',                // Withdrawal reference text from row[10]
       
-      // Additional date fields for user requirements (Excel columns 1, 4, 6)
-      date_of_start_presumption: convertExcelDate(row[0]),                        // Column 1: Date of start of presumption of conformity
-      restriction_date: convertExcelDate(row[3]),                                 // Column 4: Date of start of presumption of conformity with restriction  
-      withdrawal_date_col6: convertExcelDate(row[5])                              // Column 6: Additional withdrawal date source
+      // Additional date fields for user requirements - RED directive uses columns E, H, J (4, 7, 9)
+      date_of_start_presumption: convertExcelDate(row[4]),                        // Column E (4): Date of start of presumption of conformity
+      restriction_date: convertExcelDate(row[7]),                                 // Column H (7): Date of start of presumption of conformity with restriction  
+      withdrawal_date_col_j: convertExcelDate(row[9])                             // Column J (9): Date of withdrawal from OJ
     });
   }
   

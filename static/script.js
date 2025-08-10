@@ -438,39 +438,36 @@ function compareStandardNumbersSimple(a, b, descending = false) {
 
 // Excel-style OJ date comparison using latest date from multiple sources
 function compareOJDatesExcel(standardA, standardB, newestFirst = true) {
-    // Use same logic as display function to get latest date
+    // Use same logic as getLatestOJDateForDisplay() to get latest date from Excel columns E, H, J (4, 7, 9)
     const getLatestOJDateValue = (standard) => {
-        const ojDates = [];
+        const validDates = [];
         
-        // Extract dates from all OJ reference fields (same as display function)
-        const fieldsToCheck = [
-            standard.date_of_start_presumption,          // Excel Column 1: Date of start of presumption of conformity (Image #2)
-            standard.restriction_date,                   // Column 4: Date of start of presumption of conformity with restriction (Image #3)
-            standard.withdrawal_date,                    // Column 6: Date of withdrawal from OJ (Image #4)
-            standard.oj_reference,                      // Column 3: OJ reference for publication
-            standard.restriction,                       // Column 5: OJ reference for restriction
-            standard.withdrawal_reference               // Column 7: OJ reference for withdrawal
+        // Only check the specific Excel columns E, H, J (4, 7, 9) for RED directive  
+        const dateFields = [
+            standard.date_of_start_presumption,     // Excel Column E (4): Date of start of presumption of conformity
+            standard.restriction_date,              // Excel Column H (7): Date of start of presumption of conformity with restriction
+            standard.withdrawal_date_col_j          // Excel Column J (9): Date of withdrawal from OJ
         ];
         
-        fieldsToCheck.forEach(field => {
+        dateFields.forEach(field => {
             if (field && field !== '-' && field.trim() !== '') {
-                // First try to extract date from dd/mm/yyyy pattern in OJ strings
-                const dateValue = extractDateFromOJString(field);
-                if (dateValue > 0) {
-                    ojDates.push(dateValue);
-                } else {
-                    // Also try to parse Excel serial dates directly
-                    const excelDateValue = parseExcelSerialDate(field);
-                    if (excelDateValue > 0) {
-                        ojDates.push(excelDateValue);
-                    }
+                // Check if it's a valid date in YYYY-MM-DD format
+                const dateMatch = field.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (dateMatch) {
+                    const year = parseInt(dateMatch[1]);
+                    const month = parseInt(dateMatch[2]);
+                    const day = parseInt(dateMatch[3]);
+                    
+                    // Convert to comparable number (YYYYMMDD format)
+                    const dateValue = year * 10000 + month * 100 + day;
+                    validDates.push(dateValue);
                 }
             }
         });
         
         
         // Return the latest (newest) date value
-        return ojDates.length > 0 ? Math.max(...ojDates) : 0;
+        return validDates.length > 0 ? Math.max(...validDates) : 0;
     };
     
     const dateA = getLatestOJDateValue(standardA);
@@ -549,58 +546,93 @@ function formatExcelSerialDateToDisplay(dateValue) {
     return dateValue;
 }
 
-// Get latest OJ date for display (from Image #2, #3, #4 - show newest)
+// Get latest OJ date for display - check all available date fields and find the most recent
 function getLatestOJDateForDisplay(standard) {
-    const ojDates = [];
+    const validDates = [];
     
-    // Extract dates from Excel columns directly (Images #2, #3, #4)
-    const fieldsToCheck = [
-        standard.date,                               // Column 1: Date of start of presumption of conformity (Image #2)
-        standard.restriction_date,                   // Column 4: Date of start of presumption of conformity with restriction (Image #3)
-        standard.withdrawal_date,                    // Column 6: Date of withdrawal from OJ (Image #4)
-        standard.oj_reference,                      // Column 6: OJ reference for publication
-        standard.restriction,                       // Column 5: OJ reference for restriction
-        standard.withdrawal_reference               // Column 7: OJ reference for withdrawal
+    // Check all available date fields to find valid YYYY-MM-DD format dates
+    const dateFields = [
+        { value: standard.date, name: 'date' },                              // Original date field
+        { value: standard.withdrawal_date, name: 'withdrawal_date' },        // Withdrawal date (working correctly for EN 50360:2017)
+        { value: standard.date_of_start_presumption, name: 'date_of_start_presumption' },
+        { value: standard.restriction_date, name: 'restriction_date' },
+        { value: standard.withdrawal_date_col_j, name: 'withdrawal_date_col_j' }
     ];
     
-    fieldsToCheck.forEach(field => {
-        if (field && field !== '-' && field.trim() !== '') {
-            // First try to extract date from dd/mm/yyyy pattern in OJ strings
-            const dateValue = extractDateFromOJString(field);
-            if (dateValue > 0) {
-                ojDates.push({
+    // Also check OJ reference strings for embedded dates
+    const ojFields = [
+        { value: standard.oj_reference, name: 'oj_reference' },
+        { value: standard.restriction, name: 'restriction' },
+        { value: standard.withdrawal_reference, name: 'withdrawal_reference' }
+    ];
+    
+    // Process YYYY-MM-DD format dates
+    dateFields.forEach(field => {
+        if (field.value && field.value !== '-' && field.value.trim() !== '') {
+            const dateMatch = field.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (dateMatch) {
+                const year = parseInt(dateMatch[1]);
+                const month = parseInt(dateMatch[2]);
+                const day = parseInt(dateMatch[3]);
+                
+                // Convert to comparable number (YYYYMMDD format)
+                const dateValue = year * 10000 + month * 100 + day;
+                
+                validDates.push({
                     value: dateValue,
-                    original: field
+                    original: field.value,
+                    name: field.name,
+                    type: 'date'
                 });
-            } else {
-                // Also try to parse Excel serial dates directly
-                const excelDateValue = parseExcelSerialDate(field);
-                if (excelDateValue > 0) {
-                    ojDates.push({
-                        value: excelDateValue,
-                        original: field,
-                        isExcelSerial: true
-                    });
-                }
             }
         }
     });
     
-    if (ojDates.length === 0) {
-        return ''; // No date found
+    // Process OJ reference strings for dd/mm/yyyy dates
+    ojFields.forEach(field => {
+        if (field.value && field.value !== '-' && field.value.trim() !== '') {
+            const dateValue = extractDateFromOJString(field.value);
+            if (dateValue > 0) {
+                validDates.push({
+                    value: dateValue,
+                    original: field.value,
+                    name: field.name,
+                    type: 'oj_string'
+                });
+            }
+        }
+    });
+    
+    if (validDates.length === 0) {
+        return ''; // No valid dates found
     }
     
     // Find the latest (newest) date
-    const latestDate = ojDates.reduce((latest, current) => {
+    const latestDate = validDates.reduce((latest, current) => {
         return current.value > latest.value ? current : latest;
     });
     
-    // Format the latest date for display
-    if (latestDate.isExcelSerial) {
-        return formatExcelSerialDateToDisplay(latestDate.original);
+    // Format based on type
+    if (latestDate.type === 'date') {
+        return formatDateToDisplay(latestDate.original);
     } else {
         return formatOJDateForDisplay(latestDate.original);
     }
+}
+
+// Helper function to format YYYY-MM-DD to dd/mm/yyyy
+function formatDateToDisplay(dateStr) {
+    if (!dateStr || dateStr === '-') return '';
+    
+    const dateMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dateMatch) {
+        const year = dateMatch[1];
+        const month = dateMatch[2];
+        const day = dateMatch[3];
+        return `${day}/${month}/${year}`;
+    }
+    
+    return dateStr;
 }
 
 // Format OJ date for display (extract and format dd/mm/yyyy)
