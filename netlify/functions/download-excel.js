@@ -30,14 +30,73 @@ function loadDirectivesData() {
 
 let directivesData = loadDirectivesData();
 
-function getDirectiveConfig(code) {
+async function getDirectiveConfig(code) {
   // If directives data is empty, try to reload it
   if (!directivesData || directivesData.length === 0) {
-    console.log('Directives data empty, attempting reload...');
-    directivesData = loadDirectivesData();
+    console.log('Directives data empty, attempting async reload...');
+    directivesData = await loadDirectivesDataAsync();
   }
   
   return directivesData.find(d => d.code === code);
+}
+
+// Async version that can use HTTP fetch
+async function loadDirectivesDataAsync() {
+  console.log('Loading directives data async...');
+  
+  // First try file system paths
+  const possiblePaths = [
+    path.join(__dirname, '../../static/api/directives.json'),
+    path.join(process.cwd(), 'static/api/directives.json'),
+    path.join(process.cwd(), 'static', 'api', 'directives.json'),
+    '/var/task/static/api/directives.json',
+    './static/api/directives.json'
+  ];
+
+  for (const testPath of possiblePaths) {
+    try {
+      if (fs.existsSync(testPath)) {
+        console.log(`Found directives.json at: ${testPath}`);
+        const content = fs.readFileSync(testPath, 'utf-8');
+        const parsed = JSON.parse(content);
+        return parsed.data;
+      }
+    } catch (e) {
+      console.log(`Error checking path ${testPath}: ${e.message}`);
+    }
+  }
+  
+  // HTTP fetch fallback
+  console.log('File system access failed, trying HTTP fetch...');
+  try {
+    const fetch = require('node-fetch');
+    const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
+    const possibleUrls = [
+      `${siteUrl}/api/directives.json`,
+      `${siteUrl}/static/api/directives.json`,
+      'https://webstandardchacker.netlify.app/api/directives.json'
+    ];
+    
+    for (const url of possibleUrls) {
+      console.log(`Trying HTTP fetch from: ${url}`);
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          const text = await response.text();
+          const parsed = JSON.parse(text);
+          console.log(`Successfully fetched directives.json via HTTP from ${url}`);
+          return parsed.data;
+        }
+      } catch (fetchError) {
+        console.error(`HTTP fetch error for ${url}: ${fetchError.message}`);
+      }
+    }
+  } catch (e) {
+    console.error(`HTTP fetch setup error: ${e.message}`);
+  }
+  
+  console.error('directives.json not found in any expected location');
+  return [];
 }
 
 exports.handler = async (event, context) => {
@@ -53,7 +112,10 @@ exports.handler = async (event, context) => {
 
   try {
     const directive = event.queryStringParameters?.directive;
-    const config = getDirectiveConfig(directive);
+    console.log(`Download Excel requested for directive: ${directive}`);
+    
+    const config = await getDirectiveConfig(directive);
+    console.log(`Found config for ${directive}:`, config);
 
     if (!directive || !config) {
       return {
