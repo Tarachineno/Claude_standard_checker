@@ -515,10 +515,17 @@ function parseStandardsFromExcelData(excelData, directive) {
       // Excel specific fields
       legislation_reference: directive === 'EMC' ? '2014/30/EU' : directive === 'RED' ? '2014/53/EU' : '2014/35/EU',
       eso: row[1] ? String(row[1]).trim() : '',
-      oj_reference: row[5] ? String(row[5]).trim() : '',
-      restriction: row[6] ? String(row[6]).trim() : '',
-      withdrawal_date: convertExcelDate(row[9]),
-      withdrawal_reference: row[10] ? String(row[10]).trim() : ''
+      
+      // Restore original mapping but fix withdrawal date handling
+      oj_reference: row[5] ? String(row[5]).trim() : '',                          // OJ reference  
+      restriction: row[6] ? String(row[6]).trim() : '',                           // Restriction reference
+      withdrawal_date: convertExcelDate(row[9]),                                  // Withdrawal date from row[9] (Excel serial like 45809)
+      withdrawal_reference: row[10] ? String(row[10]).trim() : '',                // Withdrawal reference text from row[10]
+      
+      // Additional date fields for user requirements (Excel columns 1, 4, 6)
+      date_of_start_presumption: convertExcelDate(row[0]),                        // Column 1: Date of start of presumption of conformity
+      restriction_date: convertExcelDate(row[3]),                                 // Column 4: Date of start of presumption of conformity with restriction  
+      withdrawal_date_col6: convertExcelDate(row[5])                              // Column 6: Additional withdrawal date source
     });
   }
   
@@ -536,10 +543,21 @@ function convertExcelDate(dateValue) {
   if (dateStr.match(/^\d{4,5}$/)) {
     const excelSerialDate = parseInt(dateStr);
     if (excelSerialDate > 40000 && excelSerialDate < 50000) {
-      // Convert Excel serial date to actual date
-      const excelEpoch = new Date(1899, 11, 30);
-      const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
-      return actualDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+      // Convert Excel serial date to actual date (avoid timezone issues)
+      // Excel epoch: 1899-12-30 (day 1 = 1900-01-01, but Excel incorrectly treats 1900 as leap year)
+      const year = 1900 + Math.floor((excelSerialDate - 1) / 365.25);
+      const dayOfYear = excelSerialDate - Math.floor((year - 1900) * 365.25) - 1;
+      
+      // Create date using UTC to avoid timezone issues
+      const actualDate = new Date(Date.UTC(1899, 11, 30));
+      actualDate.setUTCDate(actualDate.getUTCDate() + excelSerialDate);
+      
+      // Format as YYYY-MM-DD
+      const yearStr = actualDate.getUTCFullYear();
+      const monthStr = String(actualDate.getUTCMonth() + 1).padStart(2, '0');
+      const dayStr = String(actualDate.getUTCDate()).padStart(2, '0');
+      
+      return `${yearStr}-${monthStr}-${dayStr}`;
     }
   }
   

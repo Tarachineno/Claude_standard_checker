@@ -444,24 +444,30 @@ function compareOJDatesExcel(standardA, standardB, newestFirst = true) {
         
         // Extract dates from all OJ reference fields (same as display function)
         const fieldsToCheck = [
-            standard.date,                               // Date of start of presumption of conformity (Image #2)
-            standard.restriction_date,                   // Date of start of presumption of conformity with restriction (Image #3)
-            standard.date_of_start_restriction,          // Alternative field name for restriction date
-            standard.presumption_restriction_date,       // Another possible field name
-            standard.withdrawal_date,                    // Date of withdrawal (Image #4)
-            standard.oj_reference,                      // OJ reference for publication
-            standard.restriction,                       // OJ reference for restriction
-            standard.withdrawal_reference               // OJ reference for withdrawal
+            standard.date_of_start_presumption,          // Excel Column 1: Date of start of presumption of conformity (Image #2)
+            standard.restriction_date,                   // Column 4: Date of start of presumption of conformity with restriction (Image #3)
+            standard.withdrawal_date,                    // Column 6: Date of withdrawal from OJ (Image #4)
+            standard.oj_reference,                      // Column 3: OJ reference for publication
+            standard.restriction,                       // Column 5: OJ reference for restriction
+            standard.withdrawal_reference               // Column 7: OJ reference for withdrawal
         ];
         
         fieldsToCheck.forEach(field => {
             if (field && field !== '-' && field.trim() !== '') {
+                // First try to extract date from dd/mm/yyyy pattern in OJ strings
                 const dateValue = extractDateFromOJString(field);
                 if (dateValue > 0) {
                     ojDates.push(dateValue);
+                } else {
+                    // Also try to parse Excel serial dates directly
+                    const excelDateValue = parseExcelSerialDate(field);
+                    if (excelDateValue > 0) {
+                        ojDates.push(excelDateValue);
+                    }
                 }
             }
         });
+        
         
         // Return the latest (newest) date value
         return ojDates.length > 0 ? Math.max(...ojDates) : 0;
@@ -496,36 +502,92 @@ function extractDateFromOJString(ojString) {
     return 0;
 }
 
+// Parse Excel serial date and convert to comparable format
+function parseExcelSerialDate(dateValue) {
+    if (!dateValue || dateValue === '-') return 0;
+    
+    const dateStr = String(dateValue).trim();
+    
+    // Check if it's an Excel serial date number
+    if (dateStr.match(/^\d{4,5}$/)) {
+        const excelSerialDate = parseInt(dateStr);
+        if (excelSerialDate > 40000 && excelSerialDate < 50000) {
+            // Convert Excel serial date to actual date for comparison
+            const excelEpoch = new Date(1899, 11, 30);
+            const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
+            
+            // Convert to comparable number (YYYYMMDD format)
+            return actualDate.getFullYear() * 10000 + (actualDate.getMonth() + 1) * 100 + actualDate.getDate();
+        }
+    }
+    
+    return 0;
+}
+
+// Format Excel serial date for display
+function formatExcelSerialDateToDisplay(dateValue) {
+    if (!dateValue || dateValue === '-') return '';
+    
+    const dateStr = String(dateValue).trim();
+    
+    // Check if it's an Excel serial date number
+    if (dateStr.match(/^\d{4,5}$/)) {
+        const excelSerialDate = parseInt(dateStr);
+        if (excelSerialDate > 40000 && excelSerialDate < 50000) {
+            const excelEpoch = new Date(1899, 11, 30);
+            const actualDate = new Date(excelEpoch.getTime() + excelSerialDate * 24 * 60 * 60 * 1000);
+            
+            // Format as dd/mm/yyyy
+            const day = String(actualDate.getDate()).padStart(2, '0');
+            const month = String(actualDate.getMonth() + 1).padStart(2, '0');
+            const year = actualDate.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        }
+    }
+    
+    return dateValue;
+}
+
 // Get latest OJ date for display (from Image #2, #3, #4 - show newest)
 function getLatestOJDateForDisplay(standard) {
     const ojDates = [];
     
-    // Extract dates from all OJ reference fields (Images #2, #3, #4)
+    // Extract dates from Excel columns directly (Images #2, #3, #4)
     const fieldsToCheck = [
-        standard.date,                               // Date of start of presumption of conformity (Image #2)
-        standard.restriction_date,                   // Date of start of presumption of conformity with restriction (Image #3)
-        standard.date_of_start_restriction,          // Alternative field name for restriction date
-        standard.presumption_restriction_date,       // Another possible field name
-        standard.withdrawal_date,                    // Date of withdrawal (Image #4)
-        standard.oj_reference,                      // OJ reference for publication
-        standard.restriction,                       // OJ reference for restriction
-        standard.withdrawal_reference               // OJ reference for withdrawal
+        standard.date,                               // Column 1: Date of start of presumption of conformity (Image #2)
+        standard.restriction_date,                   // Column 4: Date of start of presumption of conformity with restriction (Image #3)
+        standard.withdrawal_date,                    // Column 6: Date of withdrawal from OJ (Image #4)
+        standard.oj_reference,                      // Column 6: OJ reference for publication
+        standard.restriction,                       // Column 5: OJ reference for restriction
+        standard.withdrawal_reference               // Column 7: OJ reference for withdrawal
     ];
     
     fieldsToCheck.forEach(field => {
         if (field && field !== '-' && field.trim() !== '') {
+            // First try to extract date from dd/mm/yyyy pattern in OJ strings
             const dateValue = extractDateFromOJString(field);
             if (dateValue > 0) {
                 ojDates.push({
                     value: dateValue,
                     original: field
                 });
+            } else {
+                // Also try to parse Excel serial dates directly
+                const excelDateValue = parseExcelSerialDate(field);
+                if (excelDateValue > 0) {
+                    ojDates.push({
+                        value: excelDateValue,
+                        original: field,
+                        isExcelSerial: true
+                    });
+                }
             }
         }
     });
     
     if (ojDates.length === 0) {
-        return formatExcelDate(standard.date || ''); // Fallback to original date
+        return ''; // No date found
     }
     
     // Find the latest (newest) date
@@ -534,7 +596,11 @@ function getLatestOJDateForDisplay(standard) {
     });
     
     // Format the latest date for display
-    return formatOJDateForDisplay(latestDate.original);
+    if (latestDate.isExcelSerial) {
+        return formatExcelSerialDateToDisplay(latestDate.original);
+    } else {
+        return formatOJDateForDisplay(latestDate.original);
+    }
 }
 
 // Format OJ date for display (extract and format dd/mm/yyyy)
