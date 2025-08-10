@@ -1,14 +1,16 @@
 // Download Excel file - Netlify Function
 const axios = require('axios');
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 
-// Excel URLs for each directive
-const EXCEL_URLS = {
-  EMC: 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native',
-  RED: 'https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native',
-  LVD: 'https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native'
-};
+// Load directive configuration from external JSON
+const directivesData = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../static/api/directives.json'), 'utf-8')
+).data;
+
+function getDirectiveConfig(code) {
+  return directivesData.find(d => d.code === code);
+}
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -23,8 +25,9 @@ exports.handler = async (event, context) => {
 
   try {
     const directive = event.queryStringParameters?.directive;
-    
-    if (!directive || !EXCEL_URLS[directive]) {
+    const config = getDirectiveConfig(directive);
+
+    if (!directive || !config) {
       return {
         statusCode: 400,
         headers: { ...headers, 'Content-Type': 'application/json' },
@@ -38,7 +41,7 @@ exports.handler = async (event, context) => {
     console.log(`Downloading Excel file for ${directive} directive`);
 
     // Download the Excel file
-    const response = await axios.get(EXCEL_URLS[directive], {
+    const response = await axios.get(config.excel_url, {
       timeout: 30000,
       responseType: 'arraybuffer',
       headers: {
@@ -49,6 +52,11 @@ exports.handler = async (event, context) => {
     });
 
     console.log(`Excel file downloaded for ${directive}, size: ${response.data.length} bytes`);
+
+    // Save a copy to static/data for caching
+    const dataDir = path.join(__dirname, '../../static/data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, `${directive}.xlsx`), response.data);
 
     // Return the Excel file as downloadable content
     const filename = `EU_Harmonised_Standards_${directive}_${new Date().toISOString().split('T')[0]}.xlsx`;
