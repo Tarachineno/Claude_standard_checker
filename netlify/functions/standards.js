@@ -5,12 +5,41 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-// Load directive configuration from external JSON file
-const directivesData = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../../static/api/directives.json'), 'utf-8')
-).data;
+// Load directive configuration from external JSON file with multi-path fallback
+function loadDirectivesData() {
+  const possiblePaths = [
+    path.join(__dirname, '../../static/api/directives.json'),
+    path.join(process.cwd(), 'static/api/directives.json'),
+    path.join(process.cwd(), 'static', 'api', 'directives.json'),
+    '/var/task/static/api/directives.json',
+    './static/api/directives.json'
+  ];
+
+  for (const testPath of possiblePaths) {
+    try {
+      if (fs.existsSync(testPath)) {
+        console.log(`Found directives.json at: ${testPath}`);
+        return JSON.parse(fs.readFileSync(testPath, 'utf-8')).data;
+      }
+    } catch (e) {
+      console.log(`Error checking path ${testPath}: ${e.message}`);
+    }
+  }
+  
+  console.error('directives.json not found in any expected location');
+  return [];
+}
+
+// Load directives data at module initialization
+let directivesData = loadDirectivesData();
 
 function getDirectiveConfig(code) {
+  // If directives data is empty, try to reload it
+  if (!directivesData || directivesData.length === 0) {
+    console.log('Directives data empty, attempting reload...');
+    directivesData = loadDirectivesData();
+  }
+  
   return directivesData.find(d => d.code === code);
 }
 
