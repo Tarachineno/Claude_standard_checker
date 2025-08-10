@@ -69,7 +69,9 @@ exports.handler = async (event, context) => {
 // Load certificate data from MD files
 async function loadCertificateFromMD(certType) {
   try {
-    // Try multiple possible paths for Netlify deployment
+    let mdContent = null;
+    
+    // First try: File system access (local development and some Netlify deployments)
     const possiblePaths = [
       path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
       path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
@@ -80,20 +82,64 @@ async function loadCertificateFromMD(certType) {
 
     let mdFilePath = null;
     for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        mdFilePath = testPath;
-        console.log(`Found MD file at: ${mdFilePath}`);
-        break;
+      try {
+        if (fs.existsSync(testPath)) {
+          mdFilePath = testPath;
+          mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+          console.log(`Found MD file at: ${mdFilePath}`);
+          break;
+        }
+      } catch (e) {
+        console.log(`Error checking path ${testPath}: ${e.message}`);
       }
-      console.log(`Checked path (not found): ${testPath}`);
     }
     
-    if (!mdFilePath) {
-      console.error(`MD file not found in any of the following paths:`, possiblePaths);
+    // Second try: HTTP fetch from static URL (Netlify deployment fallback)
+    if (!mdContent) {
+      console.log('File system access failed, trying HTTP fetch...');
+      try {
+        // Add node-fetch for Node.js environment
+        const fetch = require('node-fetch');
+        
+        // Try multiple URL patterns for Netlify
+        const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
+        const possibleUrls = [
+          `${siteUrl}/data/${certType}-scopes.md`,
+          `${siteUrl}/static/data/${certType}-scopes.md`,
+          `https://webstandardchacker.netlify.app/data/${certType}-scopes.md`
+        ];
+        
+        console.log('Environment variables:');
+        console.log('- URL:', process.env.URL);
+        console.log('- DEPLOY_URL:', process.env.DEPLOY_URL);
+        console.log('- SITE_NAME:', process.env.SITE_NAME);
+        
+        for (const url of possibleUrls) {
+          console.log(`Trying HTTP fetch from: ${url}`);
+          try {
+            const response = await fetch(url);
+            console.log(`Response status: ${response.status} ${response.statusText}`);
+            
+            if (response.ok) {
+              mdContent = await response.text();
+              console.log(`Successfully fetched MD file via HTTP from ${url}: ${mdContent.length} characters`);
+              break;
+            } else {
+              console.error(`HTTP fetch failed for ${url}: ${response.status} ${response.statusText}`);
+            }
+          } catch (fetchError) {
+            console.error(`HTTP fetch error for ${url}: ${fetchError.message}`);
+          }
+        }
+      } catch (e) {
+        console.error(`HTTP fetch setup error: ${e.message}`);
+      }
+    }
+    
+    if (!mdContent) {
       throw new Error(`MD file not found: ${certType}-scopes.md`);
     }
 
-    const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
     const parsedData = parseCertificateMD(mdContent, certType);
     
     console.log(`Successfully loaded ${parsedData.test_standards.length} standards from ${certType}-scopes.md`);
@@ -223,3 +269,4 @@ function parseCertificateMD(mdContent, certType) {
 
   return certificateData;
 }
+
