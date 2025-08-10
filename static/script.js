@@ -7,7 +7,8 @@ let uploadedCertificateData = null;
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
 // GitHub repository for viewing scope details
-const GITHUB_REPO_URL = 'https://github.com/username/Claude_standard_checker';
+// Link to the repository so users can review the underlying MD scope files
+const GITHUB_REPO_URL = 'https://github.com/webstandardchacker/webstandardchacker';
 
 // Certificate data is now loaded dynamically from MD files via API
 // No more hardcoded certificate data - all data comes from:
