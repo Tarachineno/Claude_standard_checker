@@ -27,7 +27,9 @@
       "Bash(rm:*)",
       "Bash(npm ls:*)",
       "WebFetch(domain:688f596d7aa54700087bdddf--webstandardchacker.netlify.app)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }

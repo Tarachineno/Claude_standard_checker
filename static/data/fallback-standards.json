@@ -1,0 +1,107 @@
+{
+  "RED": {
+    "directive": "RED",
+    "directive_name": "Radio Equipment Directive",
+    "standards": [
+      {
+        "number": "EN 300 220-1",
+        "title": "Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods",
+        "version": "V3.1.1",
+        "date": "2012-01-04",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 300 328",
+        "title": "Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band",
+        "version": "V2.2.2",
+        "date": "2016-11-30",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 301 489-1",
+        "title": "ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements",
+        "version": "V2.2.3",
+        "date": "2019-03-12",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 301 489-17",
+        "title": "ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems",
+        "version": "V3.3.1",
+        "date": "2023-03-15",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 301 893",
+        "title": "5 GHz RLAN; Harmonised Standard for access to radio spectrum",
+        "version": "V2.1.1",
+        "date": "2017-05-12",
+        "type": "Harmonised Standard"
+      }
+    ],
+    "count": 5
+  },
+  "EMC": {
+    "directive": "EMC",
+    "directive_name": "Electromagnetic Compatibility Directive",
+    "standards": [
+      {
+        "number": "EN 55032",
+        "title": "Electromagnetic compatibility of multimedia equipment - Emission requirements",
+        "version": "2015",
+        "date": "2015-03-01",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 55035",
+        "title": "Electromagnetic compatibility of multimedia equipment - Immunity requirements",
+        "version": "2017",
+        "date": "2017-06-01",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 61000-3-2",
+        "title": "Electromagnetic compatibility (EMC) - Part 3-2: Limits - Limits for harmonic current emissions",
+        "version": "2014",
+        "date": "2014-09-01",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 61000-4-2",
+        "title": "Electromagnetic compatibility (EMC) - Part 4-2: Testing and measurement techniques - Electrostatic discharge immunity test",
+        "version": "2009",
+        "date": "2009-02-01",
+        "type": "Harmonised Standard"
+      }
+    ],
+    "count": 4
+  },
+  "LVD": {
+    "directive": "LVD",
+    "directive_name": "Low Voltage Directive",
+    "standards": [
+      {
+        "number": "EN 60335-1",
+        "title": "Household and similar electrical appliances - Safety - Part 1: General requirements",
+        "version": "2012+A11:2014+A13:2017+A1:2019+A14:2019+A2:2019",
+        "date": "2019-12-01",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 61010-1",
+        "title": "Safety requirements for electrical equipment for measurement, control, and laboratory use - Part 1: General requirements",
+        "version": "2010+A1:2019",
+        "date": "2019-02-01",
+        "type": "Harmonised Standard"
+      },
+      {
+        "number": "EN 62368-1",
+        "title": "Audio/video, information and communication technology equipment - Part 1: Safety requirements",
+        "version": "2020+A11:2020",
+        "date": "2020-12-01",
+        "type": "Harmonised Standard"
+      }
+    ],
+    "count": 3
+  }
+}

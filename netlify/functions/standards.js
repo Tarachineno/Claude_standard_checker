@@ -648,90 +648,25 @@ function isMoreDetailedVersion(version1, version2) {
 }
 
 function getFallbackData(directive) {
-  const fallbackStandards = {
-    RED: {
-      directive: 'RED',
-      directive_name: 'Radio Equipment Directive',
-      standards: [
-        {
-          number: 'EN 300 220-1',
-          title: 'Short Range Devices (SRD); Radio equipment to be used in the 25 MHz to 1 000 MHz frequency range; Part 1: Technical characteristics and test methods',
-          version: 'V3.1.1',
-          date: '2012-01-04',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 300 328',
-          title: 'Wideband transmission systems; Data transmission equipment operating in the 2,4 GHz ISM band',
-          version: 'V2.2.2',
-          date: '2016-11-30',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 301 489-1',
-          title: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 1: Common technical requirements',
-          version: 'V2.2.3',
-          date: '2019-03-12',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 301 489-17',
-          title: 'ElectroMagnetic Compatibility (EMC) standard for radio equipment and services; Part 17: Specific conditions for Broadband Data Transmission Systems',
-          version: 'V3.3.1',
-          date: '2023-03-15',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 301 893',
-          title: '5 GHz RLAN; Harmonised Standard for access to radio spectrum',
-          version: 'V2.1.1',
-          date: '2017-05-12',
-          type: 'Harmonised Standard'
-        }
-      ],
-      count: 5
-    },
-    EMC: {
-      directive: 'EMC',
-      directive_name: 'Electromagnetic Compatibility Directive',
-      standards: [
-        {
-          number: 'EN 55032',
-          title: 'Electromagnetic compatibility of multimedia equipment - Emission requirements',
-          version: '2015',
-          date: '2015-03-01',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 55035',
-          title: 'Electromagnetic compatibility of multimedia equipment - Immunity requirements',
-          version: '2017',
-          date: '2017-06-01',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 61000-3-2',
-          title: 'Electromagnetic compatibility (EMC) - Part 3-2: Limits - Limits for harmonic current emissions',
-          version: '2014',
-          date: '2014-09-01',
-          type: 'Harmonised Standard'
-        },
-        {
-          number: 'EN 61000-4-2',
-          title: 'Electromagnetic compatibility (EMC) - Part 4-2: Testing and measurement techniques - Electrostatic discharge immunity test',
-          version: '2009',
-          date: '2009-02-01',
-          type: 'Harmonised Standard'
-        }
-      ],
-      count: 4
-    }
-  };
-
-  return fallbackStandards[directive] || {
-    directive: directive,
-    directive_name: 'Unknown Directive',
-    standards: [],
-    count: 0
-  };
+  try {
+    // Load fallback standards from external JSON file
+    const fallbackPath = path.join(__dirname, '../../static/data/fallback-standards.json');
+    const fallbackStandards = JSON.parse(fs.readFileSync(fallbackPath, 'utf-8'));
+    
+    return fallbackStandards[directive] || {
+      directive: directive,
+      directive_name: 'Unknown Directive',
+      standards: [],
+      count: 0
+    };
+  } catch (error) {
+    console.error('Error loading fallback standards:', error);
+    // Ultimate fallback - return minimal data
+    return {
+      directive: directive,
+      directive_name: 'Unknown Directive',
+      standards: [],
+      count: 0
+    };
+  }
 }

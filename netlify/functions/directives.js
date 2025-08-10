@@ -28,37 +28,13 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Error reading directives:', error);
     
-    // Fallback to hardcoded directives
-    const directives = [
-      {
-        code: 'RED',
-        name: 'Radio Equipment Directive',
-        description: 'Directive 2014/53/EU on radio equipment',
-        directive_number: '2014/53/EU',
-        excel_url: 'https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native'
-      },
-      {
-        code: 'EMC',
-        name: 'Electromagnetic Compatibility Directive', 
-        description: 'Directive 2014/30/EU on electromagnetic compatibility',
-        directive_number: '2014/30/EU',
-        excel_url: 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native'
-      },
-      {
-        code: 'LVD',
-        name: 'Low Voltage Directive',
-        description: 'Directive 2014/35/EU on low voltage electrical equipment',
-        directive_number: '2014/35/EU',
-        excel_url: 'https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native'
-      }
-    ];
-
+    // No fallback - directives.json must be available
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers,
       body: JSON.stringify({
-        success: true,
-        data: directives
+        success: false,
+        error: 'Directives configuration file not found. Please ensure directives.json is available.'
       })
     };
   }
