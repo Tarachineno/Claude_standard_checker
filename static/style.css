@@ -1474,6 +1474,25 @@ footer {
     height: fit-content;
 }
 
+.btn-outline {
+    background-color: transparent !important;
+    border: 1px solid #667eea !important;
+    color: #667eea !important;
+}
+
+.btn-outline:hover {
+    background-color: #667eea !important;
+    color: white !important;
+}
+
+.control-group button {
+    margin-top: 0.5rem;
+}
+
+.control-group button + button {
+    margin-left: 0.5rem;
+}
+
 @media (max-width: 768px) {
     .results-controls {
         flex-direction: column;
