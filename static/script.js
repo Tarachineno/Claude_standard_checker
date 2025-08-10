@@ -12,6 +12,25 @@ const API_BASE = '/.netlify/functions';
 // - /static/data/a2la-scopes.md
 // - /static/data/jab-scopes.md
 
+// DOM elements (will be initialized after DOM load)
+let loadingOverlay, errorModal, successModal;
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+async function initializeApp() {
+    // Initialize DOM elements
+    loadingOverlay = document.getElementById('loading-overlay');
+    errorModal = document.getElementById('error-modal');
+    successModal = document.getElementById('success-modal');
+    
+    setupEventListeners();
+    await loadDirectives();
+    console.log('EU Harmonized Standards Checker initialized');
+}
+
 function setupEventListeners() {
     // Tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -129,7 +148,7 @@ async function loadDirectives() {
         console.log('Loaded directives:', directives);
 
         // Populate directive selects
-        const selects = ['directive-select', 'compare-directive-select'];
+        const selects = ['directive-select'];
         selects.forEach(selectId => {
             const select = document.getElementById(selectId);
             if (!select) {
