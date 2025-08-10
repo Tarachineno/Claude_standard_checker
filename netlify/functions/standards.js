@@ -283,9 +283,46 @@ async function fetchStandardsFromEurlex(directive, config) {
 
 // Function to fetch standards from official Excel files
 async function fetchStandardsFromExcel(directive, config) {
+  console.log(`fetchStandardsFromExcel called for ${directive}`);
+  console.log(`Config:`, config);
+  
+  if (!config || !config.excel_url) {
+    throw new Error(`No Excel URL configured for directive: ${directive}`);
+  }
+  
   const excelUrl = config.excel_url;
-  const dataDir = path.join(__dirname, '../../static/data');
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  console.log(`Excel URL: ${excelUrl}`);
+  
+  // Try multiple possible paths for data directory
+  let dataDir = null;
+  const possibleDataDirs = [
+    path.join(__dirname, '../../static/data'),
+    path.join(process.cwd(), 'static/data'),
+    '/var/task/static/data',
+    '/tmp'  // Netlify Functions temp directory
+  ];
+  
+  for (const testDir of possibleDataDirs) {
+    try {
+      if (!fs.existsSync(testDir)) {
+        fs.mkdirSync(testDir, { recursive: true });
+      }
+      // Test write access
+      const testFile = path.join(testDir, 'test.tmp');
+      fs.writeFileSync(testFile, 'test');
+      fs.unlinkSync(testFile);
+      dataDir = testDir;
+      console.log(`Using data directory: ${dataDir}`);
+      break;
+    } catch (e) {
+      console.log(`Cannot use directory ${testDir}: ${e.message}`);
+    }
+  }
+  
+  if (!dataDir) {
+    throw new Error('No writable directory found for Excel files');
+  }
+  
   const filePath = path.join(dataDir, `${directive}.xlsx`);
   const metaPath = path.join(dataDir, `${directive}-meta.json`);
 
@@ -325,8 +362,9 @@ async function fetchStandardsFromExcel(directive, config) {
     console.log(`Using cached Excel file for ${directive}`);
   } else {
     console.log(`Downloading Excel file for ${directive}:`, excelUrl);
-    const response = await axios.get(excelUrl, {
-      timeout: 30000,
+    try {
+      const response = await axios.get(excelUrl, {
+        timeout: 30000,
       responseType: 'arraybuffer',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -334,10 +372,20 @@ async function fetchStandardsFromExcel(directive, config) {
         'Accept-Language': 'en-US,en;q=0.5'
       }
     });
+    
+    console.log(`Excel download response status: ${response.status}`);
+    console.log(`Excel file size: ${response.data.byteLength} bytes`);
+    
     excelBuffer = response.data;
     fs.writeFileSync(filePath, excelBuffer);
     fs.writeFileSync(metaPath, JSON.stringify({ lastModified: remoteLastMod || new Date().toISOString() }, null, 2));
     updateAvailable = remoteLastMod && meta?.lastModified && remoteLastMod !== meta.lastModified;
+    
+    console.log(`Excel file saved to: ${filePath}`);
+    } catch (downloadError) {
+      console.error(`Excel download failed: ${downloadError.message}`);
+      throw new Error(`Failed to download Excel file: ${downloadError.message}`);
+    }
   }
 
   console.log('Excel file loaded, parsing...');
