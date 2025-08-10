@@ -67,9 +67,10 @@
                         <div class="control-group">
                             <label for="sort-standards">Sort by:</label>
                             <select id="sort-standards">
-                                <option value="standard_number">Standard Number</option>
-                                <option value="publication_date">Publication Date</option>
-                                <option value="withdrawal_date">Withdrawal Date</option>
+                                <option value="standard_number_asc">Standard Number (A-Z)</option>
+                                <option value="standard_number_desc">Standard Number (Z-A)</option>
+                                <option value="oj_date_desc">OJ Date (Newest First)</option>
+                                <option value="oj_date_asc">OJ Date (Oldest First)</option>
                             </select>
                         </div>
                         
@@ -77,8 +78,8 @@
                             <label for="filter-status">Filter by Status:</label>
                             <select id="filter-status">
                                 <option value="all">All Standards</option>
-                                <option value="active">Active (Not Withdrawn)</option>
-                                <option value="withdrawn">Withdrawn</option>
+                                <option value="valid">Valid (Published, Not Withdrawn)</option>
+                                <option value="invalid">Invalid (Withdrawn)</option>
                             </select>
                         </div>
                         

@@ -333,28 +333,32 @@ function applySortAndFilter() {
     
     console.log(`Applying sort: ${sortBy}, filter: ${filterStatus}`);
     
-    // Filter standards
+    // Filter standards based on Excel OJ requirements
     let filteredStandards = [...currentStandardsData.standards];
     
-    if (filterStatus === 'active') {
+    if (filterStatus === 'valid') {
+        // Valid: Has OJ reference for publication (column 2) or restriction (column 5), but no withdrawal (column 7)
         filteredStandards = filteredStandards.filter(standard => {
-            return !isStandardWithdrawn(standard);
+            return isStandardValid(standard);
         });
-    } else if (filterStatus === 'withdrawn') {
+    } else if (filterStatus === 'invalid') {
+        // Invalid: Has withdrawal reference (column 7)
         filteredStandards = filteredStandards.filter(standard => {
             return isStandardWithdrawn(standard);
         });
     }
     
-    // Sort standards
+    // Sort standards based on Excel requirements
     filteredStandards.sort((a, b) => {
         switch (sortBy) {
-            case 'standard_number':
-                return compareStandardNumbers(a.number || a.full_number, b.number || b.full_number);
-            case 'publication_date':
-                return compareOJDates(getPublicationDate(a), getPublicationDate(b));
-            case 'withdrawal_date':
-                return compareOJDates(getWithdrawalDate(a), getWithdrawalDate(b));
+            case 'standard_number_asc':
+                return compareStandardNumbersSimple(a.number || a.full_number, b.number || b.full_number, false);
+            case 'standard_number_desc':
+                return compareStandardNumbersSimple(a.number || a.full_number, b.number || b.full_number, true);
+            case 'oj_date_desc':
+                return compareOJDatesExcel(a, b, true);
+            case 'oj_date_asc':
+                return compareOJDatesExcel(a, b, false);
             default:
                 return 0;
         }
@@ -378,92 +382,87 @@ function applySortAndFilter() {
     renderStandardsList(modifiedData);
 }
 
-// Helper function to check if standard is withdrawn
+// Helper function to check if standard is withdrawn (has data in column 7)
 function isStandardWithdrawn(standard) {
-    const withdrawalDate = standard.withdrawal_date;
-    return withdrawalDate && 
-           withdrawalDate !== '-' && 
-           withdrawalDate.trim() !== '' && 
-           withdrawalDate.toLowerCase() !== 'n/a';
+    const withdrawalRef = standard.withdrawal_reference || standard.withdrawal_date || '';
+    return withdrawalRef && 
+           withdrawalRef !== '-' && 
+           withdrawalRef.trim() !== '' && 
+           withdrawalRef.toLowerCase() !== 'n/a';
 }
 
-// Helper function to get publication date
-function getPublicationDate(standard) {
-    // Try multiple fields that might contain publication date
-    return standard.oj_reference || standard.date || standard.publication_date || '';
-}
-
-// Helper function to get withdrawal date  
-function getWithdrawalDate(standard) {
-    return standard.withdrawal_date || standard.withdrawal_reference || '';
-}
-
-// Compare standard numbers (natural sorting)
-function compareStandardNumbers(a, b) {
-    if (!a) return 1;
-    if (!b) return -1;
+// Helper function to check if standard is valid (Excel requirements)
+function isStandardValid(standard) {
+    // Must have publication OJ reference (column 2) or restriction reference (column 5)
+    const hasPublication = standard.oj_reference && standard.oj_reference !== '-' && standard.oj_reference.trim() !== '';
+    const hasRestriction = standard.restriction && standard.restriction !== '-' && standard.restriction.trim() !== '';
     
-    // Extract number parts for natural sorting (e.g., EN 300 vs EN 1000)
-    const aMatch = a.match(/(\w+\s*)?(\d+)/);
-    const bMatch = b.match(/(\w+\s*)?(\d+)/);
+    // Must NOT have withdrawal reference (column 7)
+    const isNotWithdrawn = !isStandardWithdrawn(standard);
     
-    if (aMatch && bMatch) {
-        const aPrefix = aMatch[1] || '';
-        const bPrefix = bMatch[1] || '';
-        const aNumber = parseInt(aMatch[2]);
-        const bNumber = parseInt(bMatch[2]);
-        
-        // Compare prefix first
-        if (aPrefix !== bPrefix) {
-            return aPrefix.localeCompare(bPrefix);
-        }
-        
-        // Then compare numbers numerically
-        return aNumber - bNumber;
-    }
-    
-    // Fallback to string comparison
-    return a.localeCompare(b);
+    return (hasPublication || hasRestriction) && isNotWithdrawn;
 }
 
-// Compare OJ dates (extract year-month from various formats)
-function compareOJDates(a, b) {
+// Simple standard number comparison (Excel style - ignore prefix)
+function compareStandardNumbersSimple(a, b, descending = false) {
     if (!a && !b) return 0;
-    if (!a) return 1;
-    if (!b) return -1;
+    if (!a) return descending ? -1 : 1;
+    if (!b) return descending ? 1 : -1;
     
-    // Extract date patterns from OJ references
-    const extractDate = (str) => {
-        // Look for patterns like "2023.289", "L_2023.289", "2023/289", etc.
-        const patterns = [
-            /(\d{4})\.(\d+)/,  // 2023.289
-            /(\d{4})\/(\d+)/,  // 2023/289
-            /(\d{4})-(\d+)/,   // 2023-289
-            /L_(\d{4})\.(\d+)/, // L_2023.289
-        ];
+    // Simple string comparison without considering prefix
+    const result = a.localeCompare(b);
+    return descending ? -result : result;
+}
+
+// Excel-style OJ date comparison based on dd/mm/yyyy format
+function compareOJDatesExcel(standardA, standardB, newestFirst = true) {
+    // Get the most recent date from available OJ references
+    const getLatestOJDate = (standard) => {
+        const dates = [];
         
-        for (const pattern of patterns) {
-            const match = str.match(pattern);
-            if (match) {
-                const year = parseInt(match[1]);
-                const day = parseInt(match[2]);
-                return year * 1000 + day; // Simple numeric comparison
-            }
+        // Extract dates from OJ reference for publication (column 2)
+        if (standard.oj_reference) {
+            const pubDate = extractDateFromOJString(standard.oj_reference);
+            if (pubDate) dates.push(pubDate);
         }
         
-        // If no pattern matches, try to extract just year
-        const yearMatch = str.match(/(\d{4})/);
-        if (yearMatch) {
-            return parseInt(yearMatch[1]) * 1000;
+        // Extract dates from OJ reference for restriction (column 5) 
+        if (standard.restriction) {
+            const restrictDate = extractDateFromOJString(standard.restriction);
+            if (restrictDate) dates.push(restrictDate);
         }
         
-        return 0;
+        // Return the latest date (newest)
+        return dates.length > 0 ? Math.max(...dates) : 0;
     };
     
-    const dateA = extractDate(a);
-    const dateB = extractDate(b);
+    const dateA = getLatestOJDate(standardA);
+    const dateB = getLatestOJDate(standardB);
     
-    return dateB - dateA; // Newest first
+    if (dateA === 0 && dateB === 0) return 0;
+    if (dateA === 0) return 1;
+    if (dateB === 0) return -1;
+    
+    const result = dateB - dateA; // Newest first by default
+    return newestFirst ? result : -result;
+}
+
+// Extract date from OJ string like "OJ L 289, 31/10/2023, p. 7"
+function extractDateFromOJString(ojString) {
+    if (!ojString || ojString === '-') return 0;
+    
+    // Look for dd/mm/yyyy pattern
+    const dateMatch = ojString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dateMatch) {
+        const day = parseInt(dateMatch[1]);
+        const month = parseInt(dateMatch[2]);
+        const year = parseInt(dateMatch[3]);
+        
+        // Convert to comparable number (YYYYMMDD format)
+        return year * 10000 + month * 100 + day;
+    }
+    
+    return 0;
 }
 
 // Render standards list (separated from displayStandards for reuse)
