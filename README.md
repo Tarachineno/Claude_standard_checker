@@ -27,8 +27,10 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
 - 🆕 **ISO17025 Certificate Scope Matching**: Real-time scope comparison with color-coded matching results
 - 🆕 **Scope Search Functionality**: Search A2LA and JAB certificate scopes with intelligent matching
-- 🆕 **Markdown Documentation**: External A2LA/JAB scope information with anchor links
+- 🆕 **Dynamic MD File Loading**: Certificate scope data loaded dynamically from external MD files
+- 🆕 **Markdown Documentation**: External A2LA/JAB scope information with anchor links and annual update support
 - 🆕 **Smart Standard Matching**: Prefix/version difference detection with detailed annotations
+- 🆕 **No-Code Scope Updates**: Annual scope updates through MD file editing without code modifications
 ---
 
 ## 主要機能
@@ -88,9 +90,19 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Export Functions**: Download results in CSV format
 - **Real-time Results**: Live search and filtering capabilities
 
+#### 6. **Dynamic MD File Management**
+- **External Scope Data**: Certificate scopes stored as editable Markdown files
+- **Annual Update Support**: Modify scope data without code changes
+- **Automatic Loading**: Dynamic parsing of MD files on each request
+- **Fallback System**: Graceful degradation to hardcoded data if MD files unavailable
+- **Facility Structure Support**: JAB facility-based organization with Japanese formatting
+- **Anchor Navigation**: Direct links to specific sections within scope documentation
+- **Version Control Friendly**: Track scope changes through Git history
+- **No Deployment Required**: MD file updates take effect immediately
+
 ### 🔧 Technical Features
 
-#### 6. **Advanced Backend Processing**
+#### 7. **Advanced Backend Processing**
 - **Serverless Architecture**: Node.js functions for scalable processing
 - **Excel Processing**: XLSX library integration for real-time file parsing
 - **Predefined Data Management**: Comprehensive certificate standards databases
@@ -102,7 +114,7 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Certificate Data Processing**: Structured A2LA and JAB standards organization
 - **Japanese Standards Support**: Facility-based categorization with test method codes
 
-#### 7. **Data Management**
+#### 8. **Data Management**
 - **Real-time Updates**: Direct access to latest EC Excel files
 - **Configuration Management**: External JSON configuration for Excel URLs
 - **API Compatibility**: RESTful endpoints for frontend integration
@@ -508,16 +520,17 @@ netlify-pure-webapp/
 │   └── functions/
 │       ├── standards.js         # Excel parsing & standards fetching
 │       ├── download-excel.js    # Excel file download service
-│       ├── scope-matcher.js     # Real-time scope matching for OJ Standards
-│       ├── scope-search.js      # Certificate scope search functionality
+│       ├── scope-matcher.js     # Real-time scope matching with dynamic MD loading
+│       ├── scope-search.js      # Certificate scope search with dynamic MD loading
+│       ├── parse-md-scopes.js   # MD file parsing API endpoint
 │       ├── certificate.js      # Basic certificate validation (minimal)
 │       └── directives.js       # Directive metadata
 ├── static/
 │   ├── api/
 │   │   └── directives.json     # Directive configuration with Excel URLs
 │   ├── data/
-│   │   ├── a2la-scopes.md      # A2LA certificate scope documentation
-│   │   └── jab-scopes.md       # JAB certificate scope documentation  
+│   │   ├── a2la-scopes.md      # A2LA certificate scope documentation (dynamic loading)
+│   │   └── jab-scopes.md       # JAB certificate scope documentation (dynamic loading)  
 │   ├── index.html              # Main application
 │   ├── script.js               # Frontend logic with scope matching integration
 │   └── style.css               # ETSI-compliant styling with scope matching UI
@@ -576,6 +589,179 @@ Portal Mapping:
 - **Real-time Updates**: Always current with latest published lists
 - **Fallback System**: Cached data ensures availability during service interruptions
 - **ETSI Integration**: Cross-referencing with official ETSI portal
+
+## 📝 Certificate Scope MD File Management
+
+### MD File Structure
+
+The application uses external Markdown files to store certificate scope information, enabling annual updates without code modifications.
+
+#### A2LA Certificate MD File (`/static/data/a2la-scopes.md`)
+
+```markdown
+# A2LA Certificate Scope Information
+
+**Certificate Number:** A2LA-2022-01  
+**Organization:** A2LA Accredited Testing Laboratory  
+**Valid Until:** 2025-12-31  
+**Accreditation Body:** A2LA  
+
+## Test Categories
+
+### Radiated & Conducted {#radiated-conducted}
+
+- **CFR 47 FCC Part 15B (ANSI C63.4:2014)** - Unintentional Radiators
+- **FCC Part 18 (MP-5:1986)** - Industrial, Scientific, and Medical Equipment
+- **CISPR 11** - Industrial, scientific and medical equipment
+- **EN 55011** - Industrial, scientific and medical equipment
+
+### European Radio {#european-radio}
+
+- **ETSI EN 301 091-1/-2/-3** - Electromagnetic compatibility and Radio spectrum Matters (ERM)
+- **EN 301 783** - Land Mobile Service
+- **EN 301 893** - 5 GHz high performance RLAN
+```
+
+#### JAB Certificate MD File (`/static/data/jab-scopes.md`)
+
+```markdown
+# JAB Certificate Scope Information
+
+**Certificate Number:** RTL02770  
+**Organization:** SGS Japan Inc. & TDK Corporation - JAB Accredited Testing Facilities  
+**Valid Until:** 2028-12-31  
+**Accreditation Body:** JAB  
+
+## Facility 1: SGS Japan Inc. Kitayamata Laboratory {#facility-1}
+**Location:** 神奈川県横浜市
+
+### Continuous Disturbance Tests {#facility-1-continuous-disturbance}
+
+- **EN 55011** - Industrial, scientific and medical equipment (except 10)
+- **EN 55022:2010** - Information technology equipment (except 7)
+- **IEC 60945** - Maritime navigation and radiocommunication equipment
+
+### ESD Tests {#facility-1-esd}
+
+- **IEC 61000-4-2** - Electrostatic discharge immunity test
+- **EN 61000-4-2** - Electrostatic discharge immunity test
+- **JIS C 61000-4-2** - Japanese ESD immunity test
+```
+
+### MD File Format Rules
+
+#### Required Elements:
+1. **Certificate Metadata** (top of file):
+   ```markdown
+   **Certificate Number:** XXX  
+   **Organization:** Organization Name  
+   **Valid Until:** YYYY-MM-DD  
+   **Accreditation Body:** A2LA/JAB  
+   ```
+
+2. **Section Headers with Anchors**:
+   ```markdown
+   ### Category Name {#anchor-id}
+   ```
+
+3. **Standard Entries**:
+   ```markdown
+   - **STANDARD NUMBER** - Description text
+   ```
+
+#### A2LA Specific Format:
+- Simple category-based organization
+- No facility information required
+- Direct standard listing under categories
+
+#### JAB Specific Format:
+- Facility-based organization with Japanese formatting
+- Facility headers: `## Facility X: Name {#facility-x}`
+- Location information: `**Location:** 都道府県市区町村`
+- Standards grouped by test categories within facilities
+
+### Annual Scope Update Procedure
+
+#### Step 1: Obtain Latest Certificate Information
+```bash
+# Download latest A2LA/JAB certificate documents
+# Extract scope information from official PDFs/documents
+```
+
+#### Step 2: Update MD Files
+```bash
+# Edit the relevant MD file
+vim /static/data/a2la-scopes.md  # For A2LA updates
+vim /static/data/jab-scopes.md   # For JAB updates
+```
+
+#### Step 3: Follow MD Format Rules
+- **Add new standards**: Follow existing pattern with `- **STANDARD** - Description`
+- **Update categories**: Create new sections with `### Category {#anchor}`
+- **Remove outdated standards**: Delete entire lines for withdrawn standards
+- **Update metadata**: Modify certificate validity dates and numbers
+
+#### Step 4: Test Changes Locally
+```bash
+# Start development server
+netlify dev
+
+# Test scope matching functionality
+# Test scope search functionality  
+# Verify anchor links work correctly
+```
+
+#### Step 5: Deploy Changes
+```bash
+# Commit changes
+git add static/data/*.md
+git commit -m "Update certificate scopes for 2025"
+
+# Push to production
+git push origin master
+```
+
+### MD File Parsing Features
+
+#### Automatic Parsing:
+- **Standard Extraction**: Automatically parses `- **STANDARD** - Description` format
+- **Anchor Generation**: Creates clickable links from `{#anchor-id}` patterns
+- **Facility Detection**: Recognizes JAB facility structure for proper organization
+- **Fallback System**: Uses hardcoded data if MD files are unavailable
+
+#### Dynamic Loading Benefits:
+- **No Code Changes**: Update scopes without modifying JavaScript functions
+- **Immediate Effect**: Changes take effect on next API call
+- **Version Control**: Track scope changes through Git history
+- **Error Resilience**: Graceful fallback to hardcoded data prevents system failures
+
+### Supported Standard Formats
+
+The MD parser recognizes these standard number formats:
+- **Basic**: `EN 55032`, `IEC 61000-4-2`, `CISPR 11`
+- **With Versions**: `EN 55032:2015`, `ISO 7637-2(2004)`
+- **Multi-part**: `EN 301 489-1/-3/-7/-9`
+- **Complex**: `CFR 47 FCC Part 15B (ANSI C63.4:2014)`
+- **Japanese**: `JIS C 61000-4-2`, `VCCI rule V-3`
+
+### Troubleshooting MD File Issues
+
+#### Common Issues:
+1. **Standards not appearing**: Check `- **` prefix and `**` closure
+2. **Anchors not working**: Verify `{#anchor-id}` format in section headers
+3. **Facility parsing failed**: Ensure correct Japanese formatting for JAB
+4. **Search not finding results**: Check standard number format and spelling
+
+#### Debug Commands:
+```bash
+# Test MD file parsing
+node -e "
+const fs = require('fs');
+const content = fs.readFileSync('static/data/a2la-scopes.md', 'utf-8');
+console.log('Standards found:', content.match(/- \*\*[^*]+\*\*/g)?.length || 0);
+console.log('Anchors found:', content.match(/\{#[^}]+\}/g)?.length || 0);
+"
+```
 
 ## 🔧 Development & Contributing
 

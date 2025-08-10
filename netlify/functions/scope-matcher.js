@@ -1,4 +1,7 @@
-// Scope matching function for ISO17025 certificates
+// Scope matching function for ISO17025 certificates  
+const fs = require('fs');
+const path = require('path');
+
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -37,9 +40,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Load certificate scope data
-    const a2laScopes = getA2LAScopes();
-    const jabScopes = getJABScopes();
+    // Load certificate scope data dynamically from MD files
+    const a2laScopes = await loadScopesFromMD('a2la');
+    const jabScopes = await loadScopesFromMD('jab');
 
     // Match each OJ standard against certificate scopes
     const matchResults = oj_standards.map(standard => {
@@ -173,6 +176,90 @@ function findScopeMatch(ojStandard, certificateScopes) {
     note: null,
     anchor: null
   };
+}
+
+// Load scopes dynamically from MD files
+async function loadScopesFromMD(certType) {
+  try {
+    const mdFilePath = path.join(__dirname, '../../static/data', `${certType}-scopes.md`);
+    
+    if (!fs.existsSync(mdFilePath)) {
+      console.warn(`MD file not found: ${certType}-scopes.md, falling back to hardcoded data`);
+      return certType === 'a2la' ? getA2LAScopes() : getJABScopes();
+    }
+
+    const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+    const scopeData = parseMDToScopeData(mdContent, certType);
+    
+    console.log(`Loaded ${scopeData.scopes.length} scopes from ${certType}-scopes.md`);
+    return scopeData.scopes;
+    
+  } catch (error) {
+    console.error(`Error loading MD file for ${certType}:`, error);
+    // Fallback to hardcoded data
+    return certType === 'a2la' ? getA2LAScopes() : getJABScopes();
+  }
+}
+
+// Parse markdown content into structured scope data
+function parseMDToScopeData(mdContent, certType) {
+  const lines = mdContent.split('\n');
+  const scopeData = {
+    scopes: []
+  };
+
+  let currentCategory = null;
+  let currentAnchor = null;
+  let currentFacility = null;
+  let inMetadata = true;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    if (!line) continue;
+
+    // Stop metadata parsing when we hit main content
+    if (line.startsWith('## ') || line.startsWith('### ')) {
+      inMetadata = false;
+    }
+
+    // Parse facility headers for JAB (【施設X】pattern)
+    if (certType === 'jab' && line.includes('【施設') && line.includes('】')) {
+      const facilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
+      if (facilityMatch) {
+        currentFacility = `施設${facilityMatch[1]}: ${facilityMatch[2].trim()}`;
+        continue;
+      }
+    }
+
+    // Parse section headers with anchors
+    if (line.startsWith('### ') && line.includes('{#')) {
+      const match = line.match(/### (.+) \{#([^}]+)\}/);
+      if (match) {
+        currentCategory = match[1];
+        currentAnchor = `#${match[2]}`;
+        continue;
+      }
+    }
+
+    // Parse standard entries (lines starting with - **)
+    if (line.startsWith('- **') && line.includes('**')) {
+      const match = line.match(/- \*\*([^*]+)\*\*\s*-?\s*(.*)/);
+      if (match) {
+        const standard = match[1].trim();
+        const description = match[2].trim();
+        
+        scopeData.scopes.push({
+          standard: standard,
+          description: description,
+          anchor: currentAnchor,
+          facility: currentFacility
+        });
+      }
+    }
+  }
+
+  return scopeData;
 }
 
 // A2LA scope data
