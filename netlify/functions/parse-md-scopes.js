@@ -39,10 +39,26 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Read MD file from static directory
-    const mdFilePath = path.join(__dirname, '../../static/data', `${cert_type}-scopes.md`);
+    // Try multiple possible paths for Netlify deployment
+    const possiblePaths = [
+      path.join(__dirname, '../../static/data', `${cert_type}-scopes.md`),
+      path.join(process.cwd(), 'static/data', `${cert_type}-scopes.md`),
+      path.join(process.cwd(), 'static', 'data', `${cert_type}-scopes.md`),
+      `/var/task/static/data/${cert_type}-scopes.md`,
+      `./static/data/${cert_type}-scopes.md`
+    ];
+
+    let mdFilePath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        mdFilePath = testPath;
+        console.log(`Found MD file at: ${mdFilePath}`);
+        break;
+      }
+    }
     
-    if (!fs.existsSync(mdFilePath)) {
+    if (!mdFilePath) {
+      console.error(`MD file not found in any of the following paths:`, possiblePaths);
       throw new Error(`MD file not found: ${cert_type}-scopes.md`);
     }
 

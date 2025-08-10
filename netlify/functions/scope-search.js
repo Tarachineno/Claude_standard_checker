@@ -182,9 +182,25 @@ function extractVersion(standard) {
 // Load scopes dynamically from MD files
 async function loadScopesFromMD(certType) {
   try {
-    const mdFilePath = path.join(__dirname, '../../static/data', `${certType}-scopes.md`);
+    // Try multiple possible paths for Netlify deployment
+    const possiblePaths = [
+      path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
+      path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
+      path.join(process.cwd(), 'static', 'data', `${certType}-scopes.md`),
+      `/var/task/static/data/${certType}-scopes.md`,
+      `./static/data/${certType}-scopes.md`
+    ];
+
+    let mdFilePath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        mdFilePath = testPath;
+        console.log(`Found MD file at: ${mdFilePath}`);
+        break;
+      }
+    }
     
-    if (!fs.existsSync(mdFilePath)) {
+    if (!mdFilePath) {
       console.warn(`MD file not found: ${certType}-scopes.md, falling back to hardcoded data`);
       return certType === 'a2la' ? getA2LAScopes() : getJABScopes();
     }
