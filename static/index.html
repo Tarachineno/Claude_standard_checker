@@ -27,7 +27,6 @@
             <button class="tab-btn active" data-tab="standards">OJ Standards</button>
             <button class="tab-btn" data-tab="search">Search Standards</button>
             <button class="tab-btn" data-tab="certificate">ISO17025 Certificate</button>
-            <button class="tab-btn" data-tab="compare">Compare Standards</button>
         </nav>
 
         <!-- Standards Tab -->
@@ -153,6 +152,28 @@
                         </div>
                     </div>
                     
+                    <!-- Standards Search Section -->
+                    <div class="standards-search-section">
+                        <h4><i class="fas fa-search"></i> Search Certificate Scopes</h4>
+                        <p>Search for specific standards in A2LA and JAB certificate scopes</p>
+                        <div class="search-form">
+                            <div class="form-group">
+                                <input type="text" id="scope-search-input" placeholder="Enter standard number (e.g., EN 55032, IEC 61000-4-2)" />
+                                <button id="scope-search-btn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search Scopes
+                                </button>
+                                <button id="clear-search-btn" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="scope-search-results" class="search-results hidden">
+                            <h5>Search Results</h5>
+                            <div id="scope-search-content"></div>
+                        </div>
+                    </div>
+                    
                     <div class="categories-section">
                         <h4>Standards by Category</h4>
                         <div id="standards-categories"></div>
@@ -161,35 +182,6 @@
             </div>
         </section>
 
-        <!-- Compare Tab -->
-        <section id="compare-tab" class="tab-content">
-            <div class="card">
-                <h2><i class="fas fa-balance-scale"></i> Standards Comparison</h2>
-                <div class="compare-info">
-                    <p>First upload an ISO17025 certificate in the Certificate tab, then select a directive to compare.</p>
-                </div>
-                
-                <div id="compare-controls" class="hidden">
-                    <div class="form-group">
-                        <label for="compare-directive-select">Select Directive to Compare:</label>
-                        <select id="compare-directive-select">
-                            <option value="">Loading directives...</option>
-                        </select>
-                        <button id="single-compare-btn" class="btn btn-primary">
-                            <i class="fas fa-balance-scale"></i> Compare
-                        </button>
-                        <button id="batch-compare-btn" class="btn btn-secondary">
-                            <i class="fas fa-layer-group"></i> Compare All
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="comparison-results" class="results-section hidden">
-                    <h3>Comparison Results</h3>
-                    <div id="comparison-content"></div>
-                </div>
-            </div>
-        </section>
 
         <!-- Error modal -->
         <div id="error-modal" class="modal hidden">

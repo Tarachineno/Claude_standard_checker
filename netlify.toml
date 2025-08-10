@@ -13,6 +13,20 @@
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type"
 
+# Serve markdown files with proper content-type
+[[headers]]
+  for = "/*.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# Serve markdown files in data directory  
+[[headers]]
+  for = "/data/*.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"

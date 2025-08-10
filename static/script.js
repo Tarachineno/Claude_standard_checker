@@ -433,9 +433,12 @@ function setupEventListeners() {
     certificateTypeSelect.addEventListener('change', handleCertificateTypeChange);
     loadCertificateBtn.addEventListener('click', loadCertificateData);
 
-    // Compare tab
-    document.getElementById('single-compare-btn').addEventListener('click', singleCompare);
-    document.getElementById('batch-compare-btn').addEventListener('click', batchCompare);
+    // Scope search
+    document.getElementById('scope-search-btn').addEventListener('click', performScopeSearch);
+    document.getElementById('clear-search-btn').addEventListener('click', clearScopeSearch);
+    document.getElementById('scope-search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performScopeSearch();
+    });
 
     // Modals
     document.querySelectorAll('.close').forEach(closeBtn => {
@@ -460,10 +463,6 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     document.getElementById(`${tabName}-tab`).classList.add('active');
 
-    // Special handling for compare tab
-    if (tabName === 'compare') {
-        updateCompareTabState();
-    }
 }
 
 // API functions
@@ -655,7 +654,7 @@ async function fetchStandards() {
     showError('Please select a valid fetch method');
 }
 
-function displayStandards(data) {
+async function displayStandards(data) {
     const resultsSection = document.getElementById('standards-results');
     const countElement = document.getElementById('standards-count');
     const listElement = document.getElementById('standards-list');
@@ -664,8 +663,27 @@ function displayStandards(data) {
     
     listElement.innerHTML = '';
     
-    data.standards.forEach(standard => {
-        const item = createStandardItem(standard, data.directive);
+    // Check scope matching for all standards
+    let scopeMatches = null;
+    try {
+        const response = await apiCall('/scope-matcher', {
+            method: 'POST',
+            body: JSON.stringify({
+                oj_standards: data.standards.map(s => s.number || s.full_number)
+            })
+        });
+        
+        if (response.success) {
+            scopeMatches = response.data.matches;
+        }
+    } catch (error) {
+        console.warn('Scope matching failed:', error);
+        // Continue without scope matching
+    }
+    
+    data.standards.forEach((standard, index) => {
+        const matchData = scopeMatches ? scopeMatches[index] : null;
+        const item = createStandardItem(standard, data.directive, matchData);
         listElement.appendChild(item);
     });
 
@@ -734,7 +752,7 @@ async function downloadExcelFile(directive) {
     }
 }
 
-function createStandardItem(standard, directive = null) {
+function createStandardItem(standard, directive = null, scopeMatch = null) {
     const item = document.createElement('div');
     item.className = 'standard-item';
 
@@ -760,6 +778,9 @@ function createStandardItem(standard, directive = null) {
     const statusText = isWithdrawn ? 'Withdrawn' : 'Current';
     const statusIcon = isWithdrawn ? 'fa-times-circle' : 'fa-check-circle';
 
+    // Scope matching information
+    const scopeMatchingInfo = createScopeMatchingInfo(scopeMatch);
+
     item.innerHTML = `
         <div class="standard-header">
             <div class="standard-number-container">
@@ -768,6 +789,7 @@ function createStandardItem(standard, directive = null) {
                 ${directiveBadge}
                 ${esoInfo ? `<span class="standard-eso">${esoInfo}</span>` : ''}
             </div>
+            ${scopeMatchingInfo}
         </div>
         <div class="standard-description">${description}</div>
         <div class="standard-excel-info">
@@ -783,6 +805,94 @@ function createStandardItem(standard, directive = null) {
     `;
 
     return item;
+}
+
+// Create scope matching information display
+function createScopeMatchingInfo(scopeMatch) {
+    if (!scopeMatch || !scopeMatch.scope_matches) {
+        return '';
+    }
+
+    const { a2la, jab } = scopeMatch.scope_matches;
+    
+    let matchingInfo = '<div class="scope-matching-info">';
+    matchingInfo += '<div class="scope-title">ISO17025 Certificate Scope:</div>';
+    matchingInfo += '<div class="scope-badges">';
+    
+    // A2LA Badge
+    const a2laBadge = createScopeBadge('A2LA', a2la);
+    matchingInfo += a2laBadge;
+    
+    // JAB Badge
+    const jabBadge = createScopeBadge('JAB', jab);
+    matchingInfo += jabBadge;
+    
+    matchingInfo += '</div>';
+    matchingInfo += '</div>';
+    
+    return matchingInfo;
+}
+
+// Create individual scope badge
+function createScopeBadge(certType, matchData) {
+    if (!matchData || matchData.status === 'no_match') {
+        return `<span class="scope-badge no-match" title="対応スコープなし">
+            <i class="fas fa-times-circle"></i> ${certType} ⚫
+        </span>`;
+    }
+    
+    let badgeClass = 'scope-badge ';
+    let icon = '';
+    let statusSymbol = '';
+    let title = '';
+    
+    switch (matchData.status) {
+        case 'exact_match':
+            badgeClass += 'exact-match';
+            icon = 'fa-check-circle';
+            statusSymbol = '🟢';
+            title = `完全一致: ${matchData.matched_standard}`;
+            break;
+        case 'prefix_mismatch':
+            badgeClass += 'prefix-mismatch';
+            icon = 'fa-exclamation-circle';
+            statusSymbol = '🟡';
+            title = `${matchData.note}: ${matchData.matched_standard}`;
+            break;
+        case 'version_mismatch':
+            badgeClass += 'version-mismatch';
+            icon = 'fa-exclamation-triangle';
+            statusSymbol = '🟠';
+            title = `${matchData.note}: ${matchData.matched_standard}`;
+            break;
+        default:
+            return createScopeBadge(certType, { status: 'no_match' });
+    }
+    
+    const facilityInfo = matchData.facility ? ` (${matchData.facility})` : '';
+    const clickHandler = matchData.anchor ? 
+        `onclick="openScopeDetails('${certType.toLowerCase()}', '${matchData.anchor}')"` : '';
+    
+    return `<span class="${badgeClass}" title="${title}${facilityInfo}" ${clickHandler}>
+        <i class="fas ${icon}"></i> ${certType} ${statusSymbol}
+        ${matchData.note ? `<span class="scope-note">⚠️ ${matchData.note}</span>` : ''}
+    </span>`;
+}
+
+// Open scope details in MD file
+function openScopeDetails(certType, anchor) {
+    const baseUrl = window.location.origin;
+    const mdUrl = `${baseUrl}/data/${certType}-scopes.md${anchor}`;
+    
+    // Try to open with GitHub-style markdown rendering
+    const githubUrl = `https://github.com/YOUR_USERNAME/YOUR_REPO/blob/main/static/data/${certType}-scopes.md${anchor}`;
+    
+    // For now, open the raw markdown file in new tab
+    // In the future, this could be enhanced with a markdown renderer
+    window.open(mdUrl, '_blank');
+    
+    // Show a helpful message
+    showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information in new tab`);
 }
 
 // Add click handler for CEN/CENELEC links to copy standard number to clipboard
@@ -1130,7 +1240,6 @@ function loadCertificateData() {
         
         // Display the results
         displayCertificateResults(certificateData);
-        updateCompareTabState();
         
         showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully!`);
     } catch (error) {
@@ -1243,170 +1352,119 @@ function toggleCategory(header) {
     standards.classList.toggle('active');
 }
 
-// Compare functions
-function updateCompareTabState() {
-    const compareControls = document.getElementById('compare-controls');
-    const compareInfo = document.querySelector('.compare-info');
-
-    if (uploadedCertificateData) {
-        compareControls.classList.remove('hidden');
-        compareInfo.textContent = `Certificate loaded: ${uploadedCertificateData.certificate_info.certificate_number}. Select a directive to compare.`;
-    } else {
-        compareControls.classList.add('hidden');
-        compareInfo.textContent = 'First upload an ISO17025 certificate in the Certificate tab, then select a directive to compare.';
-    }
-}
-
-async function singleCompare() {
-    const directive = document.getElementById('compare-directive-select').value;
+// Scope search functions
+async function performScopeSearch() {
+    const searchQuery = document.getElementById('scope-search-input').value.trim();
     
-    if (!directive) {
-        showError('Please select a directive');
-        return;
-    }
-
-    if (!uploadedCertificateData) {
-        showError('Please upload a certificate first');
+    if (!searchQuery) {
+        showError('Please enter a standard number to search');
         return;
     }
 
     try {
-        console.log('Comparing with directive:', directive);
+        showLoading();
+        console.log('Searching scopes for:', searchQuery);
         
-        const response = await apiCall('/compare', {
+        const response = await apiCall('/scope-search', {
             method: 'POST',
             body: JSON.stringify({
-                directive: directive,
-                iso_standards: uploadedCertificateData.test_standards
+                search_query: searchQuery
             })
         });
 
         if (response.success) {
-            displayComparisonResults([response.data], false);
-            showSuccess(`Comparison completed: ${response.data.coverage_percentage.toFixed(1)}% coverage`);
+            displayScopeSearchResults(response.data, searchQuery);
+            showSuccess(`Found ${response.data.total_matches} matches for "${searchQuery}"`);
         } else {
-            throw new Error(response.error || 'Comparison failed');
+            throw new Error(response.error || 'Scope search failed');
         }
     } catch (error) {
-        console.error('Comparison failed:', error);
-        showError(`Comparison failed: ${error.message}`);
+        console.error('Scope search failed:', error);
+        showError(`Scope search failed: ${error.message}`);
+    } finally {
+        hideLoading();
     }
 }
 
-async function batchCompare() {
-    if (!uploadedCertificateData) {
-        showError('Please upload a certificate first');
-        return;
-    }
-
-    try {
-        console.log('Starting batch comparison...');
-        
-        const response = await apiCall('/batch-compare', {
-            method: 'POST',
-            body: JSON.stringify({
-                iso_standards: uploadedCertificateData.test_standards
-            })
-        });
-
-        if (response.success) {
-            const resultsArray = Object.entries(response.data.results).map(([directive, result]) => ({
-                directive: directive,
-                directive_name: result.directive_name,
-                ...result
-            }));
-
-            displayComparisonResults(resultsArray, true, response.data.best_directive);
-            showSuccess(`Batch comparison completed. Best match: ${response.data.best_directive} (${response.data.best_coverage.toFixed(1)}%)`);
-        } else {
-            throw new Error(response.error || 'Batch comparison failed');
-        }
-    } catch (error) {
-        console.error('Batch comparison failed:', error);
-        showError(`Batch comparison failed: ${error.message}`);
-    }
+function clearScopeSearch() {
+    document.getElementById('scope-search-input').value = '';
+    document.getElementById('scope-search-results').classList.add('hidden');
 }
 
-function displayComparisonResults(results, isBatch = false, bestDirective = null) {
-    const resultsSection = document.getElementById('comparison-results');
-    const contentElement = document.getElementById('comparison-content');
-
+function displayScopeSearchResults(data, searchQuery) {
+    const resultsSection = document.getElementById('scope-search-results');
+    const contentElement = document.getElementById('scope-search-content');
+    
     contentElement.innerHTML = '';
-
-    if (isBatch && bestDirective) {
-        const bestMatch = results.find(r => r.directive === bestDirective);
-        if (bestMatch) {
-            const bestMatchElement = document.createElement('div');
-            bestMatchElement.className = 'card';
-            bestMatchElement.style.border = '2px solid #28a745';
-            bestMatchElement.innerHTML = `
-                <h3><i class="fas fa-trophy"></i> Best Match: ${bestMatch.directive_name}</h3>
-                <p>This directive has the highest coverage (${bestMatch.coverage_percentage.toFixed(1)}%) for your certificate.</p>
-            `;
-            contentElement.appendChild(bestMatchElement);
-        }
+    
+    if (data.total_matches === 0) {
+        contentElement.innerHTML = `
+            <div class="no-results">
+                <p><i class="fas fa-search"></i> No matches found for "${searchQuery}"</p>
+                <p class="search-tip">Try searching with partial standard numbers (e.g., "55032", "61000-4-2")</p>
+            </div>
+        `;
+        resultsSection.classList.remove('hidden');
+        return;
     }
-
-    results.forEach(result => {
-        const resultElement = createComparisonResultElement(result);
-        contentElement.appendChild(resultElement);
-    });
-
+    
+    // A2LA Results
+    if (data.a2la_matches && data.a2la_matches.length > 0) {
+        const a2laSection = document.createElement('div');
+        a2laSection.className = 'search-results-section';
+        a2laSection.innerHTML = `
+            <h6><i class="fas fa-certificate"></i> A2LA Certificate (${data.a2la_matches.length} matches)</h6>
+            <div class="search-matches">
+                ${data.a2la_matches.map(match => createScopeSearchResult(match, 'a2la')).join('')}
+            </div>
+        `;
+        contentElement.appendChild(a2laSection);
+    }
+    
+    // JAB Results
+    if (data.jab_matches && data.jab_matches.length > 0) {
+        const jabSection = document.createElement('div');
+        jabSection.className = 'search-results-section';
+        jabSection.innerHTML = `
+            <h6><i class="fas fa-certificate"></i> JAB Certificate (${data.jab_matches.length} matches)</h6>
+            <div class="search-matches">
+                ${data.jab_matches.map(match => createScopeSearchResult(match, 'jab')).join('')}
+            </div>
+        `;
+        contentElement.appendChild(jabSection);
+    }
+    
     resultsSection.classList.remove('hidden');
 }
 
-function createComparisonResultElement(result) {
-    const element = document.createElement('div');
-    element.className = 'comparison-summary';
-
-    const matchedStandardsHtml = result.matched_standards
-        .map(match => `
-            <div class="matched-item">
-                <i class="fas fa-check-circle match-icon"></i>
-                <div class="match-details">
-                    <span class="oj-standard">${match.oj_standard.number}</span>
-                    <span class="match-arrow">↔</span>
-                    <span class="iso-standard">${match.iso_standard.standard_number}</span>
-                </div>
+function createScopeSearchResult(match, certType) {
+    const matchTypeIcon = match.match_type === 'exact' ? 'fa-check-circle' : 
+                         match.match_type === 'prefix_mismatch' ? 'fa-exclamation-circle' :
+                         match.match_type === 'version_mismatch' ? 'fa-exclamation-triangle' : 'fa-search';
+    
+    const matchTypeClass = match.match_type === 'exact' ? 'exact-match' :
+                          match.match_type === 'prefix_mismatch' ? 'prefix-mismatch' :
+                          match.match_type === 'version_mismatch' ? 'version-mismatch' : 'partial-match';
+    
+    const facilityInfo = match.facility ? `<span class="facility-info">${match.facility}</span>` : '';
+    const noteInfo = match.note ? `<span class="match-note">⚠️ ${match.note}</span>` : '';
+    
+    return `
+        <div class="scope-search-match ${matchTypeClass}">
+            <div class="match-header">
+                <i class="fas ${matchTypeIcon}"></i>
+                <strong class="standard-number">${match.standard}</strong>
+                ${facilityInfo}
             </div>
-        `).join('');
-
-    element.innerHTML = `
-        <h3>${result.directive_name || result.directive}</h3>
-        
-        <div class="comparison-stats">
-            <div class="stat-item">
-                <div class="stat-number">${result.coverage_percentage.toFixed(1)}%</div>
-                <div class="stat-label">Coverage</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">${result.matched_count}</div>
-                <div class="stat-label">Matched</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">${result.oj_count || 0}</div>
-                <div class="stat-label">OJ Standards</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">${uploadedCertificateData.total_standards}</div>
-                <div class="stat-label">ISO Standards</div>
+            <div class="match-description">${match.description || ''}</div>
+            ${noteInfo}
+            <div class="match-actions">
+                <button class="btn-link" onclick="openScopeDetails('${certType}', '${match.anchor}')">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                </button>
             </div>
         </div>
-
-        <div class="coverage-bar">
-            <div class="coverage-fill" style="width: ${result.coverage_percentage}%"></div>
-        </div>
-        <div class="coverage-text">${result.coverage_percentage.toFixed(1)}% Coverage</div>
-
-        ${result.matched_standards.length > 0 ? `
-            <div class="matched-standards">
-                <h4><i class="fas fa-check"></i> Matched Standards (${result.matched_count})</h4>
-                ${matchedStandardsHtml}
-            </div>
-        ` : '<p>No matching standards found.</p>'}
     `;
-
-    return element;
 }
 
 // Utility functions

@@ -25,9 +25,10 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
-- 🆕 **Predefined Certificate Analysis**: Instant access to A2LA and JAB certificate standards
-- 🆕 **Japanese Standards Support**: JAB facility-based display with 【施設】formatting
-- 🆕 **Certificate Type Selection**: Fast loading of comprehensive standards databases
+- 🆕 **ISO17025 Certificate Scope Matching**: Real-time scope comparison with color-coded matching results
+- 🆕 **Scope Search Functionality**: Search A2LA and JAB certificate scopes with intelligent matching
+- 🆕 **Markdown Documentation**: External A2LA/JAB scope information with anchor links
+- 🆕 **Smart Standard Matching**: Prefix/version difference detection with detailed annotations
 ---
 
 ## 主要機能
@@ -64,22 +65,28 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
-#### 4. **Predefined Certificate Analysis**
+#### 4. **ISO17025 Certificate Scope Analysis**
 - **Certificate Type Selection**: Choose between A2LA and JAB certificate types
 - **Instant Data Loading**: No file upload required - comprehensive predefined databases
 - **A2LA Certificate Support**: Complete database of 80+ standards across multiple categories
 - **JAB Facility Display**: Japanese-style facility formatting with 【施設】structure
 - **Multi-Facility Support**: Two Japanese facilities with comprehensive test standards
-- **Standards Comparison**: Compare certificate scope with EU harmonized standards
-- **Coverage Reports**: Detailed compliance analysis with percentage coverage
-- **Batch Processing**: Compare against multiple directives simultaneously
+- **Smart Scope Matching**: Real-time comparison of OJ Standards with certificate scopes
+- **Color-Coded Results**: Visual indicators for exact match, prefix/version differences
+- **Scope Search Functionality**: Search certificate scopes using partial standard numbers
+- **Markdown Documentation**: External A2LA/JAB scope documentation with anchor links
 - **Facility-based Analysis**: Organized by test method classifications (M21.4.x)
 
-#### 5. **Search & Export**
-- **Advanced Search**: Find specific standards across all directives
+#### 5. **Advanced Scope Matching & Search**
+- **Real-time Scope Comparison**: Automatic matching of OJ Standards with ISO17025 certificate scopes
+- **Smart Matching Algorithm**: Detects exact matches, prefix differences, version mismatches
+- **Color-Coded Visual Results**: 🟢 Exact match, 🟡 Prefix difference, 🟠 Version difference, ⚫ No match
+- **Intelligent Annotations**: Detailed notes for prefix/version differences (e.g., "EN/CISPR表記違い")
+- **Certificate Scope Search**: Search A2LA/JAB scopes using partial standard numbers
+- **Facility Information**: Display which facility covers specific standards (JAB)
+- **Markdown Integration**: Click-through to detailed scope documentation
 - **Export Functions**: Download results in CSV format
 - **Real-time Results**: Live search and filtering capabilities
-- **Cross-referencing**: Direct links to ETSI portal for detailed specifications
 
 ### 🔧 Technical Features
 
@@ -258,16 +265,71 @@ https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
 }
 ```
 
-#### Standards Search
+#### Scope Matching & Search
 ```javascript
-// Search across all standards
-GET /.netlify/functions/search?q=301%20489
-
-// Certificate comparison
-POST /.netlify/functions/compare
+// Real-time scope matching for OJ Standards
+POST /.netlify/functions/scope-matcher
 {
-  "directive": "RED",
-  "iso_standards": [...]
+  "oj_standards": ["EN 55032:2015", "IEC 61000-4-2", "EN 300 328"]
+}
+
+// Response: Detailed matching results with annotations
+{
+  "success": true,
+  "data": {
+    "matches": [
+      {
+        "standard": "EN 55032:2015",
+        "scope_matches": {
+          "a2la": {
+            "status": "exact_match",
+            "matched_standard": "EN 55032",
+            "note": null,
+            "anchor": "#emissions-for-ports"
+          },
+          "jab": {
+            "status": "prefix_mismatch", 
+            "matched_standard": "EN55032",
+            "note": "スペース有無違い",
+            "anchor": "#facility-1-continuous-disturbance",
+            "facility": "施設1: SGS Japan Inc."
+          }
+        }
+      }
+    ]
+  }
+}
+
+// Certificate scope search
+POST /.netlify/functions/scope-search
+{
+  "search_query": "55032"
+}
+
+// Response: Search results from both certificates
+{
+  "success": true,
+  "data": {
+    "total_matches": 3,
+    "a2la_matches": [
+      {
+        "standard": "EN 55032",
+        "description": "Electromagnetic compatibility of multimedia equipment",
+        "match_type": "exact",
+        "anchor": "#emissions-for-ports"
+      }
+    ],
+    "jab_matches": [
+      {
+        "standard": "EN55032", 
+        "description": "Electromagnetic compatibility of multimedia equipment (ITE only)",
+        "match_type": "prefix_mismatch",
+        "note": "スペース有無違い",
+        "facility": "施設1: SGS Japan Inc.",
+        "anchor": "#facility-1-continuous-disturbance"
+      }
+    ]
+  }
 }
 ```
 
@@ -346,7 +408,7 @@ Status: ✅ Current
 • CEN/CENELEC Portal - Clipboard-assisted portal access for CEN/CENELEC standards
 ```
 
-#### Certificate Analysis Report (A2LA Predefined)
+#### Certificate Analysis with Smart Scope Matching
 ```
 📋 Certificate Information
 Certificate Number: A2LA-2022-01
@@ -364,15 +426,27 @@ Loading Method: Predefined database
 🔹 EMC Immunity Standards (25+ standards)
 🔹 Other Categories (20+ standards)
 
-📊 Comparison Results - EMC
-Coverage: 75.2% (30/40 matched)
-Excel Standards: 175
-Certificate Standards: 80
+🔍 Scope Search Results for "55032":
+📋 A2LA Certificate (1 match)
+🟢 EN 55032 - Electromagnetic compatibility of multimedia equipment
+   [View Details] → Opens A2LA scope documentation
 
-✅ Matched Standards (30)
-EN 55032 ↔ CISPR 32 (Multimedia Equipment EMC)
-EN 61000-4-2 ↔ IEC 61000-4-2 (ESD Immunity)
-EN 61000-3-2 ↔ IEC 61000-3-2 (Harmonic Current Limits)
+📋 JAB Certificate (1 match)  
+🟡 EN55032 - Electromagnetic compatibility of multimedia equipment (ITE only)
+   ⚠️ スペース有無違い - 施設1: SGS Japan Inc.
+   [View Details] → Opens JAB scope documentation
+
+🔍 Real-time OJ Standards Scope Matching:
+EN 55032:2015                                               EMC | CEN
+Electromagnetic compatibility of multimedia equipment - Emission requirements
+
+ISO17025 Certificate Scope:
+A2LA 🟢  JAB 🟡 ⚠️ スペース有無違い
+
+📋 Excel Details:
+OJ Reference: OJ C 275 - 16/08/2016
+Status: ✅ Current
+🔗 CEN Portal (click to copy and search)
 ```
 
 #### JAB Certificate Analysis (Predefined Facilities)
@@ -434,19 +508,21 @@ netlify-pure-webapp/
 │   └── functions/
 │       ├── standards.js         # Excel parsing & standards fetching
 │       ├── download-excel.js    # Excel file download service
-│       ├── search.js           # Standards search
-│       ├── compare.js          # ISO17025 comparison
-│       ├── batch-compare.js    # Batch processing
-│       ├── certificate.js     # Basic certificate validation (minimal)
-│       └── directives.js      # Directive metadata
+│       ├── scope-matcher.js     # Real-time scope matching for OJ Standards
+│       ├── scope-search.js      # Certificate scope search functionality
+│       ├── certificate.js      # Basic certificate validation (minimal)
+│       └── directives.js       # Directive metadata
 ├── static/
 │   ├── api/
-│   │   └── directives.json    # Directive configuration with Excel URLs
-│   ├── index.html             # Main application
-│   ├── script.js              # Frontend logic with Excel integration
-│   └── style.css              # ETSI-compliant styling
-├── package.json               # Node.js dependencies (includes xlsx)
-└── README.md                 # This documentation
+│   │   └── directives.json     # Directive configuration with Excel URLs
+│   ├── data/
+│   │   ├── a2la-scopes.md      # A2LA certificate scope documentation
+│   │   └── jab-scopes.md       # JAB certificate scope documentation  
+│   ├── index.html              # Main application
+│   ├── script.js               # Frontend logic with scope matching integration
+│   └── style.css               # ETSI-compliant styling with scope matching UI
+├── package.json                # Node.js dependencies (includes xlsx)
+└── README.md                  # This documentation
 ```
 
 ### Performance Features
