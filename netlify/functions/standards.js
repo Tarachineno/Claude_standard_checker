@@ -5,8 +5,10 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-// Load directive configuration from bundled JSON to ensure availability in Netlify runtime
-const directivesData = require('../../static/api/directives.json').data;
+// Load directive configuration from external JSON file
+const directivesData = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../static/api/directives.json'), 'utf-8')
+).data;
 
 function getDirectiveConfig(code) {
   return directivesData.find(d => d.code === code);
