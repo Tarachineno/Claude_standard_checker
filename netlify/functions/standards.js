@@ -2,45 +2,17 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const XLSX = require('xlsx');
+const fs = require('fs');
+const path = require('path');
 
-// Directive configuration with EC webpage URLs for dynamic OJ link discovery
-const DIRECTIVE_CONFIG = {
-  RED: {
-    name: 'Radio Equipment Directive',
-    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en',
-    excel_url: 'https://ec.europa.eu/docsroom/documents/64475/attachments/1/translations/en/renditions/native',
-    fallback_urls: [
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC',
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202302392',
-      'https://eur-lex.europa.eu/eli/dec_impl/2023/2669/oj',
-      'https://eur-lex.europa.eu/eli/dec_impl/2025/138/oj',
-      'https://eur-lex.europa.eu/eli/dec_impl/2025/893/oj/eng'
-    ]
-  },
-  EMC: {
-    name: 'Electromagnetic Compatibility Directive',
-    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en',
-    excel_url: 'https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native',
-    fallback_urls: [
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG',
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.155.01.0016.01.ENG&toc=OJ:L:2020:155:TOC',
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2020.366.01.0017.01.ENG',
-      'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2021.089.01.0017.01.ENG',
-      'https://eur-lex.europa.eu/eli/dec_impl/2022/622/oj',
-      'https://eur-lex.europa.eu/eli/dec_impl/2022/910/oj'
-    ]
-  },
-  LVD: {
-    name: 'Low Voltage Directive',
-    ec_webpage: 'https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en',
-    excel_url: 'https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native',
-    fallback_urls: [
-      'https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj',
-      'https://eur-lex.europa.eu/eli/dec_impl/2024/1198/oj',
-      'https://eur-lex.europa.eu/eli/dec_impl/2024/2764/oj'
-    ]
-  }
-};
+// Load directive configuration from external JSON file
+const directivesData = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../static/api/directives.json'), 'utf-8')
+).data;
+
+function getDirectiveConfig(code) {
+  return directivesData.find(d => d.code === code);
+}
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -57,8 +29,9 @@ exports.handler = async (event, context) => {
   try {
     // Get directive from query parameters
     const directive = event.queryStringParameters?.directive;
-    
-    if (!directive || !DIRECTIVE_CONFIG[directive]) {
+    const config = getDirectiveConfig(directive);
+
+    if (!directive || !config) {
       return {
         statusCode: 400,
         headers,
@@ -72,7 +45,8 @@ exports.handler = async (event, context) => {
     console.log(`Fetching standards for ${directive} directive`);
 
     // Fetch standards from EUR-Lex pages
-    const standards = await fetchStandardsFromEurlex(directive);
+    const result = await fetchStandardsFromEurlex(directive, config);
+    const standards = result.standards;
 
     return {
       statusCode: 200,
@@ -81,9 +55,11 @@ exports.handler = async (event, context) => {
         success: true,
         data: {
           directive: directive,
-          directive_name: DIRECTIVE_CONFIG[directive].name,
+          directive_name: config.name,
           standards: standards,
-          count: standards.length
+          count: standards.length,
+          update_available: result.updateAvailable,
+          added_standards: result.added || []
         }
       })
     };
@@ -106,13 +82,11 @@ exports.handler = async (event, context) => {
   }
 };
 
-async function fetchStandardsFromEurlex(directive) {
+async function fetchStandardsFromEurlex(directive, config) {
   // For EMC, RED, and LVD, fetch from the official Excel files
   if (['EMC', 'RED', 'LVD'].includes(directive)) {
-    return await fetchStandardsFromExcel(directive);
+    return await fetchStandardsFromExcel(directive, config);
   }
-
-  const config = DIRECTIVE_CONFIG[directive];
   let allStandards = [];
   const standardsSet = new Set(); // To avoid duplicates
 
@@ -173,17 +147,53 @@ async function fetchStandardsFromEurlex(directive) {
   allStandards.sort((a, b) => a.number.localeCompare(b.number));
   
   console.log(`Total unique standards found: ${allStandards.length}`);
-  return allStandards;
+  return { standards: allStandards, updateAvailable: false, added: [] };
 }
 
 // Function to fetch standards from official Excel files
-async function fetchStandardsFromExcel(directive) {
-  const config = DIRECTIVE_CONFIG[directive];
+async function fetchStandardsFromExcel(directive, config) {
   const excelUrl = config.excel_url;
-  
+  const dataDir = path.join(__dirname, '../../static/data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  const filePath = path.join(dataDir, `${directive}.xlsx`);
+  const metaPath = path.join(dataDir, `${directive}-meta.json`);
+
+  let remoteLastMod = null;
   try {
-    console.log(`Fetching ${directive} standards from official Excel file:`, excelUrl);
-    
+    const headResp = await axios.head(excelUrl, { timeout: 10000 });
+    remoteLastMod = headResp.headers['last-modified'] || null;
+  } catch (err) {
+    console.warn('HEAD request failed:', err.message);
+  }
+
+  let meta = null;
+  if (fs.existsSync(metaPath)) {
+    try { meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8')); } catch (_) { meta = null; }
+  }
+
+  let updateAvailable = false;
+  if (remoteLastMod && meta?.lastModified && remoteLastMod !== meta.lastModified) {
+    updateAvailable = true;
+  }
+
+  let oldStandards = [];
+  if (updateAvailable && fs.existsSync(filePath)) {
+    try {
+      const oldWorkbook = XLSX.read(fs.readFileSync(filePath), { type: 'buffer' });
+      const oldSheet = oldWorkbook.SheetNames[0];
+      const oldJson = XLSX.utils.sheet_to_json(oldWorkbook.Sheets[oldSheet], { header: 1 });
+      oldStandards = parseStandardsFromExcelData(oldJson, directive).map(s => s.number);
+    } catch (e) {
+      console.warn('Failed to parse old Excel for diff:', e.message);
+    }
+  }
+
+  let excelBuffer = null;
+  if (!updateAvailable && fs.existsSync(filePath)) {
+    excelBuffer = fs.readFileSync(filePath);
+    console.log(`Using cached Excel file for ${directive}`);
+  } else {
+    console.log(`Downloading Excel file for ${directive}:`, excelUrl);
     const response = await axios.get(excelUrl, {
       timeout: 30000,
       responseType: 'arraybuffer',
@@ -193,11 +203,17 @@ async function fetchStandardsFromExcel(directive) {
         'Accept-Language': 'en-US,en;q=0.5'
       }
     });
-    
-    console.log('Excel file downloaded, parsing...');
-    
+    excelBuffer = response.data;
+    fs.writeFileSync(filePath, excelBuffer);
+    fs.writeFileSync(metaPath, JSON.stringify({ lastModified: remoteLastMod || new Date().toISOString() }, null, 2));
+    updateAvailable = remoteLastMod && meta?.lastModified && remoteLastMod !== meta.lastModified;
+  }
+
+  console.log('Excel file loaded, parsing...');
+
+  try {
     // Parse Excel file
-    const workbook = XLSX.read(response.data, { type: 'buffer' });
+    const workbook = XLSX.read(excelBuffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0]; // Use first sheet
     const worksheet = workbook.Sheets[sheetName];
     
@@ -208,11 +224,17 @@ async function fetchStandardsFromExcel(directive) {
     
     // Parse standards from Excel data
     const standards = parseStandardsFromExcelData(jsonData, directive);
-    
+    const newNumbers = standards.map(s => s.number);
+    let added = [];
+    if (updateAvailable) {
+      const oldSet = new Set(oldStandards);
+      added = newNumbers.filter(n => !oldSet.has(n));
+    }
+
     console.log(`Parsed ${standards.length} standards from Excel file`);
-    
-    return standards;
-    
+
+    return { standards, updateAvailable, added };
+
   } catch (error) {
     console.error(`Error fetching ${directive} standards from Excel:`, error.message);
     throw error;

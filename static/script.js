@@ -6,6 +6,8 @@ let uploadedCertificateData = null;
 
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
+// GitHub repository for viewing scope details
+const GITHUB_REPO_URL = 'https://github.com/username/Claude_standard_checker';
 
 // Certificate data is now loaded dynamically from MD files via API
 // No more hardcoded certificate data - all data comes from:
@@ -504,18 +506,9 @@ function createScopeBadge(certType, matchData) {
 
 // Open scope details in MD file
 function openScopeDetails(certType, anchor) {
-    const baseUrl = window.location.origin;
-    const mdUrl = `${baseUrl}/data/${certType}-scopes.md${anchor}`;
-    
-    // Try to open with GitHub-style markdown rendering
-    const githubUrl = `https://github.com/YOUR_USERNAME/YOUR_REPO/blob/main/static/data/${certType}-scopes.md${anchor}`;
-    
-    // For now, open the raw markdown file in new tab
-    // In the future, this could be enhanced with a markdown renderer
-    window.open(mdUrl, '_blank');
-    
-    // Show a helpful message
-    showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information in new tab`);
+    const githubUrl = `${GITHUB_REPO_URL}/blob/main/static/data/${certType}-scopes.md${anchor}`;
+    window.open(githubUrl, '_blank');
+    showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information on GitHub`);
 }
 
 // Add click handler for CEN/CENELEC links to copy standard number to clipboard
