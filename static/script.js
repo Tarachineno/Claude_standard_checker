@@ -7,406 +7,10 @@ let uploadedCertificateData = null;
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
 
-// Predefined Certificate Data
-const PREDEFINED_CERTIFICATES = {
-    a2la: {
-        certificate_info: {
-            certificate_number: 'A2LA-2022-01',
-            organization: 'A2LA Accredited Testing Laboratory',
-            valid_until: '2025-12-31',
-            accreditation_body: 'A2LA',
-            revision_date: '2024-01-01'
-        },
-        test_standards: [
-            // Radiated & Conducted
-            { standard_number: 'CFR 47 FCC Part 15B (ANSI C63.4:2014)', category: 'Radiated & Conducted', description: 'Unintentional Radiators' },
-            { standard_number: 'FCC Part 18 (MP-5:1986)', category: 'Radiated & Conducted', description: 'Industrial, Scientific, and Medical Equipment' },
-            { standard_number: 'FCC Parts 15C (ANSI C63.10:2013)', category: 'Radiated & Conducted', description: 'Intentional Radiators' },
-            { standard_number: 'FCC Part 15E (ANSI C63.10:2013 & FCC KDB 905462 D02 v02)', category: 'Radiated & Conducted', description: 'U-NII Equipment' },
-            { standard_number: 'FCC Parts 15F (ANSI C63.10:2013)', category: 'Radiated & Conducted', description: 'Ultra-Wideband Operation' },
-            { standard_number: 'UNII-MP', category: 'Radiated & Conducted', description: 'Unlicensed National Information Infrastructure' },
-            { standard_number: 'CISPR 11', category: 'Radiated & Conducted', description: 'Industrial, scientific and medical equipment' },
-            { standard_number: 'EN 55011', category: 'Radiated & Conducted', description: 'Industrial, scientific and medical equipment' },
-            { standard_number: 'KS C 9811', category: 'Radiated & Conducted', description: 'Korean EMC Standard' },
-            { standard_number: 'IEC 61000-6-4', category: 'Radiated & Conducted', description: 'Generic emission standard for industrial environments' },
-            { standard_number: 'EN 61000-6-4', category: 'Radiated & Conducted', description: 'Generic emission standard for industrial environments' },
-            { standard_number: 'KS C 9610-6-4', category: 'Radiated & Conducted', description: 'Korean generic emission standard' },
-            
-            // United States Radio
-            { standard_number: 'CFR 47 FCC Parts 25, 30, 74, 90 (>3 GHz), 95 (>3 GHz), 97 (>3 GHz) & 101 (ANSI C63.26:2015)', category: 'United States Radio', description: 'Radio Service Rules' },
-            
-            // Canada Radio
-            { standard_number: 'ICES-Gen', category: 'Canada Radio', description: 'General EMC requirements' },
-            { standard_number: 'ICES-003', category: 'Canada Radio', description: 'Information Technology Equipment' },
-            { standard_number: 'RSS-GEN', category: 'Canada Radio', description: 'General Requirements for Radio Equipment' },
-            { standard_number: 'RSS-210', category: 'Canada Radio', description: 'Low-power Licence-exempt Radio Communication Devices' },
-            { standard_number: 'RSS-215', category: 'Canada Radio', description: 'Wireless Microphones' },
-            { standard_number: 'RSS-220', category: 'Canada Radio', description: 'Devices Using Ultra-Wideband Technology' },
-            { standard_number: 'RSS-247', category: 'Canada Radio', description: '2.4 GHz Band Spread Spectrum Equipment' },
-            { standard_number: 'RSS-248', category: 'Canada Radio', description: '5 GHz Band Equipment' },
-            { standard_number: 'RSS-251', category: 'Canada Radio', description: 'Fixed Wireless Access Equipment' },
-            
-            // European Radio
-            { standard_number: 'ETSI EN 301 091-1/-2/-3', category: 'European Radio', description: 'Electromagnetic compatibility and Radio spectrum Matters (ERM)' },
-            { standard_number: 'EN 301 783', category: 'European Radio', description: 'Land Mobile Service' },
-            { standard_number: 'EN 301 893', category: 'European Radio', description: '5 GHz high performance RLAN' },
-            { standard_number: 'EN 302 065-1/-2/-3/-4', category: 'European Radio', description: 'Short Range Devices' },
-            { standard_number: 'EN 302 264', category: 'European Radio', description: 'Meteor Burst Communications' },
-            { standard_number: 'EN 305 550-1/-2', category: 'European Radio', description: 'Direct Sequence Spread Spectrum (DSSS)' },
-            { standard_number: 'EN 300 328', category: 'European Radio', description: '2,4 GHz wideband transmission systems' },
-            { standard_number: 'EN 300 330', category: 'European Radio', description: 'Short Range Devices' },
-            { standard_number: 'EN 300 220-1/-2', category: 'European Radio', description: 'Short Range Devices' },
-            { standard_number: 'EN 303 413', category: 'European Radio', description: 'Satellite Earth Stations and Systems' },
-            
-            // Australia / New Zealand Radio
-            { standard_number: 'AS/NZS 4268', category: 'Australia / New Zealand Radio', description: 'Radio equipment and systems' },
-            
-            // Emissions for Ports
-            { standard_number: 'CISPR 32', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
-            { standard_number: 'EN 55032', category: 'Emissions for Ports', description: 'Electromagnetic compatibility of multimedia equipment' },
-            
-            // Harmonic Current Emissions
-            { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
-            { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emissions', description: 'Limits for harmonic current emissions' },
-            
-            // Voltage Fluctuations & Flicker
-            { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
-            { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
-            { standard_number: 'IEC 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
-            { standard_number: 'EN 61000-3-11', category: 'Voltage Fluctuations & Flicker', description: 'Voltage fluctuations and flicker' },
-            
-            // Electrostatic Discharge (ESD)
-            { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
-            { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Electrostatic discharge immunity test' },
-            { standard_number: 'KS C 9610-4-2', category: 'Electrostatic Discharge (ESD)', description: 'Korean ESD immunity test' },
-            
-            // RF Radiated EM Field Immunity
-            { standard_number: 'IEC 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
-            { standard_number: 'EN 61000-4-3', category: 'RF Radiated EM Field Immunity', description: 'Radiated electromagnetic field immunity test' },
-            { standard_number: 'KS C 9610-4-3', category: 'RF Radiated EM Field Immunity', description: 'Korean RF radiated immunity test' },
-            
-            // Electrical Fast/Transient Burst (EFT)
-            { standard_number: 'IEC 61000-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Electrical fast transient immunity test' },
-            { standard_number: 'EN 61000-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Electrical fast transient immunity test' },
-            { standard_number: 'KS C 9610-4-4', category: 'Electrical Fast/Transient Burst (EFT)', description: 'Korean electrical fast transient immunity test' },
-            
-            // Surge
-            { standard_number: 'IEC 61000-4-5', category: 'Surge', description: 'Surge immunity test' },
-            { standard_number: 'EN 61000-4-5', category: 'Surge', description: 'Surge immunity test' },
-            { standard_number: 'KS C 9610-4-5', category: 'Surge', description: 'Korean surge immunity test' },
-            
-            // Conducted Immunity
-            { standard_number: 'IEC 61000-4-6', category: 'Conducted Immunity', description: 'Conducted RF immunity test' },
-            { standard_number: 'EN 61000-4-6', category: 'Conducted Immunity', description: 'Conducted RF immunity test' },
-            { standard_number: 'KS C 9610-4-6', category: 'Conducted Immunity', description: 'Korean conducted RF immunity test' },
-            
-            // Transients & Surges (Vehicle)
-            { standard_number: 'ISO 7637-2', category: 'Transients & Surges (Vehicle)', description: 'Road vehicles electrical disturbances' },
-            
-            // Magnetic Field Immunity
-            { standard_number: 'IEC 61000-4-8', category: 'Magnetic Field Immunity', description: 'Power frequency magnetic field immunity test' },
-            { standard_number: 'EN 61000-4-8', category: 'Magnetic Field Immunity', description: 'Power frequency magnetic field immunity test' },
-            { standard_number: 'KS C 9610-4-8', category: 'Magnetic Field Immunity', description: 'Korean magnetic field immunity test' },
-            
-            // Voltage Dips/Interruptions/Variations
-            { standard_number: 'IEC 61000-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations immunity test' },
-            { standard_number: 'EN 61000-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations immunity test' },
-            { standard_number: 'KS C 9610-4-11', category: 'Voltage Dips/Interruptions/Variations', description: 'Korean voltage dips immunity test' },
-            { standard_number: 'KS C IEC 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Korean voltage dips and interruptions test' },
-            { standard_number: 'IEC 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations test' },
-            { standard_number: 'EN 61000-4-34', category: 'Voltage Dips/Interruptions/Variations', description: 'Voltage dips, short interruptions and voltage variations test' },
-            
-            // Semiconductor Equipment Voltage Sag Immunity
-            { standard_number: 'SEMI F47', category: 'Semiconductor Equipment Voltage Sag Immunity', description: 'Specification for semiconductor processing equipment voltage sag immunity' },
-            
-            // Common Technical Standards (Machines & Mechanisms)
-            { standard_number: 'S2-W-5', category: 'Common Technical Standards (Machines & Mechanisms)', description: 'Common technical standards for machines and mechanisms' },
-            
-            // Documentation for Semiconductor Equipment Installation
-            { standard_number: 'SEMI E6', category: 'Documentation for Semiconductor Equipment Installation', description: 'Guide for semiconductor equipment installation documentation' },
-            
-            // Generic Immunity – Industrial Environments
-            { standard_number: 'IEC 61000-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Generic immunity standard for industrial environments' },
-            { standard_number: 'EN 61000-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Generic immunity standard for industrial environments' },
-            { standard_number: 'KS C 9610-6-2', category: 'Generic Immunity – Industrial Environments', description: 'Korean generic immunity standard for industrial environments' },
-            
-            // Product Family Standards
-            { standard_number: 'EN 50370-11', category: 'Product Family Standards', description: 'Product family standard for machine tools' },
-            { standard_number: 'EN 50370-21', category: 'Product Family Standards', description: 'Product family standard for lifts, escalators and moving walks' },
-            { standard_number: 'EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52', category: 'Product Family Standards', description: 'Product family standards for radio equipment and services' },
-            
-            // Wi-Fi Devices Interoperability
-            { standard_number: 'Wi-Fi CERTIFIED n', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi n certification' },
-            { standard_number: 'Wi-Fi Protected Setup', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Protected Setup certification' },
-            { standard_number: 'WMM Power Save', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Multimedia Power Save certification' },
-            { standard_number: 'Protected Management Frames', category: 'Wi-Fi Devices Interoperability', description: 'Protected Management Frames certification' },
-            { standard_number: 'Miracast', category: 'Wi-Fi Devices Interoperability', description: 'Miracast wireless display certification' },
-            { standard_number: 'Wi-Fi Direct', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi Direct certification' },
-            { standard_number: 'Wi-Fi CERTIFIED ac Test Plans', category: 'Wi-Fi Devices Interoperability', description: 'Wi-Fi ac certification test plans' },
-            
-            // Unintentional Radiators (FCC Part 15B)
-            { standard_number: 'ANSI C63.4:2014', category: 'Unintentional Radiators (FCC Part 15B)', description: 'American National Standard for Methods of Measurement of Radio-Noise Emissions' },
-            
-            // ISM Equipment (FCC Part 18)
-            { standard_number: 'FCC MP-5 (Feb 1986)', category: 'ISM Equipment (FCC Part 18)', description: 'Measurement procedures for ISM equipment' },
-            
-            // Intentional Radiators (FCC Part 15C)
-            { standard_number: 'ANSI C63.10:2013', category: 'Intentional Radiators (FCC Part 15C)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
-            
-            // U-NII without DFS (FCC Part 15E)
-            { standard_number: 'ANSI C63.10:2013', category: 'U-NII without DFS (FCC Part 15E)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
-            
-            // U-NII with DFS (FCC Part 15E)
-            { standard_number: 'FCC KDB 905462 D02 (v02)', category: 'U-NII with DFS (FCC Part 15E)', description: 'Dynamic Frequency Selection test procedures' },
-            
-            // UWB Radiators (FCC Part 15F)
-            { standard_number: 'ANSI C63.10:2013', category: 'UWB Radiators (FCC Part 15F)', description: 'American National Standard for Testing Unlicensed Wireless Devices' },
-            
-            // Microwave & Millimeter Radio Services
-            { standard_number: 'CFR 47 FCC Parts 25/30/74/90/95/97/101 (ANSI C63.26:2015)', category: 'Microwave & Millimeter Radio Services', description: 'Microwave and millimeter wave radio services' }
-        ],
-        categories: {},
-        total_standards: 0,
-        extraction_date: new Date().toISOString(),
-        pdf_source: 'A2LA Predefined Certificate',
-        certificate_type: 'A2LA_Predefined'
-    },
-    
-    jab: {
-        certificate_info: {
-            certificate_number: 'RTL02770',
-            organization: 'SGS Japan Inc. & TDK Corporation - JAB Accredited Testing Facilities',
-            valid_until: '2028-12-31',
-            accreditation_body: 'JAB',
-            revision_date: '2025-03-06'
-        },
-        test_standards: [
-            // 【施設1】SGS Japan Inc. Kitayamata Laboratory（神奈川県横浜市）
-            // M21.4.1 Continuous disturbance tests
-            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment (except 7)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-1', category: 'Continuous Disturbance Tests', description: 'ElectroMagnetic Compatibility and Radio spectrum Matters; General', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-3', category: 'Continuous Disturbance Tests', description: 'Short Range Devices', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-7', category: 'Continuous Disturbance Tests', description: 'Mobile radio and fixed radio networks', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-9', category: 'Continuous Disturbance Tests', description: 'Radio equipment with GNSS receivers', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-15', category: 'Continuous Disturbance Tests', description: 'Radio equipment for CDMA direct spread systems', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-17', category: 'Continuous Disturbance Tests', description: 'Wideband data transmission systems', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-19', category: 'Continuous Disturbance Tests', description: 'IMT-2000 CDMA direct spread radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-24', category: 'Continuous Disturbance Tests', description: 'IMT-2000 multi-carrier radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-51', category: 'Continuous Disturbance Tests', description: 'LTE radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 489-52', category: 'Continuous Disturbance Tests', description: 'GSM/EDGE radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 843-1', category: 'Continuous Disturbance Tests', description: 'S-PCS radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 301 843-2', category: 'Continuous Disturbance Tests', description: 'S-PCS radio equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS T 0601-1-2', category: 'Continuous Disturbance Tests', description: 'Japanese medical electrical equipment standard', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'VCCI rule V-3', category: 'Continuous Disturbance Tests', description: 'VCCI technical conditions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'VCCI-CISPR 32', category: 'Continuous Disturbance Tests', description: 'Multimedia equipment EMC', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'CISPR32', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment (ITE only)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.2 Continuous disturbance tests (on board vehicle)
-            { standard_number: 'CISPR 25', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 55025', category: 'Vehicle EMC Tests', description: 'Vehicles, boats and internal combustion engines', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 13766-1', category: 'Vehicle EMC Tests', description: 'Earth-moving machinery EMC (except bodies of construction machinery)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 7637-2', category: 'Vehicle EMC Tests', description: 'Road vehicles electrical disturbances', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.10 Harmonic current emission tests
-            { standard_number: 'IEC 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-3-2', category: 'Harmonic Current Emission Tests', description: 'Limits for harmonic current emissions', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.12 Voltage fluctuation and flicker tests
-            { standard_number: 'IEC 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-3-3', category: 'Voltage Fluctuation & Flicker Tests', description: 'Voltage fluctuations and flicker', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.14 Electrostatic discharge immunity tests
-            { standard_number: 'EN 55024', category: 'Electrostatic Discharge (ESD) Tests', description: 'Information technology equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 55035', category: 'Electrostatic Discharge (ESD) Tests', description: 'Multimedia equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'CISPR35', category: 'Electrostatic Discharge (ESD) Tests', description: 'Multimedia equipment immunity', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Electrostatic discharge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Japanese ESD immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-6-1', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-6-1', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for residential environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-6-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-6-2', category: 'Electrostatic Discharge (ESD) Tests', description: 'Generic immunity standard for industrial environments', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.15 RF radiated electromagnetic field immunity tests
-            { standard_number: 'IEC 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Radiated electromagnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-3', category: 'RF Radiated Electromagnetic Field Immunity', description: 'Japanese RF radiated immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.16 Electrical fast transient / burst tests
-            { standard_number: 'IEC 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-4', category: 'Electrical Fast Transient/Burst Tests', description: 'Japanese electrical fast transient immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.17 Surge immunity tests
-            { standard_number: 'IEC 61000-4-5', category: 'Surge Immunity Tests', description: 'Surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-5', category: 'Surge Immunity Tests', description: 'Surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-5', category: 'Surge Immunity Tests', description: 'Japanese surge immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.18 RF conducted immunity tests
-            { standard_number: 'IEC 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-6', category: 'RF Conducted Immunity Tests', description: 'Japanese conducted RF immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.19 Power frequency magnetic field immunity tests
-            { standard_number: 'IEC 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Power frequency magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Power frequency magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-8', category: 'Magnetic Field Immunity Tests', description: 'Japanese magnetic field immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.20 A.C. power supply fluctuation immunity tests
-            { standard_number: 'IEC 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-11', category: 'Power Supply Fluctuation Tests', description: 'Japanese voltage dips immunity test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'IEC 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Voltage dips, short interruptions and voltage variations test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'JIS C 61000-4-34', category: 'Power Supply Fluctuation Tests', description: 'Japanese voltage dips and interruptions test', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.22 Immunity tests for Equipment installed on road vehicles
-            { standard_number: 'ISO 11452-2', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 2', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 11452-3', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 3', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 11452-4', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 4', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 11452-8', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 8', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 11452-9', category: 'Vehicle Immunity Tests', description: 'Road vehicles component test methods for electrical disturbances - Part 9', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 7637-2(2004)', category: 'Vehicle Immunity Tests', description: 'Road vehicles electrical disturbances from conduction and coupling - Part 2 (2004)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 7637-3', category: 'Vehicle Immunity Tests', description: 'Road vehicles electrical disturbances from conduction and coupling - Part 3', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'ISO 10605', category: 'Vehicle Immunity Tests', description: 'Road vehicles test methods for electrical disturbances from electrostatic discharge', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // M21.4.30 Radiated fields in close proximity immunity test
-            { standard_number: 'IEC 61000-4-39', category: 'Close Proximity Radiated Field Tests', description: 'Radiated fields in close proximity immunity test (Limited to 26MHz or less)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            { standard_number: 'EN 61000-4-39', category: 'Close Proximity Radiated Field Tests', description: 'Radiated fields in close proximity immunity test (Limited to 26MHz or less)', facility: '施設1: SGS Japan Inc. Kitayamata Laboratory' },
-            
-            // 【施設2】TDK Corporation Nikaho Factory (North site)（秋田県にかほ市）
-            // M21.4.1 Continuous disturbance tests (TDK)
-            { standard_number: 'EN 55011', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 55022:2010', category: 'Continuous Disturbance Tests', description: 'Information technology equipment (except 7)', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'IEC 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 60945', category: 'Continuous Disturbance Tests', description: 'Maritime navigation and radiocommunication equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'IEC 61326-1', category: 'Continuous Disturbance Tests', description: 'Electrical equipment for measurement, control and laboratory use', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'IEC 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 61000-6-3', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for residential environments', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'IEC 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 61000-6-4', category: 'Continuous Disturbance Tests', description: 'Generic emission standard for industrial environments', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'IEC 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 60601-1-2', category: 'Continuous Disturbance Tests', description: 'Medical electrical equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'JIS T 0601-1-2', category: 'Continuous Disturbance Tests', description: 'Japanese medical electrical equipment standard', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'CISPR11', category: 'Continuous Disturbance Tests', description: 'Industrial, scientific and medical equipment (except 10)', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'VCCI rule V-3', category: 'Continuous Disturbance Tests', description: 'VCCI technical conditions', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'VCCI-CISPR 32', category: 'Continuous Disturbance Tests', description: 'Multimedia equipment EMC', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'CISPR32', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN55032', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility of multimedia equipment (ITE only)', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 12015', category: 'Continuous Disturbance Tests', description: 'Electromagnetic compatibility for lifts, escalators and moving walks', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 301 489-1', category: 'Continuous Disturbance Tests', description: 'ElectroMagnetic Compatibility and Radio spectrum Matters; General', facility: '施設2: TDK Corporation Nikaho Factory' },
-            { standard_number: 'EN 301 489-3', category: 'Continuous Disturbance Tests', description: 'Short Range Devices', facility: '施設2: TDK Corporation Nikaho Factory' },
-            
-            // M21.4.3 Discontinuous disturbance tests (TDK only)
-            { standard_number: 'EN 12015', category: 'Discontinuous Disturbance Tests', description: 'Electromagnetic compatibility for lifts, escalators and moving walks', facility: '施設2: TDK Corporation Nikaho Factory' },
-            
-            // M21.27.3 Spurious emission intensity (TDK only)
-            { standard_number: 'EN 300 330', category: 'Radio Transmitter Tests', description: 'Short Range Devices (This test is limited to magnetic field strengths below 30 MHz)', facility: '施設2: TDK Corporation Nikaho Factory' },
-            
-            // M21.28.1 Limit of radio waves which are secondarily emitted (TDK only)
-            { standard_number: 'EN 300 330', category: 'Radio Receiver Tests', description: 'Short Range Devices (This test is limited to magnetic field strength below 30 MHz)', facility: '施設2: TDK Corporation Nikaho Factory' }
-        ],
-        categories: {},
-        total_standards: 0,
-        extraction_date: new Date().toISOString(),
-        pdf_source: 'JAB SIO17025 Certificate RTL02770',
-        certificate_type: 'JAB_SIO17025',
-        accreditation_details: {
-            accreditation_number: 'RTL02770',
-            valid_until: '2028-12-31',
-            accreditation_standard: 'ISO/IEC 17025:2017 (JIS Q 17025:2018)',
-            issue_date: '2025-03-06',
-            notes: [
-                'The scope of accreditation is limited to the test activities listed',
-                'Referenced activities such as risk management or risk assessment are not included in the accreditation scope',
-                'If standard version information is not specified, adaptation to the latest version is required within 6 months from the issue date',
-                'EMC test laboratory FCC accreditation does not imply approval in the FCC equipment certification program'
-            ]
-        },
-        facilities: [
-            {
-                facility_number: '1',
-                name: 'SGS Japan Inc. Kitayamata Laboratory',
-                location: '神奈川県横浜市',
-                standards_count: 95,
-                test_categories: [
-                    'M21.4.1 Continuous disturbance tests',
-                    'M21.4.2 Continuous disturbance tests (on board vehicle)',
-                    'M21.4.4 Conducted emission tests at telecommunication ports',
-                    'M21.4.5 Magnetic/Electric field test (up to 30MHz)',
-                    'M21.4.6 Electric field test (30MHz to 1 GHz)',
-                    'M21.4.7 Electric field test (1GHz and over)',
-                    'M21.4.8 Electric field test (on board vehicle)',
-                    'M21.4.10 Harmonic current emission tests',
-                    'M21.4.12 Voltage fluctuation and flicker tests',
-                    'M21.4.14 Electrostatic discharge immunity tests',
-                    'M21.4.15 RF radiated electromagnetic field immunity tests',
-                    'M21.4.16 Electrical fast transient / burst tests',
-                    'M21.4.17 Surge immunity tests',
-                    'M21.4.18 RF conducted immunity tests',
-                    'M21.4.19 Power frequency magnetic field immunity tests',
-                    'M21.4.20 A.C. power supply fluctuation immunity tests',
-                    'M21.4.22 Immunity tests for Equipment installed on road vehicles',
-                    'M21.4.30 Radiated fields in close proximity immunity test'
-                ]
-            },
-            {
-                facility_number: '2',
-                name: 'TDK Corporation Nikaho Factory (North site)',
-                location: '秋田県にかほ市',
-                standards_count: 25,
-                test_categories: [
-                    'M21.4.1 Continuous disturbance tests',
-                    'M21.4.3 Discontinuous disturbance tests',
-                    'M21.4.4 Conducted emission tests at telecommunication ports',
-                    'M21.4.5 Magnetic/Electric field test (up to 30MHz)',
-                    'M21.4.6 Electric field test (30MHz to 1 GHz)',
-                    'M21.4.7 Electric field test (1GHz and over)',
-                    'M21.4.10 Harmonic current emission tests',
-                    'M21.4.14 Electrostatic discharge immunity tests',
-                    'M21.4.15 RF radiated electromagnetic field immunity tests',
-                    'M21.4.16 Electrical fast transient / burst tests',
-                    'M21.4.17 Surge immunity tests',
-                    'M21.4.18 RF conducted immunity tests',
-                    'M21.4.19 Power frequency magnetic field immunity tests',
-                    'M21.4.20 A.C. power supply fluctuation immunity tests',
-                    'M21.27.3 Spurious emission intensity',
-                    'M21.28.1 Limit of radio waves which are secondarily emitted'
-                ]
-            }
-        ]
-    }
-};
-
-// DOM elements
-const loadingOverlay = document.getElementById('loading-overlay');
-const errorModal = document.getElementById('error-modal');
-const successModal = document.getElementById('success-modal');
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
-
-async function initializeApp() {
-    setupEventListeners();
-    await loadDirectives();
-    console.log('EU Harmonized Standards Checker initialized');
-}
+// Certificate data is now loaded dynamically from MD files via API
+// No more hardcoded certificate data - all data comes from:
+// - /static/data/a2la-scopes.md
+// - /static/data/jab-scopes.md
 
 function setupEventListeners() {
     // Tab navigation
@@ -1217,10 +821,10 @@ function handleCertificateTypeChange(e) {
     }
 }
 
-function loadCertificateData() {
+async function loadCertificateData() {
     const selectedType = document.getElementById('certificate-type-select').value;
     
-    if (!selectedType || !PREDEFINED_CERTIFICATES[selectedType]) {
+    if (!selectedType) {
         showError('Please select a valid certificate type');
         return;
     }
@@ -1228,20 +832,27 @@ function loadCertificateData() {
     showLoading();
     
     try {
-        // Get the predefined certificate data
-        const certificateData = JSON.parse(JSON.stringify(PREDEFINED_CERTIFICATES[selectedType]));
+        console.log(`Loading certificate data for: ${selectedType}`);
         
-        // Calculate categories and totals
-        certificateData.categories = categorizeStandards(certificateData.test_standards);
-        certificateData.total_standards = certificateData.test_standards.length;
+        // Load certificate data from MD files via API
+        const response = await apiCall(`/certificate-data?cert_type=${selectedType}`, {
+            method: 'GET'
+        });
+
+        if (response.success) {
+            const certificateData = response.data;
+            
+            // Set global variable
+            uploadedCertificateData = certificateData;
+            
+            // Display the results
+            displayCertificateResults(certificateData);
+            
+            showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully! (${certificateData.total_standards} standards loaded from MD file)`);
+        } else {
+            throw new Error(response.error || 'Certificate data loading failed');
+        }
         
-        // Set global variable
-        uploadedCertificateData = certificateData;
-        
-        // Display the results
-        displayCertificateResults(certificateData);
-        
-        showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully!`);
     } catch (error) {
         console.error('Error loading certificate data:', error);
         showError(`Failed to load certificate data: ${error.message}`);
@@ -1250,20 +861,7 @@ function loadCertificateData() {
     }
 }
 
-// Helper function to categorize standards
-function categorizeStandards(testStandards) {
-    const categories = {};
-    
-    testStandards.forEach(standard => {
-        const category = standard.category;
-        if (!categories[category]) {
-            categories[category] = [];
-        }
-        categories[category].push(standard.standard_number);
-    });
-    
-    return categories;
-}
+// categorizeStandards function removed - categories now come from MD files via API
 
 function displayCertificateResults(data) {
     const resultsSection = document.getElementById('certificate-results');
@@ -1278,16 +876,14 @@ function displayCertificateResults(data) {
     const categoriesElement = document.getElementById('standards-categories');
     categoriesElement.innerHTML = '';
 
-    if (data.certificate_type === 'JAB_Predefined' && data.facilities) {
+    if (data.certificate_type === 'JAB_MD_Dynamic' && data.facilities) {
         // JAB style display with facilities
         data.facilities.forEach(facility => {
             const facilityItem = document.createElement('div');
             facilityItem.className = 'facility-item';
             
-            // Get standards for this facility
-            const facilityStandards = data.test_standards.filter(std => 
-                std.facility && std.facility.includes(facility.name)
-            );
+            // Standards are already included in facility object from API
+            const facilityStandards = facility.standards || [];
             
             // Group standards by category for this facility
             const facilityCategories = {};

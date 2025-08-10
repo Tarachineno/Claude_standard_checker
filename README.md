@@ -31,6 +31,8 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Markdown Documentation**: External A2LA/JAB scope information with anchor links and annual update support
 - 🆕 **Smart Standard Matching**: Prefix/version difference detection with detailed annotations
 - 🆕 **No-Code Scope Updates**: Annual scope updates through MD file editing without code modifications
+- 🆕 **Zero Hardcoding**: Complete elimination of hardcoded certificate data from JavaScript code
+- 🆕 **Pure MD Architecture**: 100% MD file-driven certificate management system
 ---
 
 ## 主要機能
@@ -67,17 +69,17 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Download Buttons**: Easy access to original Excel files
 
-#### 4. **ISO17025 Certificate Scope Analysis**
+#### 4. **ISO17025 Certificate Scope Analysis (Pure MD Architecture)**
 - **Certificate Type Selection**: Choose between A2LA and JAB certificate types
-- **Instant Data Loading**: No file upload required - comprehensive predefined databases
-- **A2LA Certificate Support**: Complete database of 80+ standards across multiple categories
-- **JAB Facility Display**: Japanese-style facility formatting with 【施設】structure
-- **Multi-Facility Support**: Two Japanese facilities with comprehensive test standards
-- **Smart Scope Matching**: Real-time comparison of OJ Standards with certificate scopes
+- **Real-time MD Loading**: Direct loading from external MD files via API - zero hardcoded data
+- **A2LA Certificate Support**: Dynamic loading of 80+ standards from `/static/data/a2la-scopes.md`
+- **JAB Facility Display**: Japanese-style facility formatting with 【施設】structure from `/static/data/jab-scopes.md`  
+- **Multi-Facility Support**: Dynamic facility parsing with location and standards data
+- **Smart Scope Matching**: Real-time comparison of OJ Standards with MD-sourced certificate scopes
 - **Color-Coded Results**: Visual indicators for exact match, prefix/version differences
-- **Scope Search Functionality**: Search certificate scopes using partial standard numbers
-- **Markdown Documentation**: External A2LA/JAB scope documentation with anchor links
-- **Facility-based Analysis**: Organized by test method classifications (M21.4.x)
+- **Scope Search Functionality**: Search MD-based certificate scopes using partial standard numbers
+- **Live MD Updates**: Instant reflection of MD file changes without code deployment
+- **Zero-Maintenance Architecture**: No JavaScript code updates required for scope changes
 
 #### 5. **Advanced Scope Matching & Search**
 - **Real-time Scope Comparison**: Automatic matching of OJ Standards with ISO17025 certificate scopes
@@ -90,15 +92,16 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - **Export Functions**: Download results in CSV format
 - **Real-time Results**: Live search and filtering capabilities
 
-#### 6. **Dynamic MD File Management**
-- **External Scope Data**: Certificate scopes stored as editable Markdown files
-- **Annual Update Support**: Modify scope data without code changes
-- **Automatic Loading**: Dynamic parsing of MD files on each request
-- **Fallback System**: Graceful degradation to hardcoded data if MD files unavailable
+#### 6. **Pure MD File Architecture**
+- **100% External Data**: Certificate scopes exclusively stored as editable Markdown files
+- **Zero Hardcoding**: Complete elimination of hardcoded certificate data from JavaScript
+- **Real-time API Loading**: Dynamic parsing of MD files via dedicated certificate-data API
+- **No Fallback Dependency**: Enforced MD file usage ensures data consistency
+- **Advanced MD Parsing**: Comprehensive facility, category, and standard extraction
 - **Facility Structure Support**: JAB facility-based organization with Japanese formatting
 - **Anchor Navigation**: Direct links to specific sections within scope documentation
 - **Version Control Friendly**: Track scope changes through Git history
-- **No Deployment Required**: MD file updates take effect immediately
+- **Instant Updates**: MD file changes take effect on next API call
 
 ### 🔧 Technical Features
 
@@ -228,11 +231,21 @@ https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
 // Standard number automatically copied to clipboard for pasting
 ```
 
-#### Certificate Data Access
+#### Pure MD Certificate Data API
 ```javascript
-// Predefined certificate data structure
+// Load certificate data dynamically from MD files
+GET /.netlify/functions/certificate-data?cert_type=a2la
+GET /.netlify/functions/certificate-data?cert_type=jab
 
-// A2LA Certificate Response
+// No fallback to hardcoded data - enforces MD file usage
+// Real-time parsing of MD files on each request
+```
+
+#### Certificate Data Access (Pure MD-Based)
+```javascript
+// Dynamic MD-based certificate data loading
+
+// A2LA Certificate Response from MD file
 {
   "success": true,
   "data": {
@@ -248,15 +261,15 @@ https://standards.cencenelec.eu/dyn/www/f?p=CEN:105::RESET::::
       "European Radio": [...],
       // 20+ categories
     },
-    "certificate_type": "A2LA_Predefined"
+    "certificate_type": "A2LA_MD_Dynamic"
   }
 }
 
-// JAB Certificate Response
+// JAB Certificate Response from MD file  
 {
   "success": true,
   "data": {
-    "certificate_type": "JAB_Predefined",
+    "certificate_type": "JAB_MD_Dynamic",
     "facilities": [
       {
         "facility_number": "1",
@@ -522,17 +535,18 @@ netlify-pure-webapp/
 │       ├── download-excel.js    # Excel file download service
 │       ├── scope-matcher.js     # Real-time scope matching with dynamic MD loading
 │       ├── scope-search.js      # Certificate scope search with dynamic MD loading
-│       ├── parse-md-scopes.js   # MD file parsing API endpoint
+│       ├── certificate-data.js  # Pure MD-based certificate loading API
+│       ├── parse-md-scopes.js   # MD file parsing API endpoint  
 │       ├── certificate.js      # Basic certificate validation (minimal)
 │       └── directives.js       # Directive metadata
 ├── static/
 │   ├── api/
 │   │   └── directives.json     # Directive configuration with Excel URLs
 │   ├── data/
-│   │   ├── a2la-scopes.md      # A2LA certificate scope documentation (dynamic loading)
-│   │   └── jab-scopes.md       # JAB certificate scope documentation (dynamic loading)  
+│   │   ├── a2la-scopes.md      # A2LA certificate scope documentation (pure MD source)
+│   │   └── jab-scopes.md       # JAB certificate scope documentation (pure MD source)  
 │   ├── index.html              # Main application
-│   ├── script.js               # Frontend logic with scope matching integration
+│   ├── script.js               # Frontend logic with 100% MD-based certificate loading
 │   └── style.css               # ETSI-compliant styling with scope matching UI
 ├── package.json                # Node.js dependencies (includes xlsx)
 └── README.md                  # This documentation
@@ -589,6 +603,32 @@ Portal Mapping:
 - **Real-time Updates**: Always current with latest published lists
 - **Fallback System**: Cached data ensures availability during service interruptions
 - **ETSI Integration**: Cross-referencing with official ETSI portal
+
+## 🎯 Zero-Hardcoding Achievement
+
+### Complete Elimination of Hardcoded Certificate Data
+
+**Previously (Pre-2025):** The application contained 192+ hardcoded certificate standards directly embedded in JavaScript code, requiring manual code updates for annual scope changes.
+
+**Now (August 2025):** 100% MD file-driven architecture with zero hardcoded certificate data in JavaScript.
+
+#### Benefits of Pure MD Architecture:
+
+✅ **Zero Code Maintenance**: Annual scope updates require zero JavaScript modifications  
+✅ **Instant Updates**: MD file changes take effect immediately via API  
+✅ **Version Control**: Full scope change tracking through Git history  
+✅ **Data Consistency**: Single source of truth in MD files  
+✅ **Error Reduction**: Eliminates risk of code/data desynchronization  
+✅ **Scalable**: Easy addition of new certificate types  
+✅ **Auditable**: Clear separation between code logic and certificate data  
+
+#### Implementation Highlights:
+
+- **Removed**: 192 hardcoded standard entries from `script.js`
+- **Added**: Dynamic `/certificate-data` API endpoint
+- **Enhanced**: Real-time MD file parsing with facility support
+- **Maintained**: Full backward compatibility for existing functionality
+- **Improved**: Error handling with enforcement of MD file usage
 
 ## 📝 Certificate Scope MD File Management
 
