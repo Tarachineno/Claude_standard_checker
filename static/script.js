@@ -3,6 +3,7 @@
 
 // Global variables
 let uploadedCertificateData = null;
+let currentStandardsData = null; // Store current standards for sorting/filtering
 
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
@@ -44,6 +45,7 @@ function setupEventListeners() {
     document.getElementById('fetch-standards-btn').addEventListener('click', fetchStandards);
     document.getElementById('export-standards-btn').addEventListener('click', exportStandards);
     document.getElementById('directive-select').addEventListener('change', updateFetchMethodOptions);
+    document.getElementById('apply-controls-btn').addEventListener('click', applySortAndFilter);
 
     // Search tab
     document.getElementById('search-etsi-btn').addEventListener('click', () => searchStandards('etsi'));
@@ -281,6 +283,9 @@ async function fetchStandards() {
 }
 
 async function displayStandards(data) {
+    // Store current data for sorting/filtering
+    currentStandardsData = data;
+    
     const resultsSection = document.getElementById('standards-results');
     const countElement = document.getElementById('standards-count');
     const listElement = document.getElementById('standards-list');
@@ -314,6 +319,181 @@ async function displayStandards(data) {
     });
 
     resultsSection.classList.remove('hidden');
+}
+
+// Apply sorting and filtering to standards
+function applySortAndFilter() {
+    if (!currentStandardsData) {
+        showError('No standards data to sort/filter');
+        return;
+    }
+    
+    const sortBy = document.getElementById('sort-standards').value;
+    const filterStatus = document.getElementById('filter-status').value;
+    
+    console.log(`Applying sort: ${sortBy}, filter: ${filterStatus}`);
+    
+    // Filter standards
+    let filteredStandards = [...currentStandardsData.standards];
+    
+    if (filterStatus === 'active') {
+        filteredStandards = filteredStandards.filter(standard => {
+            return !isStandardWithdrawn(standard);
+        });
+    } else if (filterStatus === 'withdrawn') {
+        filteredStandards = filteredStandards.filter(standard => {
+            return isStandardWithdrawn(standard);
+        });
+    }
+    
+    // Sort standards
+    filteredStandards.sort((a, b) => {
+        switch (sortBy) {
+            case 'standard_number':
+                return compareStandardNumbers(a.number || a.full_number, b.number || b.full_number);
+            case 'publication_date':
+                return compareOJDates(getPublicationDate(a), getPublicationDate(b));
+            case 'withdrawal_date':
+                return compareOJDates(getWithdrawalDate(a), getWithdrawalDate(b));
+            default:
+                return 0;
+        }
+    });
+    
+    // Update display with filtered/sorted data
+    const modifiedData = {
+        ...currentStandardsData,
+        standards: filteredStandards,
+        count: filteredStandards.length
+    };
+    
+    // Update count display
+    const countElement = document.getElementById('standards-count');
+    countElement.textContent = `${filteredStandards.length} standards`;
+    if (filteredStandards.length !== currentStandardsData.standards.length) {
+        countElement.textContent += ` (filtered from ${currentStandardsData.standards.length})`;
+    }
+    
+    // Re-render standards list
+    renderStandardsList(modifiedData);
+}
+
+// Helper function to check if standard is withdrawn
+function isStandardWithdrawn(standard) {
+    const withdrawalDate = standard.withdrawal_date;
+    return withdrawalDate && 
+           withdrawalDate !== '-' && 
+           withdrawalDate.trim() !== '' && 
+           withdrawalDate.toLowerCase() !== 'n/a';
+}
+
+// Helper function to get publication date
+function getPublicationDate(standard) {
+    // Try multiple fields that might contain publication date
+    return standard.oj_reference || standard.date || standard.publication_date || '';
+}
+
+// Helper function to get withdrawal date  
+function getWithdrawalDate(standard) {
+    return standard.withdrawal_date || standard.withdrawal_reference || '';
+}
+
+// Compare standard numbers (natural sorting)
+function compareStandardNumbers(a, b) {
+    if (!a) return 1;
+    if (!b) return -1;
+    
+    // Extract number parts for natural sorting (e.g., EN 300 vs EN 1000)
+    const aMatch = a.match(/(\w+\s*)?(\d+)/);
+    const bMatch = b.match(/(\w+\s*)?(\d+)/);
+    
+    if (aMatch && bMatch) {
+        const aPrefix = aMatch[1] || '';
+        const bPrefix = bMatch[1] || '';
+        const aNumber = parseInt(aMatch[2]);
+        const bNumber = parseInt(bMatch[2]);
+        
+        // Compare prefix first
+        if (aPrefix !== bPrefix) {
+            return aPrefix.localeCompare(bPrefix);
+        }
+        
+        // Then compare numbers numerically
+        return aNumber - bNumber;
+    }
+    
+    // Fallback to string comparison
+    return a.localeCompare(b);
+}
+
+// Compare OJ dates (extract year-month from various formats)
+function compareOJDates(a, b) {
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+    
+    // Extract date patterns from OJ references
+    const extractDate = (str) => {
+        // Look for patterns like "2023.289", "L_2023.289", "2023/289", etc.
+        const patterns = [
+            /(\d{4})\.(\d+)/,  // 2023.289
+            /(\d{4})\/(\d+)/,  // 2023/289
+            /(\d{4})-(\d+)/,   // 2023-289
+            /L_(\d{4})\.(\d+)/, // L_2023.289
+        ];
+        
+        for (const pattern of patterns) {
+            const match = str.match(pattern);
+            if (match) {
+                const year = parseInt(match[1]);
+                const day = parseInt(match[2]);
+                return year * 1000 + day; // Simple numeric comparison
+            }
+        }
+        
+        // If no pattern matches, try to extract just year
+        const yearMatch = str.match(/(\d{4})/);
+        if (yearMatch) {
+            return parseInt(yearMatch[1]) * 1000;
+        }
+        
+        return 0;
+    };
+    
+    const dateA = extractDate(a);
+    const dateB = extractDate(b);
+    
+    return dateB - dateA; // Newest first
+}
+
+// Render standards list (separated from displayStandards for reuse)
+async function renderStandardsList(data) {
+    const listElement = document.getElementById('standards-list');
+    listElement.innerHTML = '';
+    
+    // Check scope matching for all standards
+    let scopeMatches = null;
+    try {
+        const response = await apiCall('/scope-matcher', {
+            method: 'POST',
+            body: JSON.stringify({
+                oj_standards: data.standards.map(s => s.number || s.full_number)
+            })
+        });
+        
+        if (response.success) {
+            scopeMatches = response.data.matches;
+        }
+    } catch (error) {
+        console.warn('Scope matching failed:', error);
+        // Continue without scope matching
+    }
+    
+    data.standards.forEach((standard, index) => {
+        const matchData = scopeMatches ? scopeMatches[index] : null;
+        const item = createStandardItem(standard, data.directive, matchData);
+        listElement.appendChild(item);
+    });
 }
 
 function addDownloadButton(directive) {

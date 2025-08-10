@@ -61,6 +61,34 @@
                             <i class="fas fa-file-export"></i> Export
                         </button>
                     </div>
+                    
+                    <!-- Sort and Filter Controls -->
+                    <div class="results-controls">
+                        <div class="control-group">
+                            <label for="sort-standards">Sort by:</label>
+                            <select id="sort-standards">
+                                <option value="standard_number">Standard Number</option>
+                                <option value="publication_date">Publication Date</option>
+                                <option value="withdrawal_date">Withdrawal Date</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="filter-status">Filter by Status:</label>
+                            <select id="filter-status">
+                                <option value="all">All Standards</option>
+                                <option value="active">Active (Not Withdrawn)</option>
+                                <option value="withdrawn">Withdrawn</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <button id="apply-controls-btn" class="btn btn-small">
+                                <i class="fas fa-filter"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div id="standards-list" class="standards-list"></div>
                 </div>
             </div>
