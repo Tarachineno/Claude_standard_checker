@@ -444,12 +444,14 @@ function compareOJDatesExcel(standardA, standardB, newestFirst = true) {
         
         // Extract dates from all OJ reference fields (same as display function)
         const fieldsToCheck = [
-            standard.date,                    // Date of start of presumption of conformity (Image #2)
-            standard.restriction_date,        // Date of start of presumption of conformity with restriction (Image #3)  
-            standard.withdrawal_date,         // Date of withdrawal (Image #4)
-            standard.oj_reference,           // OJ reference for publication
-            standard.restriction,            // OJ reference for restriction
-            standard.withdrawal_reference    // OJ reference for withdrawal
+            standard.date,                               // Date of start of presumption of conformity (Image #2)
+            standard.restriction_date,                   // Date of start of presumption of conformity with restriction (Image #3)
+            standard.date_of_start_restriction,          // Alternative field name for restriction date
+            standard.presumption_restriction_date,       // Another possible field name
+            standard.withdrawal_date,                    // Date of withdrawal (Image #4)
+            standard.oj_reference,                      // OJ reference for publication
+            standard.restriction,                       // OJ reference for restriction
+            standard.withdrawal_reference               // OJ reference for withdrawal
         ];
         
         fieldsToCheck.forEach(field => {
@@ -498,14 +500,16 @@ function extractDateFromOJString(ojString) {
 function getLatestOJDateForDisplay(standard) {
     const ojDates = [];
     
-    // Extract dates from all OJ reference fields
+    // Extract dates from all OJ reference fields (Images #2, #3, #4)
     const fieldsToCheck = [
-        standard.date,                    // Date of start of presumption of conformity (Image #2)
-        standard.restriction_date,        // Date of start of presumption of conformity with restriction (Image #3)  
-        standard.withdrawal_date,         // Date of withdrawal (Image #4)
-        standard.oj_reference,           // OJ reference for publication
-        standard.restriction,            // OJ reference for restriction
-        standard.withdrawal_reference    // OJ reference for withdrawal
+        standard.date,                               // Date of start of presumption of conformity (Image #2)
+        standard.restriction_date,                   // Date of start of presumption of conformity with restriction (Image #3)
+        standard.date_of_start_restriction,          // Alternative field name for restriction date
+        standard.presumption_restriction_date,       // Another possible field name
+        standard.withdrawal_date,                    // Date of withdrawal (Image #4)
+        standard.oj_reference,                      // OJ reference for publication
+        standard.restriction,                       // OJ reference for restriction
+        standard.withdrawal_reference               // OJ reference for withdrawal
     ];
     
     fieldsToCheck.forEach(field => {
@@ -544,6 +548,52 @@ function formatOJDateForDisplay(ojString) {
     
     // If no dd/mm/yyyy found, return original for fallback
     return ojString;
+}
+
+// Get latest OJ reference for display (Images #3, #4, #5 - show newest)
+function getLatestOJReferenceForDisplay(standard) {
+    const ojReferences = [];
+    
+    // Check OJ references with dates (Images #3, #4, #5)
+    const referencesToCheck = [
+        {
+            ref: standard.oj_reference,          // OJ reference for publication in OJ (Image #3)
+            field: 'oj_reference'
+        },
+        {
+            ref: standard.restriction,           // OJ reference for publication of a restriction in OJ (Image #4)  
+            field: 'restriction'
+        },
+        {
+            ref: standard.withdrawal_reference,  // OJ reference for withdrawal from OJ (Image #5)
+            field: 'withdrawal_reference'
+        }
+    ];
+    
+    referencesToCheck.forEach(item => {
+        if (item.ref && item.ref !== '-' && item.ref.trim() !== '') {
+            const dateValue = extractDateFromOJString(item.ref);
+            if (dateValue > 0) {
+                ojReferences.push({
+                    value: dateValue,
+                    original: item.ref,
+                    field: item.field
+                });
+            }
+        }
+    });
+    
+    if (ojReferences.length === 0) {
+        // Fallback to any available OJ reference
+        return standard.oj_reference || standard.restriction || standard.withdrawal_reference || '';
+    }
+    
+    // Find the latest (newest) OJ reference
+    const latestOJRef = ojReferences.reduce((latest, current) => {
+        return current.value > latest.value ? current : latest;
+    });
+    
+    return latestOJRef.original;
 }
 
 // Render standards list (separated from displayStandards for reuse)
@@ -653,7 +703,7 @@ function createStandardItem(standard, directive = null, scopeMatch = null) {
     
     // Excel specific information
     const esoInfo = standard.eso || '';
-    const ojReference = standard.oj_reference || '';
+    const ojReference = getLatestOJReferenceForDisplay(standard);
     const restriction = standard.restriction || '';
     const withdrawalDate = standard.withdrawal_date || '';
     const withdrawalRef = standard.withdrawal_reference || '';
