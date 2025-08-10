@@ -7,6 +7,10 @@ const path = require('path');
 
 // Load directive configuration from external JSON file with multi-path fallback
 function loadDirectivesData() {
+  console.log('Loading directives data...');
+  console.log('__dirname:', __dirname);
+  console.log('process.cwd():', process.cwd());
+  
   const possiblePaths = [
     path.join(__dirname, '../../static/api/directives.json'),
     path.join(process.cwd(), 'static/api/directives.json'),
@@ -15,11 +19,21 @@ function loadDirectivesData() {
     './static/api/directives.json'
   ];
 
+  console.log('Trying paths:', possiblePaths);
+
   for (const testPath of possiblePaths) {
     try {
+      console.log(`Checking path: ${testPath}`);
       if (fs.existsSync(testPath)) {
         console.log(`Found directives.json at: ${testPath}`);
-        return JSON.parse(fs.readFileSync(testPath, 'utf-8')).data;
+        const content = fs.readFileSync(testPath, 'utf-8');
+        console.log(`File content length: ${content.length}`);
+        const parsed = JSON.parse(content);
+        console.log(`Parsed JSON structure:`, Object.keys(parsed));
+        console.log(`Directives data:`, parsed.data);
+        return parsed.data;
+      } else {
+        console.log(`Path does not exist: ${testPath}`);
       }
     } catch (e) {
       console.log(`Error checking path ${testPath}: ${e.message}`);
@@ -58,15 +72,21 @@ exports.handler = async (event, context) => {
   try {
     // Get directive from query parameters
     const directive = event.queryStringParameters?.directive;
+    console.log(`Requested directive: ${directive}`);
+    console.log(`Available directives data:`, directivesData);
+    
     const config = getDirectiveConfig(directive);
+    console.log(`Found config for ${directive}:`, config);
 
     if (!directive || !config) {
+      console.error(`Directive validation failed - directive: ${directive}, config: ${config}`);
+      console.error(`Available directive codes: ${directivesData.map(d => d.code).join(', ')}`);
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({
           success: false,
-          error: 'Invalid directive code. Use EMC, RED, or LVD.'
+          error: `Invalid directive code. Use EMC, RED, or LVD. Available: ${directivesData.map(d => d.code).join(', ')}`
         })
       };
     }
