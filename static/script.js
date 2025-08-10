@@ -46,6 +46,7 @@ function setupEventListeners() {
     document.getElementById('export-standards-btn').addEventListener('click', exportStandards);
     document.getElementById('directive-select').addEventListener('change', updateFetchMethodOptions);
     document.getElementById('apply-controls-btn').addEventListener('click', applySortAndFilter);
+    document.getElementById('reset-controls-btn').addEventListener('click', resetSortAndFilter);
 
     // Search tab
     document.getElementById('search-etsi-btn').addEventListener('click', () => searchStandards('etsi'));
@@ -382,6 +383,27 @@ function applySortAndFilter() {
     renderStandardsList(modifiedData);
 }
 
+// Reset sorting and filtering to default state
+function resetSortAndFilter() {
+    if (!currentStandardsData) {
+        showError('No standards data to reset');
+        return;
+    }
+    
+    // Reset form controls to default values
+    document.getElementById('sort-standards').value = 'standard_number_asc';
+    document.getElementById('filter-status').value = 'all';
+    
+    // Update count display to original
+    const countElement = document.getElementById('standards-count');
+    countElement.textContent = `${currentStandardsData.count} standards`;
+    
+    // Re-render with original data
+    renderStandardsList(currentStandardsData);
+    
+    console.log('Sort and filter controls reset to default');
+}
+
 // Helper function to check if standard is withdrawn (has data in column 7)
 function isStandardWithdrawn(standard) {
     const withdrawalRef = standard.withdrawal_reference || standard.withdrawal_date || '';
@@ -414,30 +436,37 @@ function compareStandardNumbersSimple(a, b, descending = false) {
     return descending ? -result : result;
 }
 
-// Excel-style OJ date comparison based on dd/mm/yyyy format
+// Excel-style OJ date comparison using latest date from multiple sources
 function compareOJDatesExcel(standardA, standardB, newestFirst = true) {
-    // Get the most recent date from available OJ references
-    const getLatestOJDate = (standard) => {
-        const dates = [];
+    // Use same logic as display function to get latest date
+    const getLatestOJDateValue = (standard) => {
+        const ojDates = [];
         
-        // Extract dates from OJ reference for publication (column 2)
-        if (standard.oj_reference) {
-            const pubDate = extractDateFromOJString(standard.oj_reference);
-            if (pubDate) dates.push(pubDate);
-        }
+        // Extract dates from all OJ reference fields (same as display function)
+        const fieldsToCheck = [
+            standard.date,                    // Date of start of presumption of conformity (Image #2)
+            standard.restriction_date,        // Date of start of presumption of conformity with restriction (Image #3)  
+            standard.withdrawal_date,         // Date of withdrawal (Image #4)
+            standard.oj_reference,           // OJ reference for publication
+            standard.restriction,            // OJ reference for restriction
+            standard.withdrawal_reference    // OJ reference for withdrawal
+        ];
         
-        // Extract dates from OJ reference for restriction (column 5) 
-        if (standard.restriction) {
-            const restrictDate = extractDateFromOJString(standard.restriction);
-            if (restrictDate) dates.push(restrictDate);
-        }
+        fieldsToCheck.forEach(field => {
+            if (field && field !== '-' && field.trim() !== '') {
+                const dateValue = extractDateFromOJString(field);
+                if (dateValue > 0) {
+                    ojDates.push(dateValue);
+                }
+            }
+        });
         
-        // Return the latest date (newest)
-        return dates.length > 0 ? Math.max(...dates) : 0;
+        // Return the latest (newest) date value
+        return ojDates.length > 0 ? Math.max(...ojDates) : 0;
     };
     
-    const dateA = getLatestOJDate(standardA);
-    const dateB = getLatestOJDate(standardB);
+    const dateA = getLatestOJDateValue(standardA);
+    const dateB = getLatestOJDateValue(standardB);
     
     if (dateA === 0 && dateB === 0) return 0;
     if (dateA === 0) return 1;
@@ -463,6 +492,58 @@ function extractDateFromOJString(ojString) {
     }
     
     return 0;
+}
+
+// Get latest OJ date for display (from Image #2, #3, #4 - show newest)
+function getLatestOJDateForDisplay(standard) {
+    const ojDates = [];
+    
+    // Extract dates from all OJ reference fields
+    const fieldsToCheck = [
+        standard.date,                    // Date of start of presumption of conformity (Image #2)
+        standard.restriction_date,        // Date of start of presumption of conformity with restriction (Image #3)  
+        standard.withdrawal_date,         // Date of withdrawal (Image #4)
+        standard.oj_reference,           // OJ reference for publication
+        standard.restriction,            // OJ reference for restriction
+        standard.withdrawal_reference    // OJ reference for withdrawal
+    ];
+    
+    fieldsToCheck.forEach(field => {
+        if (field && field !== '-' && field.trim() !== '') {
+            const dateValue = extractDateFromOJString(field);
+            if (dateValue > 0) {
+                ojDates.push({
+                    value: dateValue,
+                    original: field
+                });
+            }
+        }
+    });
+    
+    if (ojDates.length === 0) {
+        return formatExcelDate(standard.date || ''); // Fallback to original date
+    }
+    
+    // Find the latest (newest) date
+    const latestDate = ojDates.reduce((latest, current) => {
+        return current.value > latest.value ? current : latest;
+    });
+    
+    // Format the latest date for display
+    return formatOJDateForDisplay(latestDate.original);
+}
+
+// Format OJ date for display (extract and format dd/mm/yyyy)
+function formatOJDateForDisplay(ojString) {
+    if (!ojString || ojString === '-') return '';
+    
+    const dateMatch = ojString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dateMatch) {
+        return `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+    }
+    
+    // If no dd/mm/yyyy found, return original for fallback
+    return ojString;
 }
 
 // Render standards list (separated from displayStandards for reuse)
@@ -566,7 +647,7 @@ function createStandardItem(standard, directive = null, scopeMatch = null) {
 
     // Excel-style display with all relevant information
     const displayNumber = standard.number || standard.full_number;
-    const dateInfo = formatExcelDate(standard.date);
+    const dateInfo = getLatestOJDateForDisplay(standard);
     const standardsLink = generateStandardLink(standard.number, standard.eso);
     const description = standard.description || standard.title || '';
     
