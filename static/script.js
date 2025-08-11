@@ -929,7 +929,9 @@ function createScopeBadge(certType, matchData) {
 
 // Open scope details in MD file
 function openScopeDetails(certType, anchor) {
-    const githubUrl = `${GITHUB_REPO_URL}/blob/main/static/data/${certType}-scopes.md${anchor}`;
+    // Use netlify-pure-webapp branch instead of main
+    const githubUrl = `${GITHUB_REPO_URL}/blob/netlify-pure-webapp/static/data/${certType}-scopes.md${anchor}`;
+    console.log(`Opening scope details: ${githubUrl}`);
     window.open(githubUrl, '_blank');
     showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information on GitHub`);
 }

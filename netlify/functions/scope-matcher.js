@@ -298,12 +298,13 @@ function parseMDToScopeData(mdContent, certType) {
       }
     }
 
-    // Parse section headers with anchors
-    if (line.startsWith('### ') && line.includes('{#')) {
-      const match = line.match(/### (.+) \{#([^}]+)\}/);
+    // Parse section headers with anchors (both h2 and h3)
+    if ((line.startsWith('### ') || line.startsWith('## ')) && line.includes('{#')) {
+      const match = line.match(/^##+ (.+) \{#([^}]+)\}/);
       if (match) {
         currentCategory = match[1];
         currentAnchor = `#${match[2]}`;
+        console.log(`Parsed anchor for ${certType}: ${currentAnchor} (category: ${currentCategory})`);
         continue;
       }
     }
