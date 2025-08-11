@@ -1,27 +1,8 @@
 // Scope matching function for ISO17025 certificates  
-// 
-// ⚠️ PRODUCTION WARNING: This file contains debug fallback data
-// TODO: Remove fallback test data before production deployment (lines ~340-357)
-// 
 const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event, context) => {
-  // Initialize debug log collection
-  global.debugLogs = [];
-  const originalConsoleLog = console.log;
-  const originalConsoleError = console.error;
-  
-  console.log = (...args) => {
-    global.debugLogs.push(`LOG: ${args.join(' ')}`);
-    originalConsoleLog(...args);
-  };
-  
-  console.error = (...args) => {
-    global.debugLogs.push(`ERROR: ${args.join(' ')}`);
-    originalConsoleError(...args);
-  };
-
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -45,12 +26,10 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('Scope matcher called with:', event.body);
     const requestData = JSON.parse(event.body);
     const { oj_standards } = requestData;
 
     if (!oj_standards || !Array.isArray(oj_standards)) {
-      console.error('Invalid request data:', { oj_standards });
       return {
         statusCode: 400,
         headers,
@@ -61,14 +40,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log(`Processing ${oj_standards.length} OJ standards for scope matching`);
-
     // Load certificate scope data dynamically from MD files
-    console.log('Loading scope data from MD files...');
     const a2laScopes = await loadScopesFromMD('a2la');
     const jabScopes = await loadScopesFromMD('jab');
-    
-    console.log(`Loaded ${a2laScopes.length} A2LA scopes, ${jabScopes.length} JAB scopes`);
 
     // Match each OJ standard against certificate scopes
     const matchResults = oj_standards.map(standard => {
@@ -86,22 +60,6 @@ exports.handler = async (event, context) => {
 
     const a2laMatchCount = matchResults.filter(r => r.scope_matches.a2la.status !== 'no_match').length;
     const jabMatchCount = matchResults.filter(r => r.scope_matches.jab.status !== 'no_match').length;
-    
-    console.log(`Match results summary: ${a2laMatchCount} A2LA matches, ${jabMatchCount} JAB matches out of ${oj_standards.length} standards`);
-    
-    // Log first few standards for debugging
-    console.log('First 3 OJ standards:', oj_standards.slice(0, 3));
-    console.log('First 3 A2LA scopes:', a2laScopes.slice(0, 3));
-    console.log('First 3 JAB scopes:', jabScopes.slice(0, 3));
-    
-    // Log sample match results
-    if (matchResults.length > 0) {
-      console.log('Sample match result:', JSON.stringify(matchResults[0], null, 2));
-    }
-
-    // Restore original console functions
-    console.log = originalConsoleLog;
-    console.error = originalConsoleError;
 
     return {
       statusCode: 200,
@@ -112,32 +70,19 @@ exports.handler = async (event, context) => {
           matches: matchResults,
           total_standards: oj_standards.length,
           a2la_matches: a2laMatchCount,
-          jab_matches: jabMatchCount,
-          debug: {
-            a2la_scopes_count: a2laScopes.length,
-            jab_scopes_count: jabScopes.length,
-            first_oj_standards: oj_standards.slice(0, 3),
-            first_a2la_scopes: a2laScopes.slice(0, 3).map(s => s.standard),
-            first_jab_scopes: jabScopes.slice(0, 3).map(s => s.standard),
-            server_logs: global.debugLogs || []
-          }
+          jab_matches: jabMatchCount
         }
       })
     };
 
   } catch (error) {
     console.error('Scope matching error:', error);
-    console.error('Error stack:', error.stack);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         success: false,
-        error: `Scope matching failed: ${error.message}`,
-        debug: {
-          stack: error.stack,
-          name: error.name
-        }
+        error: `Scope matching failed: ${error.message}`
       })
     };
   }
@@ -291,32 +236,7 @@ function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
 // Load scopes dynamically from MD files
 async function loadScopesFromMD(certType) {
   try {
-    console.log(`Loading MD file for certType: ${certType}`);
-    console.log(`Current working directory: ${process.cwd()}`);
-    console.log(`Function directory: ${__dirname}`);
-    
-    // List contents of function directory and parent directories
-    try {
-      console.log(`Contents of __dirname (${__dirname}):`, fs.readdirSync(__dirname));
-      const parentDir = path.join(__dirname, '..');
-      console.log(`Contents of parent (${parentDir}):`, fs.readdirSync(parentDir));
-      const grandParentDir = path.join(__dirname, '../..');
-      console.log(`Contents of grandparent (${grandParentDir}):`, fs.readdirSync(grandParentDir));
-      
-      // Check if static directory exists
-      const staticDir = path.join(__dirname, '../../static');
-      if (fs.existsSync(staticDir)) {
-        console.log(`Contents of static (${staticDir}):`, fs.readdirSync(staticDir));
-        const dataDir = path.join(staticDir, 'data');
-        if (fs.existsSync(dataDir)) {
-          console.log(`Contents of data (${dataDir}):`, fs.readdirSync(dataDir));
-        }
-      }
-    } catch (listError) {
-      console.error('Error listing directories:', listError);
-    }
-    
-    // Try multiple possible paths for Netlify deployment
+    // Try multiple possible paths for local development
     const possiblePaths = [
       path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
       path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
@@ -325,41 +245,27 @@ async function loadScopesFromMD(certType) {
       `./static/data/${certType}-scopes.md`
     ];
 
-    console.log('Possible paths to check:', possiblePaths);
-
     let mdFilePath = null;
     for (const testPath of possiblePaths) {
-      console.log(`Checking path: ${testPath}`);
       if (fs.existsSync(testPath)) {
         mdFilePath = testPath;
-        console.log(`Found MD file at: ${mdFilePath}`);
         break;
-      } else {
-        console.log(`Path does not exist: ${testPath}`);
       }
     }
 
     if (!mdFilePath) {
-      console.error(`MD file not found locally: ${certType}-scopes.md`);
-      console.log('Attempting HTTP fetch from static files...');
-      
       // Try HTTP fetch as fallback for Netlify environment
       try {
         const fetch = require('node-fetch');
         const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
         const mdUrl = `${siteUrl}/data/${certType}-scopes.md`;
         
-        console.log(`Fetching MD file via HTTP: ${mdUrl}`);
         const response = await fetch(mdUrl);
         
         if (response.ok) {
           const mdContent = await response.text();
-          console.log(`HTTP fetch successful: ${mdContent.length} characters`);
           const scopeData = parseMDToScopeData(mdContent, certType);
-          console.log(`Loaded ${scopeData.scopes.length} scopes via HTTP`);
           return scopeData.scopes;
-        } else {
-          console.error(`HTTP fetch failed: ${response.status} ${response.statusText}`);
         }
       } catch (httpError) {
         console.error('HTTP fetch error:', httpError.message);
@@ -369,41 +275,11 @@ async function loadScopesFromMD(certType) {
     }
 
     const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
-    console.log(`MD file content length: ${mdContent.length} characters`);
-    console.log(`MD file first 200 chars: ${mdContent.substring(0, 200)}...`);
-    
     const scopeData = parseMDToScopeData(mdContent, certType);
-    
-    console.log(`Loaded ${scopeData.scopes.length} scopes from ${certType}-scopes.md`);
-    console.log(`Sample parsed scopes:`, scopeData.scopes.slice(0, 3));
     return scopeData.scopes;
 
   } catch (error) {
     console.error(`Error loading MD file for ${certType}:`, error);
-    console.error('Error details:', error.message);
-    console.error('Stack trace:', error.stack);
-    
-    // TESTING ONLY: Return minimal test data as fallback for debugging
-    // TODO: Remove this fallback before production deployment
-    if (process.env.NODE_ENV === 'development' || process.env.NETLIFY_DEV === 'true') {
-      console.warn(`[DEBUG ONLY] Returning fallback test data for ${certType} - REMOVE BEFORE PRODUCTION`);
-      return [
-        {
-          standard: 'EN 55032',
-          description: 'Test standard - EMC of multimedia equipment',
-          anchor: '#test-anchor',
-          facility: null
-        },
-        {
-          standard: 'EN 301 489-52',
-          description: 'Test standard - ERM Part 52',
-          anchor: '#test-anchor-2',
-          facility: null
-        }
-      ];
-    }
-    
-    // Production behavior: return empty array
     return [];
   }
 }
@@ -411,8 +287,6 @@ async function loadScopesFromMD(certType) {
 // Parse markdown content into structured scope data
 function parseMDToScopeData(mdContent, certType) {
   const lines = mdContent.split('\n');
-  console.log(`Parsing MD content: ${lines.length} lines for ${certType}`);
-  
   const scopeData = {
     scopes: []
   };
@@ -421,7 +295,6 @@ function parseMDToScopeData(mdContent, certType) {
   let currentAnchor = null;
   let currentFacility = null;
   let inMetadata = true;
-  let standardsFound = 0;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -448,7 +321,6 @@ function parseMDToScopeData(mdContent, certType) {
       if (match) {
         currentCategory = match[1];
         currentAnchor = `#${match[2]}`;
-        console.log(`Parsed anchor for ${certType}: ${currentAnchor} (category: ${currentCategory})`);
         continue;
       }
     }
@@ -459,11 +331,6 @@ function parseMDToScopeData(mdContent, certType) {
       if (match) {
         const standard = match[1].trim();
         const description = match[2].trim();
-        standardsFound++;
-        
-        if (standardsFound <= 3) {
-          console.log(`Found standard ${standardsFound}: "${standard}" with description: "${description}"`);
-        }
         
         scopeData.scopes.push({
           standard: standard,
@@ -475,6 +342,5 @@ function parseMDToScopeData(mdContent, certType) {
     }
   }
 
-  console.log(`MD parsing complete for ${certType}: found ${standardsFound} total standards`);
   return scopeData;
 }
