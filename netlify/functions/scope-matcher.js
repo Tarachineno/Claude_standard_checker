@@ -1,4 +1,8 @@
 // Scope matching function for ISO17025 certificates  
+// 
+// ⚠️ PRODUCTION WARNING: This file contains debug fallback data
+// TODO: Remove fallback test data before production deployment (lines ~340-357)
+// 
 const fs = require('fs');
 const path = require('path');
 
@@ -271,6 +275,27 @@ async function loadScopesFromMD(certType) {
     console.log(`Current working directory: ${process.cwd()}`);
     console.log(`Function directory: ${__dirname}`);
     
+    // List contents of function directory and parent directories
+    try {
+      console.log(`Contents of __dirname (${__dirname}):`, fs.readdirSync(__dirname));
+      const parentDir = path.join(__dirname, '..');
+      console.log(`Contents of parent (${parentDir}):`, fs.readdirSync(parentDir));
+      const grandParentDir = path.join(__dirname, '../..');
+      console.log(`Contents of grandparent (${grandParentDir}):`, fs.readdirSync(grandParentDir));
+      
+      // Check if static directory exists
+      const staticDir = path.join(__dirname, '../../static');
+      if (fs.existsSync(staticDir)) {
+        console.log(`Contents of static (${staticDir}):`, fs.readdirSync(staticDir));
+        const dataDir = path.join(staticDir, 'data');
+        if (fs.existsSync(dataDir)) {
+          console.log(`Contents of data (${dataDir}):`, fs.readdirSync(dataDir));
+        }
+      }
+    } catch (listError) {
+      console.error('Error listing directories:', listError);
+    }
+    
     // Try multiple possible paths for Netlify deployment
     const possiblePaths = [
       path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
@@ -312,6 +337,30 @@ async function loadScopesFromMD(certType) {
 
   } catch (error) {
     console.error(`Error loading MD file for ${certType}:`, error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    
+    // TESTING ONLY: Return minimal test data as fallback for debugging
+    // TODO: Remove this fallback before production deployment
+    if (process.env.NODE_ENV === 'development' || process.env.NETLIFY_DEV === 'true') {
+      console.warn(`[DEBUG ONLY] Returning fallback test data for ${certType} - REMOVE BEFORE PRODUCTION`);
+      return [
+        {
+          standard: 'EN 55032',
+          description: 'Test standard - EMC of multimedia equipment',
+          anchor: '#test-anchor',
+          facility: null
+        },
+        {
+          standard: 'EN 301 489-52',
+          description: 'Test standard - ERM Part 52',
+          anchor: '#test-anchor-2',
+          facility: null
+        }
+      ];
+    }
+    
+    // Production behavior: return empty array
     return [];
   }
 }
