@@ -25,7 +25,10 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Status Indicators**: Current/Withdrawn status with visual differentiation
 - 🆕 **Download Functionality**: Download original Excel files for secondary use
 - 🆕 **Enhanced Data Accuracy**: Real-time access to latest harmonised standards
-- 🆕 **ISO17025 Certificate Scope Matching**: Real-time scope comparison with color-coded matching results
+- 🆕 **RED Directive Date Display Enhancement**: Latest date from Excel columns E, H, J with corresponding OJ references
+- 🆕 **Comprehensive ISO17025 Scope Matching**: Versioned standards match inclusive scope patterns (e.g., EN 301 489-52 V1.2.1 matches EN 301 489-1/-3/-7/-52)
+- 🆕 **Smart OJ Reference Selection**: Dynamic selection of OJ references based on latest date column (RED: E→F, H→I, J→K)
+- 🆕 **GitHub Integration**: Direct links to certificate scope documentation with proper anchor navigation
 - 🆕 **Scope Search Functionality**: Search A2LA and JAB certificate scopes with intelligent matching
 - 🆕 **Dynamic MD File Loading**: Certificate scope data loaded dynamically from external MD files
 - 🆕 **Markdown Documentation**: External A2LA/JAB scope information with anchor links and annual update support
@@ -83,12 +86,15 @@ A comprehensive web application for accessing EU harmonized standards and compar
 
 #### 5. **Advanced Scope Matching & Search**
 - **Real-time Scope Comparison**: Automatic matching of OJ Standards with ISO17025 certificate scopes
-- **Smart Matching Algorithm**: Detects exact matches, prefix differences, version mismatches
-- **Color-Coded Visual Results**: 🟢 Exact match, 🟡 Prefix difference, 🟠 Version difference, ⚫ No match
-- **Intelligent Annotations**: Detailed notes for prefix/version differences (e.g., "EN/CISPR表記違い")
+- **Smart Matching Algorithm**: Detects exact matches, prefix differences, version mismatches, and comprehensive patterns
+- **Comprehensive Pattern Matching**: EN 301 489-52 V1.2.1 matches EN 301 489-1/-3/-7/-52 inclusively
+- **Color-Coded Visual Results**: 🟢 Exact/Comprehensive match, 🟡 Prefix difference, 🟠 Version difference, ⚫ No match
+- **Intelligent Annotations**: Detailed notes including "包括スコープ適用(489-52含む)" for comprehensive matches
+- **Smart OJ Reference Display**: Shows OJ reference from latest date column (RED: E→F, H→I, J→K mapping)
 - **Certificate Scope Search**: Search A2LA/JAB scopes using partial standard numbers
 - **Facility Information**: Display which facility covers specific standards (JAB)
-- **Markdown Integration**: Click-through to detailed scope documentation
+- **GitHub Integration**: Direct navigation to certificate scope MD files with proper anchor links
+- **Markdown Integration**: Click-through to detailed scope documentation on GitHub
 - **Export Functions**: Download results in CSV format
 - **Real-time Results**: Live search and filtering capabilities
 
@@ -307,15 +313,15 @@ POST /.netlify/functions/scope-matcher
         "standard": "EN 55032:2015",
         "scope_matches": {
           "a2la": {
-            "status": "exact_match",
-            "matched_standard": "EN 55032",
-            "note": null,
-            "anchor": "#emissions-for-ports"
+            "status": "comprehensive_match",
+            "matched_standard": "EN 301 489-1/-3/-7/-52",
+            "note": "包括スコープ適用(489-52含む)",
+            "anchor": "#european-radio"
           },
           "jab": {
-            "status": "prefix_mismatch", 
-            "matched_standard": "EN55032",
-            "note": "スペース有無違い",
+            "status": "comprehensive_match", 
+            "matched_standard": "EN 301 489-1/-3/-7/-52",
+            "note": "包括スコープ適用(489-52含む)",
             "anchor": "#facility-1-continuous-disturbance",
             "facility": "施設1: SGS Japan Inc."
           }
@@ -462,6 +468,17 @@ Loading Method: Predefined database
    [View Details] → Opens JAB scope documentation
 
 🔍 Real-time OJ Standards Scope Matching:
+EN 301 489-52 V1.2.1                                       RED | ETSI
+ElectroMagnetic Compatibility and Radio spectrum Matters (ERM) - Part 52
+
+ISO17025 Certificate Scope:
+A2LA 🟢 ⚠️ 包括スコープ適用(489-52含む)  JAB 🟢 ⚠️ 包括スコープ適用(489-52含む)
+
+📋 Excel Details:
+OJ Reference: OJ L 165 - 01/06/2025  (Latest date from column J → Reference from column K)
+Status: ✅ Current
+🔗 ETSI Portal (direct search)
+
 EN 55032:2015                                               EMC | CEN
 Electromagnetic compatibility of multimedia equipment - Emission requirements
 
@@ -627,6 +644,9 @@ Portal Mapping:
 - **Removed**: 192 hardcoded standard entries from `script.js`
 - **Added**: Dynamic `/certificate-data` API endpoint
 - **Enhanced**: Real-time MD file parsing with facility support
+- **Implemented**: Comprehensive scope matching for versioned vs. inclusive patterns
+- **Improved**: RED directive date/OJ reference display with column-specific mapping
+- **Fixed**: GitHub integration with proper branch references and anchor navigation
 - **Maintained**: Full backward compatibility for existing functionality
 - **Improved**: Error handling with enforcement of MD file usage
 
