@@ -307,6 +307,16 @@ async function displayStandards(data) {
         
         if (response.success) {
             scopeMatches = response.data.matches;
+            console.log('Scope matching results:', {
+                total_standards: response.data.total_standards,
+                a2la_matches: response.data.a2la_matches,
+                jab_matches: response.data.jab_matches,
+                debug: response.data.debug
+            });
+            
+            if (response.data.debug) {
+                console.log('Debug info:', response.data.debug);
+            }
         }
     } catch (error) {
         console.error('Scope matching failed:', error);
@@ -723,6 +733,16 @@ async function renderStandardsList(data) {
         
         if (response.success) {
             scopeMatches = response.data.matches;
+            console.log('Scope matching results:', {
+                total_standards: response.data.total_standards,
+                a2la_matches: response.data.a2la_matches,
+                jab_matches: response.data.jab_matches,
+                debug: response.data.debug
+            });
+            
+            if (response.data.debug) {
+                console.log('Debug info:', response.data.debug);
+            }
         }
     } catch (error) {
         console.error('Scope matching failed:', error);

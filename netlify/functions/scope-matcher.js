@@ -65,6 +65,21 @@ exports.handler = async (event, context) => {
       };
     });
 
+    const a2laMatchCount = matchResults.filter(r => r.scope_matches.a2la.status !== 'no_match').length;
+    const jabMatchCount = matchResults.filter(r => r.scope_matches.jab.status !== 'no_match').length;
+    
+    console.log(`Match results summary: ${a2laMatchCount} A2LA matches, ${jabMatchCount} JAB matches out of ${oj_standards.length} standards`);
+    
+    // Log first few standards for debugging
+    console.log('First 3 OJ standards:', oj_standards.slice(0, 3));
+    console.log('First 3 A2LA scopes:', a2laScopes.slice(0, 3));
+    console.log('First 3 JAB scopes:', jabScopes.slice(0, 3));
+    
+    // Log sample match results
+    if (matchResults.length > 0) {
+      console.log('Sample match result:', JSON.stringify(matchResults[0], null, 2));
+    }
+
     return {
       statusCode: 200,
       headers,
@@ -73,8 +88,15 @@ exports.handler = async (event, context) => {
         data: {
           matches: matchResults,
           total_standards: oj_standards.length,
-          a2la_matches: matchResults.filter(r => r.scope_matches.a2la.status !== 'no_match').length,
-          jab_matches: matchResults.filter(r => r.scope_matches.jab.status !== 'no_match').length
+          a2la_matches: a2laMatchCount,
+          jab_matches: jabMatchCount,
+          debug: {
+            a2la_scopes_count: a2laScopes.length,
+            jab_scopes_count: jabScopes.length,
+            first_oj_standards: oj_standards.slice(0, 3),
+            first_a2la_scopes: a2laScopes.slice(0, 3).map(s => s.standard),
+            first_jab_scopes: jabScopes.slice(0, 3).map(s => s.standard)
+          }
         }
       })
     };
@@ -279,9 +301,13 @@ async function loadScopesFromMD(certType) {
     }
 
     const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+    console.log(`MD file content length: ${mdContent.length} characters`);
+    console.log(`MD file first 200 chars: ${mdContent.substring(0, 200)}...`);
+    
     const scopeData = parseMDToScopeData(mdContent, certType);
     
     console.log(`Loaded ${scopeData.scopes.length} scopes from ${certType}-scopes.md`);
+    console.log(`Sample parsed scopes:`, scopeData.scopes.slice(0, 3));
     return scopeData.scopes;
 
   } catch (error) {
@@ -293,6 +319,8 @@ async function loadScopesFromMD(certType) {
 // Parse markdown content into structured scope data
 function parseMDToScopeData(mdContent, certType) {
   const lines = mdContent.split('\n');
+  console.log(`Parsing MD content: ${lines.length} lines for ${certType}`);
+  
   const scopeData = {
     scopes: []
   };
@@ -301,6 +329,7 @@ function parseMDToScopeData(mdContent, certType) {
   let currentAnchor = null;
   let currentFacility = null;
   let inMetadata = true;
+  let standardsFound = 0;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -338,6 +367,11 @@ function parseMDToScopeData(mdContent, certType) {
       if (match) {
         const standard = match[1].trim();
         const description = match[2].trim();
+        standardsFound++;
+        
+        if (standardsFound <= 3) {
+          console.log(`Found standard ${standardsFound}: "${standard}" with description: "${description}"`);
+        }
         
         scopeData.scopes.push({
           standard: standard,
@@ -349,5 +383,6 @@ function parseMDToScopeData(mdContent, certType) {
     }
   }
 
+  console.log(`MD parsing complete for ${certType}: found ${standardsFound} total standards`);
   return scopeData;
 }
