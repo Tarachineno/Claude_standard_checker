@@ -316,6 +316,13 @@ async function displayStandards(data) {
             
             if (response.data.debug) {
                 console.log('Debug info:', response.data.debug);
+                
+                // Display server logs
+                if (response.data.debug.server_logs && response.data.debug.server_logs.length > 0) {
+                    console.log('=== SERVER LOGS ===');
+                    response.data.debug.server_logs.forEach(log => console.log(log));
+                    console.log('=== END SERVER LOGS ===');
+                }
             }
         }
     } catch (error) {
@@ -742,6 +749,13 @@ async function renderStandardsList(data) {
             
             if (response.data.debug) {
                 console.log('Debug info:', response.data.debug);
+                
+                // Display server logs
+                if (response.data.debug.server_logs && response.data.debug.server_logs.length > 0) {
+                    console.log('=== SERVER LOGS ===');
+                    response.data.debug.server_logs.forEach(log => console.log(log));
+                    console.log('=== END SERVER LOGS ===');
+                }
             }
         }
     } catch (error) {

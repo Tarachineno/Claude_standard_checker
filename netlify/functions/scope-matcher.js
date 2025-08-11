@@ -7,6 +7,21 @@ const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event, context) => {
+  // Initialize debug log collection
+  global.debugLogs = [];
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+  
+  console.log = (...args) => {
+    global.debugLogs.push(`LOG: ${args.join(' ')}`);
+    originalConsoleLog(...args);
+  };
+  
+  console.error = (...args) => {
+    global.debugLogs.push(`ERROR: ${args.join(' ')}`);
+    originalConsoleError(...args);
+  };
+
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -84,6 +99,10 @@ exports.handler = async (event, context) => {
       console.log('Sample match result:', JSON.stringify(matchResults[0], null, 2));
     }
 
+    // Restore original console functions
+    console.log = originalConsoleLog;
+    console.error = originalConsoleError;
+
     return {
       statusCode: 200,
       headers,
@@ -99,7 +118,8 @@ exports.handler = async (event, context) => {
             jab_scopes_count: jabScopes.length,
             first_oj_standards: oj_standards.slice(0, 3),
             first_a2la_scopes: a2laScopes.slice(0, 3).map(s => s.standard),
-            first_jab_scopes: jabScopes.slice(0, 3).map(s => s.standard)
+            first_jab_scopes: jabScopes.slice(0, 3).map(s => s.standard),
+            server_logs: global.debugLogs || []
           }
         }
       })
@@ -320,8 +340,31 @@ async function loadScopesFromMD(certType) {
     }
 
     if (!mdFilePath) {
-      console.error(`MD file not found: ${certType}-scopes.md`);
-      console.error('Checked all paths, none exist');
+      console.error(`MD file not found locally: ${certType}-scopes.md`);
+      console.log('Attempting HTTP fetch from static files...');
+      
+      // Try HTTP fetch as fallback for Netlify environment
+      try {
+        const fetch = require('node-fetch');
+        const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
+        const mdUrl = `${siteUrl}/data/${certType}-scopes.md`;
+        
+        console.log(`Fetching MD file via HTTP: ${mdUrl}`);
+        const response = await fetch(mdUrl);
+        
+        if (response.ok) {
+          const mdContent = await response.text();
+          console.log(`HTTP fetch successful: ${mdContent.length} characters`);
+          const scopeData = parseMDToScopeData(mdContent, certType);
+          console.log(`Loaded ${scopeData.scopes.length} scopes via HTTP`);
+          return scopeData.scopes;
+        } else {
+          console.error(`HTTP fetch failed: ${response.status} ${response.statusText}`);
+        }
+      } catch (httpError) {
+        console.error('HTTP fetch error:', httpError.message);
+      }
+      
       throw new Error(`MD file not found: ${certType}-scopes.md`);
     }
 
