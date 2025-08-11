@@ -309,8 +309,12 @@ async function displayStandards(data) {
             scopeMatches = response.data.matches;
         }
     } catch (error) {
-        console.warn('Scope matching failed:', error);
-        // Continue without scope matching
+        console.error('Scope matching failed:', error);
+        console.error('Error details:', error.message);
+        if (error.response) {
+            console.error('Server response:', error.response);
+        }
+        // Continue without scope matching - don't show error to user
     }
     
     data.standards.forEach((standard, index) => {
@@ -721,8 +725,12 @@ async function renderStandardsList(data) {
             scopeMatches = response.data.matches;
         }
     } catch (error) {
-        console.warn('Scope matching failed:', error);
-        // Continue without scope matching
+        console.error('Scope matching failed:', error);
+        console.error('Error details:', error.message);
+        if (error.response) {
+            console.error('Server response:', error.response);
+        }
+        // Continue without scope matching - don't show error to user
     }
     
     data.standards.forEach((standard, index) => {

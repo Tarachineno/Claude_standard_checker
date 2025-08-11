@@ -26,10 +26,12 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('Scope matcher called with:', event.body);
     const requestData = JSON.parse(event.body);
     const { oj_standards } = requestData;
 
     if (!oj_standards || !Array.isArray(oj_standards)) {
+      console.error('Invalid request data:', { oj_standards });
       return {
         statusCode: 400,
         headers,
@@ -40,9 +42,14 @@ exports.handler = async (event, context) => {
       };
     }
 
+    console.log(`Processing ${oj_standards.length} OJ standards for scope matching`);
+
     // Load certificate scope data dynamically from MD files
+    console.log('Loading scope data from MD files...');
     const a2laScopes = await loadScopesFromMD('a2la');
     const jabScopes = await loadScopesFromMD('jab');
+    
+    console.log(`Loaded ${a2laScopes.length} A2LA scopes, ${jabScopes.length} JAB scopes`);
 
     // Match each OJ standard against certificate scopes
     const matchResults = oj_standards.map(standard => {
@@ -74,12 +81,17 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('Scope matching error:', error);
+    console.error('Error stack:', error.stack);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         success: false,
-        error: `Scope matching failed: ${error.message}`
+        error: `Scope matching failed: ${error.message}`,
+        debug: {
+          stack: error.stack,
+          name: error.name
+        }
       })
     };
   }
@@ -233,6 +245,10 @@ function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
 // Load scopes dynamically from MD files
 async function loadScopesFromMD(certType) {
   try {
+    console.log(`Loading MD file for certType: ${certType}`);
+    console.log(`Current working directory: ${process.cwd()}`);
+    console.log(`Function directory: ${__dirname}`);
+    
     // Try multiple possible paths for Netlify deployment
     const possiblePaths = [
       path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
@@ -242,16 +258,23 @@ async function loadScopesFromMD(certType) {
       `./static/data/${certType}-scopes.md`
     ];
 
+    console.log('Possible paths to check:', possiblePaths);
+
     let mdFilePath = null;
     for (const testPath of possiblePaths) {
+      console.log(`Checking path: ${testPath}`);
       if (fs.existsSync(testPath)) {
         mdFilePath = testPath;
         console.log(`Found MD file at: ${mdFilePath}`);
         break;
+      } else {
+        console.log(`Path does not exist: ${testPath}`);
       }
     }
 
     if (!mdFilePath) {
+      console.error(`MD file not found: ${certType}-scopes.md`);
+      console.error('Checked all paths, none exist');
       throw new Error(`MD file not found: ${certType}-scopes.md`);
     }
 
