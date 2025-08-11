@@ -1094,6 +1094,16 @@ footer {
     background-color: #c3e6cb;
 }
 
+.scope-badge.comprehensive-match {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.scope-badge.comprehensive-match:hover {
+    background-color: #c3e6cb;
+}
+
 .scope-badge.prefix-mismatch {
     background-color: #fff3cd;
     color: #856404;

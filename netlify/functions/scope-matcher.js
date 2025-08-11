@@ -124,16 +124,17 @@ function findScopeMatch(ojStandard, certificateScopes) {
     };
   }
 
+  // Extract specific part number from OJ standard (e.g., "301 489-52" from "EN 301 489-52 V1.2.1")
+  const ojPartNumber = extractPartNumber(ojStandard);
+
   // Try to find matches in certificate scopes
   for (const scope of certificateScopes) {
     const scopeCore = extractStandardCore(scope.standard);
     const scopeVersion = extractVersion(scope.standard);
 
+    // Check for exact match first
     if (ojCore === scopeCore) {
-      // Core numbers match, check version/prefix differences
-      
       if (ojStandard === scope.standard) {
-        // Exact match
         return {
           status: 'exact_match',
           matched_standard: scope.standard,
@@ -144,7 +145,6 @@ function findScopeMatch(ojStandard, certificateScopes) {
       }
       
       if (ojVersion && scopeVersion && ojVersion !== scopeVersion) {
-        // Version difference
         return {
           status: 'version_mismatch',
           matched_standard: scope.standard,
@@ -168,6 +168,17 @@ function findScopeMatch(ojStandard, certificateScopes) {
         };
       }
     }
+
+    // Check for comprehensive scope match (e.g., "EN 301 489-1/-3/-7/-52" includes "EN 301 489-52")
+    if (ojPartNumber && isComprehensiveScopeMatch(ojPartNumber, scope.standard)) {
+      return {
+        status: 'comprehensive_match',
+        matched_standard: scope.standard,
+        note: `包括スコープ適用(${ojPartNumber}含む)`,
+        anchor: scope.anchor,
+        facility: scope.facility || null
+      };
+    }
   }
 
   return {
@@ -176,6 +187,47 @@ function findScopeMatch(ojStandard, certificateScopes) {
     note: null,
     anchor: null
   };
+}
+
+// Extract part number from standard (e.g., "EN 301 489-52 V1.2.1" -> "489-52")
+function extractPartNumber(standard) {
+  if (!standard) return '';
+  
+  // Remove prefixes and version info
+  const cleaned = standard
+    .replace(/^(EN|ETSI|IEC|ISO|CISPR|JIS|KS)\s*/i, '')
+    .replace(/:?\d{4}.*$/, '')         // Remove :2015, (2015), etc.
+    .replace(/\sV\d+\.\d+.*$/, '')     // Remove V1.2.1, etc.
+    .trim();
+  
+  // Extract the part number (e.g., "301 489-52" -> "489-52", "55032" -> "55032")  
+  const match = cleaned.match(/(?:\d+\s+)?(\d+(?:-\d+)*)/);
+  return match ? match[1] : '';
+}
+
+// Check if comprehensive scope (like "EN 301 489-1/-3/-7/-52") includes specific part
+function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
+  if (!ojPartNumber || !scopeStandard) return false;
+  
+  // Look for patterns like "EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52"
+  const comprehensivePattern = /(\d+(?:\s+\d+)*)-(\d+)(?:\/-\d+)+/;
+  const match = scopeStandard.match(comprehensivePattern);
+  
+  if (!match) return false;
+  
+  const baseNumber = match[1];  // e.g., "301 489"
+  const scopeParts = scopeStandard.match(/-(\d+)/g);  // ["-1", "-3", "-7", "-52", etc.]
+  
+  if (!scopeParts) return false;
+  
+  // Extract part numbers (remove the "-" prefix)
+  const includedParts = scopeParts.map(part => part.substring(1));
+  
+  // Check if OJ part number is included in the comprehensive scope
+  // Handle both "489-52" format and "52" format
+  const ojPart = ojPartNumber.includes('-') ? ojPartNumber.split('-').pop() : ojPartNumber;
+  
+  return includedParts.includes(ojPart);
 }
 
 // Load scopes dynamically from MD files

@@ -895,6 +895,12 @@ function createScopeBadge(certType, matchData) {
             statusSymbol = '🟢';
             title = `完全一致: ${matchData.matched_standard}`;
             break;
+        case 'comprehensive_match':
+            badgeClass += 'comprehensive-match';
+            icon = 'fa-check-circle';
+            statusSymbol = '🟢';
+            title = `${matchData.note}: ${matchData.matched_standard}`;
+            break;
         case 'prefix_mismatch':
             badgeClass += 'prefix-mismatch';
             icon = 'fa-exclamation-circle';
