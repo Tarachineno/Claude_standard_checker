@@ -525,7 +525,12 @@ function parseStandardsFromExcelData(excelData, directive) {
       // Additional date fields for user requirements - RED directive uses columns E, H, J (4, 7, 9)
       date_of_start_presumption: convertExcelDate(row[4]),                        // Column E (4): Date of start of presumption of conformity
       restriction_date: convertExcelDate(row[7]),                                 // Column H (7): Date of start of presumption of conformity with restriction  
-      withdrawal_date_col_j: convertExcelDate(row[9])                             // Column J (9): Date of withdrawal from OJ
+      withdrawal_date_col_j: convertExcelDate(row[9]),                            // Column J (9): Date of withdrawal from OJ
+      
+      // OJ Reference fields for corresponding date columns (F, I, K = 5, 8, 10)
+      oj_reference_col_f: row[5] ? String(row[5]).trim() : '',                   // Column F (5): OJ Reference for column E
+      oj_reference_col_i: row[8] ? String(row[8]).trim() : '',                   // Column I (8): OJ Reference for column H
+      oj_reference_col_k: row[10] ? String(row[10]).trim() : ''                  // Column K (10): OJ Reference for column J
     });
   }
   

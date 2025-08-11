@@ -648,50 +648,58 @@ function formatOJDateForDisplay(ojString) {
     return ojString;
 }
 
-// Get latest OJ reference for display (Images #3, #4, #5 - show newest)
+// Get latest OJ reference for display based on latest date column (RED directive: E+1=F, H+1=I, J+1=K)
 function getLatestOJReferenceForDisplay(standard) {
-    const ojReferences = [];
-    
-    // Check OJ references with dates (Images #3, #4, #5)
-    const referencesToCheck = [
+    // For RED directive, check date columns E, H, J (4, 7, 9) and use corresponding OJ reference columns F, I, K (5, 8, 10)
+    const dateFieldsWithReferences = [
         {
-            ref: standard.oj_reference,          // OJ reference for publication in OJ (Image #3)
-            field: 'oj_reference'
+            date: standard.date_of_start_presumption,  // Column E (4): Date
+            reference: standard.oj_reference_col_f,    // Column F (5): OJ Reference
+            name: 'date_of_start_presumption'
         },
         {
-            ref: standard.restriction,           // OJ reference for publication of a restriction in OJ (Image #4)  
-            field: 'restriction'
+            date: standard.restriction_date,           // Column H (7): Date
+            reference: standard.oj_reference_col_i,    // Column I (8): OJ Reference
+            name: 'restriction_date'
         },
         {
-            ref: standard.withdrawal_reference,  // OJ reference for withdrawal from OJ (Image #5)
-            field: 'withdrawal_reference'
+            date: standard.withdrawal_date_col_j,      // Column J (9): Date
+            reference: standard.oj_reference_col_k,    // Column K (10): OJ Reference
+            name: 'withdrawal_date_col_j'
         }
     ];
     
-    referencesToCheck.forEach(item => {
-        if (item.ref && item.ref !== '-' && item.ref.trim() !== '') {
-            const dateValue = extractDateFromOJString(item.ref);
-            if (dateValue > 0) {
-                ojReferences.push({
-                    value: dateValue,
-                    original: item.ref,
-                    field: item.field
-                });
+    let latestDate = 0;
+    let latestOJReference = '';
+    
+    // Find which date column has the latest date
+    dateFieldsWithReferences.forEach(field => {
+        if (field.date && field.date !== '-' && field.date.trim() !== '') {
+            // Check if it's a valid date in YYYY-MM-DD format
+            const dateMatch = field.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (dateMatch) {
+                const year = parseInt(dateMatch[1]);
+                const month = parseInt(dateMatch[2]);
+                const day = parseInt(dateMatch[3]);
+                
+                // Convert to comparable number (YYYYMMDD format)
+                const dateValue = year * 10000 + month * 100 + day;
+                
+                // If this date is later than current latest, update latest
+                if (dateValue > latestDate) {
+                    latestDate = dateValue;
+                    latestOJReference = field.reference || '';
+                }
             }
         }
     });
     
-    if (ojReferences.length === 0) {
-        // Fallback to any available OJ reference
+    // If no valid date found in E, H, J columns, fall back to original logic
+    if (latestDate === 0) {
         return standard.oj_reference || standard.restriction || standard.withdrawal_reference || '';
     }
     
-    // Find the latest (newest) OJ reference
-    const latestOJRef = ojReferences.reduce((latest, current) => {
-        return current.value > latest.value ? current : latest;
-    });
-    
-    return latestOJRef.original;
+    return latestOJReference;
 }
 
 // Render standards list (separated from displayStandards for reuse)
