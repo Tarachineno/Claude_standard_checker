@@ -121,6 +121,18 @@
 - **IEC 61000-4-34** - Voltage dips, short interruptions and voltage variations test
 - **EN 61000-4-34** - Voltage dips, short interruptions and voltage variations test
 
+### Semiconductor Processing Equipment Voltage Sag Immunity {#voltage-sag-immunity}
+
+- **SEMI F47** - Specification for Semiconductor Processing Equipment Voltage Sag Immunity
+
+### Common Technical Standards for Machines and Mechanisms {#common-mm-ts}
+
+- **S2-W-5** - Common Technical Standards for Machines and Mechanisms
+
+### Guide to Documentation for Semiconductor Equipment Installation {#guide-equipment-installation}
+
+- **SEMI E6** - Guide to Documentation for Semiconductor Equipment Installation
+
 ### Generic Immunity – Industrial Environments {#generic-immunity-industrial}
 
 - **IEC 61000-6-2** - Generic immunity standard for industrial environments
@@ -129,8 +141,8 @@
 
 ### Product Family Standards {#product-family-standards}
 
-- **EN 50370-11** - Product family standard for machine tools
-- **EN 50370-21** - Product family standard for lifts, escalators and moving walks
+- **EN 50370-1** - Electromagnetic compatibility (EMC) - Product family standard for machine tools - Part 1: Emission
+- **EN 50370-2** - Electromagnetic compatibility (EMC) - Product family standard for machine tools - Part 2: Immunity
 - **EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52** - Product family standards for radio equipment and services
 
 ### Wi-Fi Devices Interoperability {#wifi-interoperability}
