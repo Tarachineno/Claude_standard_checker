@@ -1012,16 +1012,32 @@ async function showMDViewer(certType, anchor) {
         
     } catch (error) {
         console.error('MD viewer error:', error);
-        content.innerHTML = `
-            <div class="error-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Failed to Load Certificate Details</h3>
-                <p>${error.message}</p>
-                <button class="btn-secondary" onclick="showMDViewer('${certType}', '${anchor}')">
-                    <i class="fas fa-redo"></i> Retry
-                </button>
-            </div>
-        `;
+        
+        // Check if this is a deployment issue (404 for md-viewer function)
+        if (error.message.includes('404') || error.message.includes('Page not found')) {
+            content.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-clock"></i>
+                    <h3>Function Deployment in Progress</h3>
+                    <p>The MD viewer function is currently being deployed. Please try again in a few minutes.</p>
+                    <p><strong>Temporary Solution:</strong> <a href="${GITHUB_REPO_URL}/blob/netlify-pure-webapp/static/data/${certType}-scopes.md${anchor}" target="_blank">View on GitHub</a></p>
+                    <button class="btn-secondary" onclick="showMDViewer('${certType}', '${anchor}')">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Failed to Load Certificate Details</h3>
+                    <p>${error.message}</p>
+                    <button class="btn-secondary" onclick="showMDViewer('${certType}', '${anchor}')">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
     } finally {
         loading.style.display = 'none';
         content.style.display = 'block';
