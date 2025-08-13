@@ -5,6 +5,24 @@
 let uploadedCertificateData = null;
 let currentStandardsData = null; // Store current standards for sorting/filtering
 
+// Scope matching cache to avoid repeated API calls
+let scopeMatchingCache = new Map();
+
+// Cache helper functions
+function createCacheKey(standards) {
+    return standards.map(s => s.number || s.full_number).sort().join('|');
+}
+
+function getScopeMatchesFromCache(standards) {
+    const cacheKey = createCacheKey(standards);
+    return scopeMatchingCache.get(cacheKey);
+}
+
+function setScopeMatchesInCache(standards, matches) {
+    const cacheKey = createCacheKey(standards);
+    scopeMatchingCache.set(cacheKey, matches);
+}
+
 // API configuration - Netlify Functions
 const API_BASE = '/.netlify/functions';
 // GitHub repository for viewing scope details
@@ -728,24 +746,29 @@ async function renderStandardsList(data) {
     const listElement = document.getElementById('standards-list');
     listElement.innerHTML = '';
     
-    // Check scope matching for all standards
-    let scopeMatches = null;
-    try {
-        const response = await apiCall('/scope-matcher', {
-            method: 'POST',
-            body: JSON.stringify({
-                oj_standards: data.standards.map(s => s.number || s.full_number)
-            })
-        });
-        
-        if (response.success) {
-            scopeMatches = response.data.matches;
-            console.log('Scope matching results:', {
-                total_standards: response.data.total_standards,
-                a2la_matches: response.data.a2la_matches,
-                jab_matches: response.data.jab_matches,
-                debug: response.data.debug
+    // Check scope matching for all standards (with caching)
+    let scopeMatches = getScopeMatchesFromCache(data.standards);
+    
+    if (!scopeMatches) {
+        try {
+            const response = await apiCall('/scope-matcher', {
+                method: 'POST',
+                body: JSON.stringify({
+                    oj_standards: data.standards.map(s => s.number || s.full_number)
+                })
             });
+            
+            if (response.success) {
+                scopeMatches = response.data.matches;
+                // Cache the results
+                setScopeMatchesInCache(data.standards, scopeMatches);
+                
+                console.log('Scope matching results (from API):', {
+                    total_standards: response.data.total_standards,
+                    a2la_matches: response.data.a2la_matches,
+                    jab_matches: response.data.jab_matches,
+                    debug: response.data.debug
+                });
             
             if (response.data.debug) {
                 console.log('Debug info:', response.data.debug);
@@ -765,6 +788,11 @@ async function renderStandardsList(data) {
             console.error('Server response:', error.response);
         }
         // Continue without scope matching - don't show error to user
+    }
+    } else {
+        console.log('Scope matching results (from cache):', {
+            cached_matches: scopeMatches.length
+        });
     }
     
     data.standards.forEach((standard, index) => {
@@ -1240,17 +1268,24 @@ function exportStandards() {
         return;
     }
 
+    // Get directive from current standards data instead of DOM scraping
+    const directive = currentStandardsData?.directive || 'Unknown';
+
     const standards = [];
     standardItems.forEach(item => {
-        const number = item.querySelector('.standard-number').textContent;
-        const title = item.querySelector('.standard-title').textContent;
-        const directive = item.querySelector('.standard-directive')?.textContent || '';
+        const numberElement = item.querySelector('.standard-number-bold');
+        const descriptionElement = item.querySelector('.standard-description');
         
-        standards.push({
-            directive,
-            number,
-            title
-        });
+        if (numberElement && descriptionElement) {
+            const number = numberElement.textContent;
+            const description = descriptionElement.textContent;
+            
+            standards.push({
+                directive,
+                number: number.trim(),
+                title: description.trim()
+            });
+        }
     });
 
     const csvContent = generateCSV(standards);

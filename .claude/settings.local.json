@@ -31,7 +31,8 @@
       "Bash(grep:*)",
       "Bash(git pull:*)",
       "Bash(npx netlify:*)",
-      "mcp__ide__executeCode"
+      "mcp__ide__executeCode",
+      "Bash(git tag:*)"
     ],
     "deny": []
   }
