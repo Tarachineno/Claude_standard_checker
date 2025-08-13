@@ -313,19 +313,24 @@ async function displayStandards(data) {
     
     listElement.innerHTML = '';
     
-    // Check scope matching for all standards
-    let scopeMatches = null;
-    try {
-        const response = await apiCall('/scope-matcher', {
-            method: 'POST',
-            body: JSON.stringify({
-                oj_standards: data.standards.map(s => s.number || s.full_number)
-            })
-        });
-        
-        if (response.success) {
-            scopeMatches = response.data.matches;
-            console.log('Scope matching results:', {
+    // Check scope matching for all standards (with caching)
+    let scopeMatches = getScopeMatchesFromCache(data.standards);
+    
+    if (!scopeMatches) {
+        try {
+            const response = await apiCall('/scope-matcher', {
+                method: 'POST',
+                body: JSON.stringify({
+                    oj_standards: data.standards.map(s => s.number || s.full_number)
+                })
+            });
+            
+            if (response.success) {
+                scopeMatches = response.data.matches;
+                // Cache the results
+                setScopeMatchesInCache(data.standards, scopeMatches);
+                
+                console.log('Scope matching results (from API):', {
                 total_standards: response.data.total_standards,
                 a2la_matches: response.data.a2la_matches,
                 jab_matches: response.data.jab_matches,

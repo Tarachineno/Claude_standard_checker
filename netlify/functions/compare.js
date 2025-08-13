@@ -1,5 +1,5 @@
 // Compare ISO17025 standards with OJ standards - Netlify Function
-const axios = require('axios');
+const { handler: standardsHandler } = require('./standards');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -41,15 +41,23 @@ exports.handler = async (event, context) => {
     console.log(`Comparing ${iso_standards.length} ISO standards with ${directive} directive`);
 
     // Get OJ standards for the directive
-    const ojResponse = await axios.get(`${process.env.URL}/.netlify/functions/standards?directive=${directive}`, {
-      timeout: 10000
-    });
-
-    if (!ojResponse.data.success) {
+    const standardsEvent = {
+      httpMethod: 'GET',
+      queryStringParameters: { directive: directive }
+    };
+    
+    const ojResponse = await standardsHandler(standardsEvent, context);
+    
+    if (ojResponse.statusCode !== 200) {
+      throw new Error('Failed to fetch OJ standards');
+    }
+    
+    const responseData = JSON.parse(ojResponse.body);
+    if (!responseData.success) {
       throw new Error('Failed to fetch OJ standards');
     }
 
-    const ojStandards = ojResponse.data.data.standards;
+    const ojStandards = responseData.data.standards;
     const comparison = compareStandards(ojStandards, iso_standards, directive);
 
     return {

@@ -1,5 +1,5 @@
 // Search standards across all directives - Netlify Function
-const axios = require('axios');
+const { handler: standardsHandler } = require('./standards');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -35,28 +35,35 @@ exports.handler = async (event, context) => {
 
     for (const directive of directives) {
       try {
-        // Call our own standards function
-        const standardsResponse = await axios.get(`${process.env.URL}/.netlify/functions/standards?directive=${directive}`, {
-          timeout: 5000
-        });
-
-        if (standardsResponse.data.success) {
-          const standards = standardsResponse.data.data.standards;
+        // Call standards function directly
+        const standardsEvent = {
+          httpMethod: 'GET',
+          queryStringParameters: { directive: directive }
+        };
+        
+        const standardsResponse = await standardsHandler(standardsEvent, context);
+        
+        if (standardsResponse.statusCode === 200) {
+          const responseData = JSON.parse(standardsResponse.body);
           
-          // Filter standards that match the query
-          const matches = standards.filter(standard => 
-            standard.number.toLowerCase().includes(query.toLowerCase()) ||
-            standard.title.toLowerCase().includes(query.toLowerCase())
-          );
+          if (responseData.success) {
+            const standards = responseData.data.standards;
+            
+            // Filter standards that match the query
+            const matches = standards.filter(standard => 
+              standard.number.toLowerCase().includes(query.toLowerCase()) ||
+              standard.title.toLowerCase().includes(query.toLowerCase())
+            );
 
-          // Add directive info to each match
-          matches.forEach(match => {
-            allResults.push({
-              ...match,
-              directive: directive,
-              directive_name: standardsResponse.data.data.directive_name
+            // Add directive info to each match
+            matches.forEach(match => {
+              allResults.push({
+                ...match,
+                directive: directive,
+                directive_name: responseData.data.directive_name
+              });
             });
-          });
+          }
         }
       } catch (error) {
         console.error(`Error searching ${directive}:`, error.message);
