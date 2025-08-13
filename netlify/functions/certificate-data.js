@@ -1,6 +1,5 @@
 // Certificate data loading function with dynamic MD file support
-const fs = require('fs');
-const path = require('path');
+const { loadFileContent, parseCertificateMD } = require('./utils/md');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -69,80 +68,12 @@ exports.handler = async (event, context) => {
 // Load certificate data from MD files
 async function loadCertificateFromMD(certType) {
   try {
-    let mdContent = null;
+    const filename = `${certType}-scopes.md`;
+    const mdContent = await loadFileContent(filename, 'data');
     
-    // First try: File system access (local development and some Netlify deployments)
-    const possiblePaths = [
-      path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
-      path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
-      path.join(process.cwd(), 'static', 'data', `${certType}-scopes.md`),
-      `/var/task/static/data/${certType}-scopes.md`,
-      `./static/data/${certType}-scopes.md`
-    ];
-
-    let mdFilePath = null;
-    for (const testPath of possiblePaths) {
-      try {
-        if (fs.existsSync(testPath)) {
-          mdFilePath = testPath;
-          mdContent = fs.readFileSync(mdFilePath, 'utf-8');
-          console.log(`Found MD file at: ${mdFilePath}`);
-          break;
-        }
-      } catch (e) {
-        console.log(`Error checking path ${testPath}: ${e.message}`);
-      }
-    }
-    
-    // Second try: HTTP fetch from static URL (Netlify deployment fallback)
-    if (!mdContent) {
-      console.log('File system access failed, trying HTTP fetch...');
-      try {
-        // Add node-fetch for Node.js environment
-        const fetch = require('node-fetch');
-        
-        // Try multiple URL patterns for Netlify
-        const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-        const possibleUrls = [
-          `${siteUrl}/data/${certType}-scopes.md`,
-          `${siteUrl}/static/data/${certType}-scopes.md`,
-          `https://webstandardchacker.netlify.app/data/${certType}-scopes.md`
-        ];
-        
-        console.log('Environment variables:');
-        console.log('- URL:', process.env.URL);
-        console.log('- DEPLOY_URL:', process.env.DEPLOY_URL);
-        console.log('- SITE_NAME:', process.env.SITE_NAME);
-        
-        for (const url of possibleUrls) {
-          console.log(`Trying HTTP fetch from: ${url}`);
-          try {
-            const response = await fetch(url);
-            console.log(`Response status: ${response.status} ${response.statusText}`);
-            
-            if (response.ok) {
-              mdContent = await response.text();
-              console.log(`Successfully fetched MD file via HTTP from ${url}: ${mdContent.length} characters`);
-              break;
-            } else {
-              console.error(`HTTP fetch failed for ${url}: ${response.status} ${response.statusText}`);
-            }
-          } catch (fetchError) {
-            console.error(`HTTP fetch error for ${url}: ${fetchError.message}`);
-          }
-        }
-      } catch (e) {
-        console.error(`HTTP fetch setup error: ${e.message}`);
-      }
-    }
-    
-    if (!mdContent) {
-      throw new Error(`MD file not found: ${certType}-scopes.md`);
-    }
-
     const parsedData = parseCertificateMD(mdContent, certType);
     
-    console.log(`Successfully loaded ${parsedData.test_standards.length} standards from ${certType}-scopes.md`);
+    console.log(`Successfully loaded ${parsedData.test_standards.length} standards from ${filename}`);
     return parsedData;
     
   } catch (error) {
@@ -151,122 +82,4 @@ async function loadCertificateFromMD(certType) {
   }
 }
 
-// Parse certificate MD file into frontend-compatible format
-function parseCertificateMD(mdContent, certType) {
-  const lines = mdContent.split('\n');
-  
-  const certificateData = {
-    certificate_info: {},
-    test_standards: [],
-    categories: {},
-    certificate_type: certType.toUpperCase() + '_MD_Dynamic'
-  };
-  
-  // For JAB certificates, also include facilities
-  if (certType === 'jab') {
-    certificateData.facilities = [];
-  }
-
-  let currentCategory = null;
-  let currentAnchor = null;
-  let currentFacility = null;
-  let inMetadata = true;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    
-    if (!line) continue;
-
-    // Parse certificate metadata (top of file)
-    if (inMetadata && line.startsWith('**') && line.includes(':')) {
-      const match = line.match(/\*\*([^*]+):\*\*\s*(.+)/);
-      if (match) {
-        const key = match[1].toLowerCase().replace(/\s+/g, '_');
-        const value = match[2];
-        certificateData.certificate_info[key] = value;
-        continue;
-      }
-    }
-
-    // Stop metadata parsing when we hit main content
-    if (line.startsWith('## ') || line.startsWith('### ')) {
-      inMetadata = false;
-    }
-
-    // Parse facility headers for JAB (special format)
-    if (certType === 'jab') {
-      // Handle facility section headers: "## Facility X: Name {#facility-x}"
-      if (line.startsWith('## Facility ') && line.includes('{#')) {
-        const facilityMatch = line.match(/## Facility (\d+): (.+) \{#([^}]+)\}/);
-        if (facilityMatch) {
-          currentFacility = {
-            facility_number: facilityMatch[1],
-            name: facilityMatch[2],
-            location: null, // Will be set from next line
-            standards: []
-          };
-          certificateData.facilities.push(currentFacility);
-          continue;
-        }
-      }
-
-      // Handle facility location: "**Location:** 都道府県市区町村"
-      if (currentFacility && line.startsWith('**Location:**')) {
-        const locationMatch = line.match(/\*\*Location:\*\*\s*(.+)/);
-        if (locationMatch) {
-          currentFacility.location = locationMatch[1];
-          continue;
-        }
-      }
-    }
-
-    // Parse section headers with anchors: "### Category {#anchor}"
-    if (line.startsWith('### ') && line.includes('{#')) {
-      const match = line.match(/### (.+) \{#([^}]+)\}/);
-      if (match) {
-        currentCategory = match[1];
-        currentAnchor = `#${match[2]}`;
-        
-        if (!certificateData.categories[currentCategory]) {
-          certificateData.categories[currentCategory] = [];
-        }
-        continue;
-      }
-    }
-
-    // Parse standard entries: "- **STANDARD** - Description"
-    if (line.startsWith('- **') && line.includes('**')) {
-      const match = line.match(/- \*\*([^*]+)\*\*\s*-?\s*(.*)/);
-      if (match) {
-        const standardNumber = match[1].trim();
-        const description = match[2].trim();
-        
-        const standardEntry = {
-          standard_number: standardNumber,
-          category: currentCategory || 'Uncategorized',
-          description: description,
-          anchor: currentAnchor
-        };
-
-        // Add facility information for JAB
-        if (certType === 'jab' && currentFacility) {
-          standardEntry.facility = `施設${currentFacility.facility_number}: ${currentFacility.name}`;
-          currentFacility.standards.push(standardEntry);
-        }
-
-        certificateData.test_standards.push(standardEntry);
-        
-        // Add to category
-        if (currentCategory && !certificateData.categories[currentCategory].includes(standardNumber)) {
-          certificateData.categories[currentCategory].push(standardNumber);
-        }
-      }
-    }
-  }
-
-  // Calculate total standards count
-  certificateData.total_standards = certificateData.test_standards.length;
-
-  return certificateData;
-}
 

@@ -1,6 +1,5 @@
 // Parse markdown scope files and convert to structured data
-const fs = require('fs');
-const path = require('path');
+const { loadFileContent } = require('./utils/md');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -39,31 +38,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Try multiple possible paths for Netlify deployment
-    const possiblePaths = [
-      path.join(__dirname, '../../static/data', `${cert_type}-scopes.md`),
-      path.join(process.cwd(), 'static/data', `${cert_type}-scopes.md`),
-      path.join(process.cwd(), 'static', 'data', `${cert_type}-scopes.md`),
-      `/var/task/static/data/${cert_type}-scopes.md`,
-      `./static/data/${cert_type}-scopes.md`
-    ];
-
-    let mdFilePath = null;
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        mdFilePath = testPath;
-        console.log(`Found MD file at: ${mdFilePath}`);
-        break;
-      }
-    }
-    
-    if (!mdFilePath) {
-      console.error(`MD file not found in any of the following paths:`, possiblePaths);
-      throw new Error(`MD file not found: ${cert_type}-scopes.md`);
-    }
-
-    const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
-    console.log(`Loaded MD file: ${cert_type}-scopes.md (${mdContent.length} characters)`);
+    const filename = `${cert_type}-scopes.md`;
+    const mdContent = await loadFileContent(filename, 'data');
+    console.log(`Loaded MD file: ${filename} (${mdContent.length} characters)`);
 
     // Parse MD content into structured data
     const scopeData = parseMDToScopeData(mdContent, cert_type);

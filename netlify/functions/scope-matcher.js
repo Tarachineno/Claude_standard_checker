@@ -1,6 +1,5 @@
 // Scope matching function for ISO17025 certificates  
-const fs = require('fs');
-const path = require('path');
+const { loadFileContent, parseMDToScopeData } = require('./utils/md');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -236,45 +235,9 @@ function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
 // Load scopes dynamically from MD files
 async function loadScopesFromMD(certType) {
   try {
-    // Try multiple possible paths for local development
-    const possiblePaths = [
-      path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
-      path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
-      path.join(process.cwd(), 'static', 'data', `${certType}-scopes.md`),
-      `/var/task/static/data/${certType}-scopes.md`,
-      `./static/data/${certType}-scopes.md`
-    ];
-
-    let mdFilePath = null;
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        mdFilePath = testPath;
-        break;
-      }
-    }
-
-    if (!mdFilePath) {
-      // Try HTTP fetch as fallback for Netlify environment
-      try {
-        const fetch = require('node-fetch');
-        const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-        const mdUrl = `${siteUrl}/data/${certType}-scopes.md`;
-        
-        const response = await fetch(mdUrl);
-        
-        if (response.ok) {
-          const mdContent = await response.text();
-          const scopeData = parseMDToScopeData(mdContent, certType);
-          return scopeData.scopes;
-        }
-      } catch (httpError) {
-        console.error('HTTP fetch error:', httpError.message);
-      }
-      
-      throw new Error(`MD file not found: ${certType}-scopes.md`);
-    }
-
-    const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+    const filename = `${certType}-scopes.md`;
+    const mdContent = await loadFileContent(filename, 'data');
+    
     const scopeData = parseMDToScopeData(mdContent, certType);
     return scopeData.scopes;
 
@@ -284,63 +247,3 @@ async function loadScopesFromMD(certType) {
   }
 }
 
-// Parse markdown content into structured scope data
-function parseMDToScopeData(mdContent, certType) {
-  const lines = mdContent.split('\n');
-  const scopeData = {
-    scopes: []
-  };
-
-  let currentCategory = null;
-  let currentAnchor = null;
-  let currentFacility = null;
-  let inMetadata = true;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    
-    if (!line) continue;
-
-    // Stop metadata parsing when we hit main content
-    if (line.startsWith('## ') || line.startsWith('### ')) {
-      inMetadata = false;
-    }
-
-    // Parse facility headers for JAB (【施設X】pattern)
-    if (certType === 'jab' && line.includes('【施設') && line.includes('】')) {
-      const facilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
-      if (facilityMatch) {
-        currentFacility = `施設${facilityMatch[1]}: ${facilityMatch[2].trim()}`;
-        continue;
-      }
-    }
-
-    // Parse section headers with anchors (both h2 and h3)
-    if ((line.startsWith('### ') || line.startsWith('## ')) && line.includes('{#')) {
-      const match = line.match(/^##+ (.+) \{#([^}]+)\}/);
-      if (match) {
-        currentCategory = match[1];
-        currentAnchor = `#${match[2]}`;
-        continue;
-      }
-    }
-
-    // Parse standard entries (lines starting with - **)
-    if (line.startsWith('- **') && line.includes('**')) {
-      const match = line.match(/- \*\*([^*]+)\*\*\s*-?\s*(.*)/);
-      if (match) {
-        const standard = match[1].trim();
-        const description = match[2].trim();
-        
-        scopeData.scopes.push({
-          standard: standard,
-          description: description,
-          anchor: currentAnchor,
-          facility: currentFacility
-        });
-      }
-    }
-  }
-
-  return scopeData;
-}
