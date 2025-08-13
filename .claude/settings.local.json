@@ -29,7 +29,9 @@
       "WebFetch(domain:688f596d7aa54700087bdddf--webstandardchacker.netlify.app)",
       "Bash(mv:*)",
       "Bash(grep:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npx netlify:*)",
+      "mcp__ide__executeCode"
     ],
     "deny": []
   }
