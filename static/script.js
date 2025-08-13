@@ -331,30 +331,35 @@ async function displayStandards(data) {
                 setScopeMatchesInCache(data.standards, scopeMatches);
                 
                 console.log('Scope matching results (from API):', {
-                total_standards: response.data.total_standards,
-                a2la_matches: response.data.a2la_matches,
-                jab_matches: response.data.jab_matches,
-                debug: response.data.debug
-            });
-            
-            if (response.data.debug) {
-                console.log('Debug info:', response.data.debug);
+                    total_standards: response.data.total_standards,
+                    a2la_matches: response.data.a2la_matches,
+                    jab_matches: response.data.jab_matches,
+                    debug: response.data.debug
+                });
                 
-                // Display server logs
-                if (response.data.debug.server_logs && response.data.debug.server_logs.length > 0) {
-                    console.log('=== SERVER LOGS ===');
-                    response.data.debug.server_logs.forEach(log => console.log(log));
-                    console.log('=== END SERVER LOGS ===');
+                if (response.data.debug) {
+                    console.log('Debug info:', response.data.debug);
+                    
+                    // Display server logs
+                    if (response.data.debug.server_logs && response.data.debug.server_logs.length > 0) {
+                        console.log('=== SERVER LOGS ===');
+                        response.data.debug.server_logs.forEach(log => console.log(log));
+                        console.log('=== END SERVER LOGS ===');
+                    }
                 }
             }
+        } catch (error) {
+            console.error('Scope matching failed:', error);
+            console.error('Error details:', error.message);
+            if (error.response) {
+                console.error('Server response:', error.response);
+            }
+            // Continue without scope matching - don't show error to user
         }
-    } catch (error) {
-        console.error('Scope matching failed:', error);
-        console.error('Error details:', error.message);
-        if (error.response) {
-            console.error('Server response:', error.response);
-        }
-        // Continue without scope matching - don't show error to user
+    } else {
+        console.log('Scope matching results (from cache):', {
+            cached_matches: scopeMatches.length
+        });
     }
     
     data.standards.forEach((standard, index) => {
