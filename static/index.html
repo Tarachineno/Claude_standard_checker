@@ -61,35 +61,41 @@
                     
                     <!-- Sort and Filter Controls -->
                     <div class="results-controls">
-                        <div class="control-group">
-                            <label for="sort-standards">Sort by:</label>
-                            <select id="sort-standards">
-                                <option value="standard_number_asc">Standard Number (A-Z)</option>
-                                <option value="standard_number_desc">Standard Number (Z-A)</option>
-                                <option value="oj_date_desc">OJ Date (Newest First)</option>
-                                <option value="oj_date_asc">OJ Date (Oldest First)</option>
-                            </select>
+                        <!-- Row 1: Sort and Filter options -->
+                        <div class="controls-row controls-options">
+                            <div class="control-group">
+                                <label for="sort-standards">Sort by:</label>
+                                <select id="sort-standards">
+                                    <option value="standard_number_asc">Standard Number (A-Z)</option>
+                                    <option value="standard_number_desc">Standard Number (Z-A)</option>
+                                    <option value="oj_date_desc">OJ Date (Newest First)</option>
+                                    <option value="oj_date_asc">OJ Date (Oldest First)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="filter-status">Filter by Status:</label>
+                                <select id="filter-status">
+                                    <option value="all">All Standards</option>
+                                    <option value="valid">Valid (Published, Not Withdrawn)</option>
+                                    <option value="invalid">Invalid (Withdrawn)</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div class="control-group">
-                            <label for="filter-status">Filter by Status:</label>
-                            <select id="filter-status">
-                                <option value="all">All Standards</option>
-                                <option value="valid">Valid (Published, Not Withdrawn)</option>
-                                <option value="invalid">Invalid (Withdrawn)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-group">
-                            <button id="apply-controls-btn" class="btn btn-small">
-                                <i class="fas fa-filter"></i> Apply
-                            </button>
-                            <button id="reset-controls-btn" class="btn btn-small btn-outline">
-                                <i class="fas fa-undo"></i> Reset
-                            </button>
-                            <button id="export-standards-btn" class="btn btn-small btn-secondary">
-                                <i class="fas fa-file-export"></i> Export
-                            </button>
+                        <!-- Row 2: Action buttons -->
+                        <div class="controls-row controls-actions">
+                            <div class="control-group action-buttons">
+                                <button id="apply-controls-btn" class="btn btn-small">
+                                    <i class="fas fa-filter"></i> Apply
+                                </button>
+                                <button id="reset-controls-btn" class="btn btn-small btn-outline">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                                <button id="export-standards-btn" class="btn btn-small btn-secondary">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
