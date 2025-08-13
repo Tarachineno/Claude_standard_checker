@@ -969,14 +969,202 @@ function createScopeBadge(certType, matchData) {
     </span>`;
 }
 
-// Open scope details in MD file
+// Open scope details in MD viewer modal
 function openScopeDetails(certType, anchor) {
-    // Use netlify-pure-webapp branch instead of main
-    const githubUrl = `${GITHUB_REPO_URL}/blob/netlify-pure-webapp/static/data/${certType}-scopes.md${anchor}`;
-    console.log(`Opening scope details: ${githubUrl}`);
-    window.open(githubUrl, '_blank');
-    showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information on GitHub`);
+    console.log(`Opening scope details: cert_type=${certType}, anchor=${anchor}`);
+    showMDViewer(certType, anchor);
 }
+
+// Show MD viewer modal
+async function showMDViewer(certType, anchor) {
+    const modal = document.getElementById('md-viewer-modal');
+    const loading = document.getElementById('md-loading');
+    const content = document.getElementById('md-content');
+    const title = document.getElementById('md-viewer-title');
+    const downloadBtn = document.getElementById('download-pdf-btn');
+    const viewFullBtn = document.getElementById('view-full-scope-btn');
+    
+    // Show modal and loading
+    modal.classList.remove('hidden');
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    
+    // Update title
+    title.innerHTML = `<i class="fas fa-file-alt"></i> ${certType.toUpperCase()} Certificate Scope Details`;
+    
+    try {
+        // Fetch MD content
+        const response = await apiCall('/.netlify/functions/md-viewer', 'GET', null, { cert_type: certType, anchor: anchor });
+        
+        if (response.success) {
+            renderMDContent(response.data);
+            
+            // Setup PDF download button
+            downloadBtn.style.display = 'block';
+            downloadBtn.onclick = () => downloadCertificatePDF(certType);
+            
+            // Setup full scope view button
+            viewFullBtn.onclick = () => showFullScopeView(response.data);
+            
+        } else {
+            throw new Error(response.error || 'Failed to load MD content');
+        }
+        
+    } catch (error) {
+        console.error('MD viewer error:', error);
+        content.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Failed to Load Certificate Details</h3>
+                <p>${error.message}</p>
+                <button class="btn-secondary" onclick="showMDViewer('${certType}', '${anchor}')">
+                    <i class="fas fa-redo"></i> Retry
+                </button>
+            </div>
+        `;
+    } finally {
+        loading.style.display = 'none';
+        content.style.display = 'block';
+    }
+}
+
+// Render MD content in viewer
+function renderMDContent(data) {
+    const content = document.getElementById('md-content');
+    const { metadata, sections, targetSection } = data.content;
+    
+    let html = '';
+    
+    // Render metadata
+    if (metadata && Object.keys(metadata).length > 0) {
+        html += '<div class="md-metadata">';
+        for (const [key, value] of Object.entries(metadata)) {
+            html += `<p><strong>${key}:</strong> ${value}</p>`;
+        }
+        html += '</div>';
+    }
+    
+    // Render sections
+    if (targetSection) {
+        // Show only target section first
+        html += renderMDSection(targetSection, true);
+        
+        // Add other sections
+        const otherSections = sections.filter(s => s !== targetSection);
+        if (otherSections.length > 0) {
+            html += '<hr style="margin: 24px 0; border: 1px solid #e0e0e0;">';
+            html += '<h3>Other Sections</h3>';
+            otherSections.forEach(section => {
+                html += renderMDSection(section, false);
+            });
+        }
+    } else {
+        // Show all sections
+        sections.forEach(section => {
+            html += renderMDSection(section, false);
+        });
+    }
+    
+    content.innerHTML = html;
+    
+    // Scroll to target section if exists
+    if (targetSection) {
+        setTimeout(() => {
+            const targetEl = content.querySelector('.target-section');
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+}
+
+// Render individual MD section
+function renderMDSection(section, isTarget) {
+    const sectionClass = isTarget ? 'md-section target-section' : 'md-section';
+    const titleClass = section.isFacility ? 'md-section-title facility-title' : 'md-section-title';
+    const icon = section.isFacility ? 'fas fa-building' : 'fas fa-list';
+    
+    let html = `<div class="${sectionClass}">`;
+    html += `<div class="${titleClass}"><i class="${icon}"></i>${section.title}</div>`;
+    
+    if (section.location) {
+        html += `<div class="md-facility-location"><i class="fas fa-map-marker-alt"></i> ${section.location}</div>`;
+    }
+    
+    if (section.content && section.content.length > 0) {
+        html += '<div class="md-standards-list">';
+        
+        section.content.forEach(item => {
+            if (item.type === 'standard') {
+                const itemClass = isTarget ? 'md-standard-item target-highlight' : 'md-standard-item';
+                html += `
+                    <div class="${itemClass}">
+                        <div class="md-standard-number">${item.standard}</div>
+                        ${item.description ? `<div class="md-standard-description">${item.description}</div>` : ''}
+                    </div>
+                `;
+            } else if (item.type === 'text') {
+                html += `<p>${item.content}</p>`;
+            }
+        });
+        
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+// Download certificate PDF
+function downloadCertificatePDF(certType) {
+    // Extract certificate number from metadata or use default
+    const certNumber = certType === 'a2la' ? '2022-01' : 'rtl02770';
+    const pdfUrl = `/.netlify/functions/certificate-pdf?cert_type=${certType}&cert_number=${certNumber}`;
+    
+    console.log(`Downloading PDF: ${pdfUrl}`);
+    window.open(pdfUrl, '_blank');
+    showBriefNotification(`Downloading ${certType.toUpperCase()} certificate PDF`);
+}
+
+// Show full scope view
+function showFullScopeView(data) {
+    const content = document.getElementById('md-content');
+    
+    let html = '<h2>Complete Certificate Scope</h2>';
+    
+    // Render metadata
+    if (data.content.metadata && Object.keys(data.content.metadata).length > 0) {
+        html += '<div class="md-metadata">';
+        for (const [key, value] of Object.entries(data.content.metadata)) {
+            html += `<p><strong>${key}:</strong> ${value}</p>`;
+        }
+        html += '</div>';
+    }
+    
+    // Render all sections
+    data.content.sections.forEach(section => {
+        html += renderMDSection(section, false);
+    });
+    
+    content.innerHTML = html;
+    content.scrollTop = 0;
+}
+
+// Add modal close functionality for MD viewer
+document.addEventListener('DOMContentLoaded', function() {
+    const mdModal = document.getElementById('md-viewer-modal');
+    const mdCloseBtn = mdModal.querySelector('.close');
+    
+    mdCloseBtn.addEventListener('click', function() {
+        mdModal.classList.add('hidden');
+    });
+    
+    mdModal.addEventListener('click', function(e) {
+        if (e.target === mdModal) {
+            mdModal.classList.add('hidden');
+        }
+    });
+});
 
 // Add click handler for CEN/CENELEC links to copy standard number to clipboard
 document.addEventListener('click', function(e) {
