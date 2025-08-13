@@ -182,7 +182,7 @@ function extractVersion(standard) {
 // Load scopes dynamically from MD files
 async function loadScopesFromMD(certType) {
   try {
-    // Try multiple possible paths for Netlify deployment
+    // Try file system first (for local development)
     const possiblePaths = [
       path.join(__dirname, '../../static/data', `${certType}-scopes.md`),
       path.join(process.cwd(), 'static/data', `${certType}-scopes.md`),
@@ -200,11 +200,51 @@ async function loadScopesFromMD(certType) {
       }
     }
 
-    if (!mdFilePath) {
-      throw new Error(`MD file not found: ${certType}-scopes.md`);
+    let mdContent = '';
+    
+    if (mdFilePath) {
+      // File system access (local development)
+      mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+      console.log(`Loaded from file system: ${mdFilePath}`);
+    } else {
+      // HTTP fallback for Netlify production
+      console.log(`File system failed, trying HTTP fallback for ${certType}-scopes.md`);
+      
+      const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://eu-harmonized-standards.netlify.app';
+      const mdUrl = `${baseUrl}/data/${certType}-scopes.md`;
+      
+      console.log(`Fetching MD file from: ${mdUrl}`);
+      
+      const https = require('https');
+      const http = require('http');
+      
+      mdContent = await new Promise((resolve, reject) => {
+        const client = mdUrl.startsWith('https:') ? https : http;
+        const request = client.get(mdUrl, (response) => {
+          if (response.statusCode !== 200) {
+            reject(new Error(`HTTP ${response.statusCode} for ${mdUrl}`));
+            return;
+          }
+          
+          let data = '';
+          response.on('data', chunk => data += chunk);
+          response.on('end', () => resolve(data));
+        });
+        
+        request.on('error', reject);
+        request.setTimeout(10000, () => {
+          request.destroy();
+          reject(new Error('HTTP request timeout'));
+        });
+      });
+      
+      console.log(`Successfully loaded MD content via HTTP (${mdContent.length} chars)`);
     }
 
-    const mdContent = fs.readFileSync(mdFilePath, 'utf-8');
+    if (!mdContent) {
+      throw new Error(`No MD content loaded for ${certType}-scopes.md`);
+    }
+
     const scopeData = parseMDToScopeData(mdContent, certType);
     
     console.log(`Loaded ${scopeData.scopes.length} scopes from ${certType}-scopes.md`);
