@@ -16,6 +16,7 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
 **Latest Updates (August 2025):**
+- 🔧 **Netlify Function Syntax Fix**: Resolved scope-search function Runtime.UserCodeSyntaxError
 - 🆕 **Excel File Integration**: Parse official EC Excel files for real-time data
 - 🆕 **Three-Directive Support**: RED, EMC, and LVD with directive-specific parsing
 - 🆕 **ESO-Specific Portal Links**: Intelligent redirection to appropriate standards portals

@@ -275,3 +275,4 @@ function parseMDToScopeData(mdContent, certType) {
   }
 
   return scopeData;
+}
