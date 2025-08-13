@@ -1432,7 +1432,14 @@ function displayCertificateResults(data) {
                             </div>
                             <div class="category-standards">
                                 <ul>
-                                    ${standards.map(std => `<li>${std}</li>`).join('')}
+                                    ${standards.map(std => {
+                                        // Handle both string and object formats
+                                        if (typeof std === 'string') {
+                                            return `<li>${std}</li>`;
+                                        } else {
+                                            return `<li><strong>${std.standard || std}</strong> - ${std.description || ''}</li>`;
+                                        }
+                                    }).join('')}
                                 </ul>
                             </div>
                         </div>
@@ -1455,7 +1462,14 @@ function displayCertificateResults(data) {
                 </div>
                 <div class="category-standards">
                     <ul>
-                        ${standards.map(std => `<li>${std}</li>`).join('')}
+                        ${standards.map(std => {
+                            // Handle both string and object formats
+                            if (typeof std === 'string') {
+                                return `<li>${std}</li>`;
+                            } else {
+                                return `<li><strong>${std.standard}</strong> - ${std.description || ''}</li>`;
+                            }
+                        }).join('')}
                     </ul>
                 </div>
             `;
