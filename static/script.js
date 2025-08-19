@@ -48,8 +48,33 @@ const translations = {
         'certificate.search_placeholder': 'Enter standard number (e.g., EN 301 783, 55032)',
         'certificate.search_btn': 'Search',
         'certificate.clear_btn': 'Clear',
+        'certificate.info_title': 'Certificate Information',
+        'certificate.number_label': 'Certificate Number:',
+        'certificate.organization_label': 'Organization:',
+        'certificate.valid_until_label': 'Valid Until:',
+        'certificate.total_standards_label': 'Total Standards:',
+        'certificate.load_a2la': 'Load A2LA Certificate Data',
+        'certificate.load_jab': 'Load JAB Certificate Data',
+        'certificate.search_description': 'Search for specific standards in A2LA and JAB certificate scopes',
         'search.title': 'Search Standards on Official Portals',
-        'search.description': 'Direct search on ETSI and CEN-CENELEC portals',
+        'search.description': 'Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.',
+        'search.input_placeholder': 'Enter standard number or keyword (e.g., 50360:2017, 18031-1)',
+        'search.etsi_btn': 'Search on ETSI Portal',
+        'search.cenelec_btn': 'Search on CEN-CENELEC Portal',
+        'search.how_to_title': 'How to Search',
+        'search.etsi_portal_title': 'ETSI Portal',
+        'search.cenelec_portal_title': 'CEN-CENELEC Portal',
+        'search.standard_number_label': 'Standard Number:',
+        'search.keywords_label': 'Keywords:',
+        'search.technology_label': 'Technology:',
+        'search.product_type_label': 'Product Type:',
+        'search.direct_search_note': 'Direct search: Opens ETSI portal with automatic search.',
+        'search.manual_search_note': 'Manual search: Standard number copied to clipboard for pasting.',
+        'standards.title': 'Fetch OJ Standards',
+        'standards.description': 'Fetch and analyze standards from Official Journal publications',
+        'standards.fetch_method_label': 'Fetch Method:',
+        'standards.excel_method': 'Excel File (Parse hEN list)',
+        'standards.download_excel': 'Download Excel File',
         'common.loading': 'Processing...',
         'common.no_results': 'No results found',
         'common.error': 'Error',
@@ -62,8 +87,8 @@ const translations = {
         'scope.no_match': 'No scope coverage'
     },
     ja: {
-        'app.title': 'EU調和規格チェッカー',
-        'app.description': 'EU指令（RED、EMC、LVD）への適合性確認とISO17025証明書との比較',
+        'app.title': 'EU Harmonized Standards Checker',
+        'app.description': 'Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates',
         'nav.oj_standards': 'OJ規格',
         'nav.search_standards': '規格検索',
         'nav.iso17025_certificate': 'ISO17025証明書',
@@ -98,8 +123,33 @@ const translations = {
         'certificate.search_placeholder': '規格番号を入力（例：EN 301 783、55032）',
         'certificate.search_btn': '検索',
         'certificate.clear_btn': 'クリア',
-        'search.title': '公式ポータルでの規格検索',
-        'search.description': 'ETSIおよびCEN-CENELECポータルでの直接検索',
+        'certificate.info_title': '証明書情報',
+        'certificate.number_label': '証明書番号:',
+        'certificate.organization_label': '機関:',
+        'certificate.valid_until_label': '有効期限:',
+        'certificate.total_standards_label': '規格総数:',
+        'certificate.load_a2la': 'A2LA証明書データ読込',
+        'certificate.load_jab': 'JAB証明書データ読込',
+        'certificate.search_description': 'A2LAおよびJAB証明書スコープから特定規格を検索',
+        'search.title': '規格検索',
+        'search.description': '公式規格ポータルで特定の規格を検索します。希望するポータルを選択し、規格番号またはキーワードを入力してください。',
+        'search.input_placeholder': '規格番号またはキーワードを入力（例：50360:2017、18031-1）',
+        'search.etsi_btn': 'ETSIポータルで検索',
+        'search.cenelec_btn': 'CEN-CENELECポータルで検索',
+        'search.how_to_title': '検索方法',
+        'search.etsi_portal_title': 'ETSIポータル',
+        'search.cenelec_portal_title': 'CEN-CENELECポータル',
+        'search.standard_number_label': '規格番号:',
+        'search.keywords_label': 'キーワード:',
+        'search.technology_label': '技術:',
+        'search.product_type_label': '製品タイプ:',
+        'search.direct_search_note': '直接検索: ETSIポータルを自動検索で開きます。',
+        'search.manual_search_note': '手動検索: 規格番号をクリップボードにコピーして貼り付け可能。',
+        'standards.title': 'OJ規格取得',
+        'standards.description': '官報公告から規格を取得・分析',
+        'standards.fetch_method_label': '取得方法:',
+        'standards.excel_method': 'Excelファイル（hENリスト解析）',
+        'standards.download_excel': 'Excelファイルダウンロード',
         'common.loading': '処理中...',
         'common.no_results': '結果が見つかりません',
         'common.error': 'エラー',
@@ -1517,10 +1567,11 @@ function handleCertificateTypeChange(e) {
     
     if (selectedType) {
         loadBtn.disabled = false;
-        loadBtn.innerHTML = `<i class="fas fa-download"></i> Load ${selectedType.toUpperCase()} Certificate Data`;
+        const buttonKey = selectedType === 'a2la' ? 'certificate.load_a2la' : 'certificate.load_jab';
+        loadBtn.innerHTML = `<i class="fas fa-download"></i> ${t(buttonKey)}`;
     } else {
         loadBtn.disabled = true;
-        loadBtn.innerHTML = '<i class="fas fa-download"></i> Load Certificate Data';
+        loadBtn.innerHTML = `<i class="fas fa-download"></i> ${t('certificate.load_btn')}`;
     }
 }
 
