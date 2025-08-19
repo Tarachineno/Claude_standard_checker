@@ -4,9 +4,114 @@
 // Global variables
 let uploadedCertificateData = null;
 let currentStandardsData = null; // Store current standards for sorting/filtering
+let currentLanguage = 'en'; // Default language
 
 // Scope matching cache to avoid repeated API calls
 let scopeMatchingCache = new Map();
+
+// Internationalization (i18n) translations
+const translations = {
+    en: {
+        'app.title': 'EU Harmonized Standards Checker',
+        'app.description': 'Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates',
+        'nav.oj_standards': 'OJ Standards',
+        'nav.search_standards': 'Search Standards', 
+        'nav.iso17025_certificate': 'ISO17025 Certificate',
+        'standards.title': 'EU Harmonized Standards',
+        'standards.description': 'Fetch and analyze standards from Official Journal publications',
+        'standards.directive_label': 'Select Directive:',
+        'standards.directive_red': 'RED (Radio Equipment Directive)',
+        'standards.directive_emc': 'EMC (Electromagnetic Compatibility)',
+        'standards.directive_lvd': 'LVD (Low Voltage Directive)',
+        'standards.fetch_btn': 'Fetch Standards',
+        'standards.results_title': 'Results',
+        'standards.count': '{count} standards',
+        'standards.sort_label': 'Sort by:',
+        'standards.sort_number_asc': 'Standard Number (A-Z)',
+        'standards.sort_number_desc': 'Standard Number (Z-A)',
+        'standards.sort_date_desc': 'OJ Date (Newest First)',
+        'standards.sort_date_asc': 'OJ Date (Oldest First)',
+        'standards.filter_label': 'Filter by Status:',
+        'standards.filter_all': 'All Standards',
+        'standards.filter_valid': 'Valid (Published, Not Withdrawn)',
+        'standards.filter_invalid': 'Invalid (Withdrawn)',
+        'standards.search_label': 'Search in Results:',
+        'standards.search_placeholder': 'Search standards or descriptions...',
+        'standards.apply_btn': 'Apply',
+        'standards.reset_btn': 'Reset',
+        'standards.export_btn': 'Export',
+        'certificate.title': 'ISO17025 Certificate Analysis',
+        'certificate.description': 'Compare your standards with ISO17025 certified testing laboratories',
+        'certificate.type_label': 'Select Certificate Type:',
+        'certificate.load_btn': 'Load Certificate Data',
+        'certificate.search_title': 'Search Certificate Scopes',
+        'certificate.search_placeholder': 'Enter standard number (e.g., EN 301 783, 55032)',
+        'certificate.search_btn': 'Search',
+        'certificate.clear_btn': 'Clear',
+        'search.title': 'Search Standards on Official Portals',
+        'search.description': 'Direct search on ETSI and CEN-CENELEC portals',
+        'common.loading': 'Processing...',
+        'common.no_results': 'No results found',
+        'common.error': 'Error',
+        'scope.title': 'ISO17025 Certificate Scope:',
+        'scope.exact_match': 'Exact match',
+        'scope.comprehensive_match': 'Comprehensive scope',
+        'scope.version_tolerant_match': 'Version tolerant match',
+        'scope.version_mismatch': 'Version mismatch',
+        'scope.prefix_mismatch': 'Prefix mismatch',
+        'scope.no_match': 'No scope coverage'
+    },
+    ja: {
+        'app.title': 'EU調和規格チェッカー',
+        'app.description': 'EU指令（RED、EMC、LVD）への適合性確認とISO17025証明書との比較',
+        'nav.oj_standards': 'OJ規格',
+        'nav.search_standards': '規格検索',
+        'nav.iso17025_certificate': 'ISO17025証明書',
+        'standards.title': 'EU調和規格',
+        'standards.description': '官報公告から規格を取得・分析',
+        'standards.directive_label': '指令を選択:',
+        'standards.directive_red': 'RED（無線機器指令）',
+        'standards.directive_emc': 'EMC（電磁適合性）',
+        'standards.directive_lvd': 'LVD（低電圧指令）',
+        'standards.fetch_btn': '規格取得',
+        'standards.results_title': '結果',
+        'standards.count': '{count}個の規格',
+        'standards.sort_label': '並び順:',
+        'standards.sort_number_asc': '規格番号（昇順）',
+        'standards.sort_number_desc': '規格番号（降順）',
+        'standards.sort_date_desc': 'OJ日付（新しい順）',
+        'standards.sort_date_asc': 'OJ日付（古い順）',
+        'standards.filter_label': '状態で絞り込み:',
+        'standards.filter_all': '全ての規格',
+        'standards.filter_valid': '有効（公開済み、取り下げなし）',
+        'standards.filter_invalid': '無効（取り下げ済み）',
+        'standards.search_label': '結果内検索:',
+        'standards.search_placeholder': '規格番号や説明を検索...',
+        'standards.apply_btn': '適用',
+        'standards.reset_btn': 'リセット',
+        'standards.export_btn': 'エクスポート',
+        'certificate.title': 'ISO17025証明書分析',
+        'certificate.description': '規格をISO17025認定試験所の証明書と比較',
+        'certificate.type_label': '証明書タイプを選択:',
+        'certificate.load_btn': '証明書データ読込',
+        'certificate.search_title': '証明書スコープ検索',
+        'certificate.search_placeholder': '規格番号を入力（例：EN 301 783、55032）',
+        'certificate.search_btn': '検索',
+        'certificate.clear_btn': 'クリア',
+        'search.title': '公式ポータルでの規格検索',
+        'search.description': 'ETSIおよびCEN-CENELECポータルでの直接検索',
+        'common.loading': '処理中...',
+        'common.no_results': '結果が見つかりません',
+        'common.error': 'エラー',
+        'scope.title': 'ISO17025証明書スコープ:',
+        'scope.exact_match': '完全一致',
+        'scope.comprehensive_match': '包括スコープ',
+        'scope.version_tolerant_match': 'バージョン包括',
+        'scope.version_mismatch': '年版違い',
+        'scope.prefix_mismatch': '表記違い',
+        'scope.no_match': '対応スコープなし'
+    }
+};
 
 // Cache helper functions
 function createCacheKey(standards) {
@@ -51,9 +156,67 @@ async function initializeApp() {
     errorModal = document.getElementById('error-modal');
     successModal = document.getElementById('success-modal');
     
+    // Load saved language or default to English
+    currentLanguage = localStorage.getItem('language') || 'en';
+    
     setupEventListeners();
+    setupLanguageSwitcher();
+    updateLanguageDisplay();
     await loadDirectives();
     console.log('EU Harmonized Standards Checker initialized');
+}
+
+// Language switching functions
+function setupLanguageSwitcher() {
+    document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
+    document.getElementById('lang-ja').addEventListener('click', () => switchLanguage('ja'));
+}
+
+function switchLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('language', lang);
+    updateLanguageDisplay();
+    updateLanguageButtons();
+}
+
+function updateLanguageButtons() {
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`lang-${currentLanguage}`).classList.add('active');
+}
+
+function updateLanguageDisplay() {
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const translation = getTranslation(key);
+        
+        if (element.tagName === 'INPUT' && element.type !== 'button') {
+            element.placeholder = translation;
+        } else {
+            element.textContent = translation;
+        }
+    });
+    
+    // Update document language attribute
+    document.documentElement.lang = currentLanguage;
+    
+    // Update page title
+    document.title = getTranslation('app.title');
+}
+
+function getTranslation(key, params = {}) {
+    const translation = translations[currentLanguage]?.[key] || translations.en[key] || key;
+    
+    // Replace parameters in translation (e.g., {count})
+    return translation.replace(/\{(\w+)\}/g, (match, param) => {
+        return params[param] !== undefined ? params[param] : match;
+    });
+}
+
+function t(key, params = {}) {
+    return getTranslation(key, params);
 }
 
 function setupEventListeners() {
