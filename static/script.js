@@ -10,6 +10,9 @@ let scopeMatchingCache = new Map();
 
 // Cache helper functions
 function createCacheKey(standards) {
+    if (!standards || !Array.isArray(standards)) {
+        return '';
+    }
     return standards.map(s => s.number || s.full_number).sort().join('|');
 }
 
@@ -1721,30 +1724,8 @@ async function displayFilteredStandards(data, searchQuery) {
         return;
     }
     
-    // Get scope matches from cache (use existing logic)
-    let scopeMatches = getScopeMatchesFromCache(data.standards);
-    
-    if (!scopeMatches) {
-        try {
-            const response = await apiCall('/scope-matcher', {
-                method: 'POST',
-                body: JSON.stringify({
-                    oj_standards: data.standards.map(s => s.number || s.full_number)
-                })
-            });
-            
-            if (response.success) {
-                scopeMatches = response.data.matches;
-                setScopeMatchesInCache(data.standards, scopeMatches);
-            }
-        } catch (error) {
-            console.error('Failed to get scope matches:', error);
-            scopeMatches = [];
-        }
-    }
-    
-    // Render filtered standards
-    renderStandardsList(data.standards, scopeMatches);
+    // Render filtered standards (scope matching is handled inside renderStandardsList)
+    renderStandardsList(data);
 }
 
 // Keyboard shortcuts
