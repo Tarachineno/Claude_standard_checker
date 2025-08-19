@@ -109,6 +109,14 @@ function findMatch(searchQuery, scope) {
     return { type: 'partial' };
   }
   
+  // Space-insensitive match
+  const searchQueryNoSpaces = searchQuery.replace(/\s+/g, '');
+  const scopeStandardNoSpaces = scopeStandard.replace(/\s+/g, '');
+  
+  if (scopeStandardNoSpaces.includes(searchQueryNoSpaces)) {
+    return { type: 'partial' };
+  }
+  
   // Extract core numbers for more precise matching
   const queryCore = extractStandardCore(searchQuery);
   const scopeCore = extractStandardCore(scope.standard);
