@@ -1655,7 +1655,9 @@ function performStandardsSearch() {
         return;
     }
     
-    // Filter standards based on search query
+    // Filter standards based on search query (space-insensitive)
+    const searchQueryNoSpaces = searchQuery.replace(/\s+/g, '');
+    
     const filteredStandards = currentStandardsData.standards.filter(standard => {
         const searchFields = [
             standard.number || '',
@@ -1664,7 +1666,11 @@ function performStandardsSearch() {
             standard.description || ''
         ].join(' ').toLowerCase();
         
-        return searchFields.includes(searchQuery);
+        // Check both normal search and space-insensitive search
+        const normalMatch = searchFields.includes(searchQuery);
+        const spaceInsensitiveMatch = searchFields.replace(/\s+/g, '').includes(searchQueryNoSpaces);
+        
+        return normalMatch || spaceInsensitiveMatch;
     });
     
     // Create filtered data object
