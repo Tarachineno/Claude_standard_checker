@@ -156,6 +156,23 @@ function findScopeMatch(ojStandard, certificateScopes) {
         };
       }
       
+      // Version-tolerant match (OJ has version, scope doesn't, or vice versa)
+      if ((ojVersion && !scopeVersion) || (!ojVersion && scopeVersion)) {
+        // Check if prefixes match (same standard family)
+        const ojPrefix = ojStandard.replace(ojCore, '').replace(ojVersion, '').trim();
+        const scopePrefix = scope.standard.replace(scopeCore, '').replace(scopeVersion, '').trim();
+        
+        if (ojPrefix === scopePrefix) {
+          return {
+            status: 'version_tolerant_match',
+            matched_standard: scope.standard,
+            note: ojVersion ? `バージョン包括(${ojVersion})` : `スコープに適用`,
+            anchor: scope.anchor,
+            facility: scope.facility || null
+          };
+        }
+      }
+      
       // Prefix difference (same core, different prefix)
       const ojPrefix = ojStandard.replace(ojCore, '').replace(ojVersion, '').trim();
       const scopePrefix = scope.standard.replace(scopeCore, '').replace(scopeVersion, '').trim();

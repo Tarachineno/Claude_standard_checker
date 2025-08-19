@@ -87,6 +87,13 @@ function setupEventListeners() {
         if (e.key === 'Enter') performScopeSearch();
     });
 
+    // Standards results search
+    document.getElementById('standards-search-btn').addEventListener('click', performStandardsSearch);
+    document.getElementById('clear-standards-search-btn').addEventListener('click', clearStandardsSearch);
+    document.getElementById('standards-search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performStandardsSearch();
+    });
+
     // Modals
     document.querySelectorAll('.close').forEach(closeBtn => {
         closeBtn.addEventListener('click', closeModals);
@@ -981,6 +988,12 @@ function createScopeBadge(certType, matchData) {
             statusSymbol = '🟢';
             title = `${matchData.note}: ${matchData.matched_standard}`;
             break;
+        case 'version_tolerant_match':
+            badgeClass += 'version-tolerant-match';
+            icon = 'fa-check-circle';
+            statusSymbol = '🟢';
+            title = `${matchData.note}: ${matchData.matched_standard}`;
+            break;
         case 'prefix_mismatch':
             badgeClass += 'prefix-mismatch';
             icon = 'fa-exclamation-circle';
@@ -1623,6 +1636,115 @@ function showSuccess(message) {
 function closeModals() {
     errorModal.classList.add('hidden');
     successModal.classList.add('hidden');
+}
+
+// Standards search in fetched results
+function performStandardsSearch() {
+    const searchQuery = document.getElementById('standards-search-input').value.trim().toLowerCase();
+    
+    if (!searchQuery) {
+        clearStandardsSearch();
+        return;
+    }
+    
+    if (!currentStandardsData) {
+        showError('No standards data to search');
+        return;
+    }
+    
+    // Filter standards based on search query
+    const filteredStandards = currentStandardsData.standards.filter(standard => {
+        const searchFields = [
+            standard.number || '',
+            standard.full_number || '',
+            standard.title || '',
+            standard.description || ''
+        ].join(' ').toLowerCase();
+        
+        return searchFields.includes(searchQuery);
+    });
+    
+    // Create filtered data object
+    const filteredData = {
+        ...currentStandardsData,
+        standards: filteredStandards,
+        count: filteredStandards.length
+    };
+    
+    // Update display with filtered results
+    displayFilteredStandards(filteredData, searchQuery);
+}
+
+function clearStandardsSearch() {
+    document.getElementById('standards-search-input').value = '';
+    
+    if (currentStandardsData) {
+        // Restore original display
+        displayFilteredStandards(currentStandardsData, '');
+    }
+}
+
+async function displayFilteredStandards(data, searchQuery) {
+    const resultsSection = document.getElementById('standards-results');
+    const countElement = document.getElementById('standards-count');
+    const listElement = document.getElementById('standards-list');
+
+    // Update count with search info
+    if (searchQuery) {
+        countElement.innerHTML = `
+            <span>${data.count} standards</span>
+            <small class="search-indicator">
+                <i class="fas fa-search"></i> Filtered by: "${searchQuery}"
+            </small>
+        `;
+    } else {
+        countElement.textContent = `${data.count} standards`;
+    }
+    
+    listElement.innerHTML = '';
+    
+    if (data.count === 0) {
+        if (searchQuery) {
+            listElement.innerHTML = `
+                <div class="no-results search-no-results">
+                    <i class="fas fa-search"></i>
+                    <h4>No standards found</h4>
+                    <p>No standards match your search term: "${searchQuery}"</p>
+                    <button onclick="clearStandardsSearch()" class="btn btn-small btn-outline">
+                        <i class="fas fa-times"></i> Clear Search
+                    </button>
+                </div>
+            `;
+        } else {
+            listElement.innerHTML = '<div class="no-results"><p>No standards found</p></div>';
+        }
+        return;
+    }
+    
+    // Get scope matches from cache (use existing logic)
+    let scopeMatches = getScopeMatchesFromCache(data.standards);
+    
+    if (!scopeMatches) {
+        try {
+            const response = await apiCall('/scope-matcher', {
+                method: 'POST',
+                body: JSON.stringify({
+                    oj_standards: data.standards.map(s => s.number || s.full_number)
+                })
+            });
+            
+            if (response.success) {
+                scopeMatches = response.data.matches;
+                setScopeMatchesInCache(data.standards, scopeMatches);
+            }
+        } catch (error) {
+            console.error('Failed to get scope matches:', error);
+            scopeMatches = [];
+        }
+    }
+    
+    // Render filtered standards
+    renderStandardsList(data.standards, scopeMatches);
 }
 
 // Keyboard shortcuts

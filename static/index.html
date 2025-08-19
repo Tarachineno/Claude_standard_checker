@@ -83,8 +83,25 @@
                             </div>
                         </div>
                         
-                        <!-- Row 2: Action buttons -->
+                        <!-- Row 2: Search and Action buttons -->
                         <div class="controls-row controls-actions">
+                            <div class="control-group search-group">
+                                <label for="standards-search-input">Search in Results:</label>
+                                <div class="search-input-container">
+                                    <input 
+                                        type="text" 
+                                        id="standards-search-input" 
+                                        placeholder="Search standards or descriptions..."
+                                        class="search-input"
+                                    >
+                                    <button id="standards-search-btn" class="btn btn-small">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button id="clear-standards-search-btn" class="btn btn-small btn-outline">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="control-group action-buttons">
                                 <button id="apply-controls-btn" class="btn btn-small">
                                     <i class="fas fa-filter"></i> Apply
