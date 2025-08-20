@@ -1,5 +1,6 @@
 // Parse markdown scope files and convert to structured data
 const { loadFileContent, parseMDToScopeData } = require('./utils/md');
+const { log, logError } = require('./utils/config');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -40,7 +41,7 @@ exports.handler = async (event, context) => {
 
     const filename = `${cert_type}-scopes.md`;
     const mdContent = await loadFileContent(filename, 'data');
-    console.log(`Loaded MD file: ${filename} (${mdContent.length} characters)`);
+    log(`Loaded MD file: ${filename} (${mdContent.length} characters)`);
 
     // Parse MD content into structured data
     const scopeData = parseMDToScopeData(mdContent, cert_type);
@@ -55,7 +56,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('MD parsing error:', error);
+    logError('MD parsing error:', error);
     return {
       statusCode: 500,
       headers,

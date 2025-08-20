@@ -30,7 +30,7 @@ async function loadDirectivesData() {
   // HTTP fetch fallback
   log('File system access failed, trying HTTP fetch...');
   try {
-    const fetch = require('node-fetch');
+    // Using built-in fetch (Node.js 18+)
     const possibleUrls = getDirectivesUrls();
     
     for (const url of possibleUrls) {

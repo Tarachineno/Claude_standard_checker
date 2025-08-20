@@ -1,5 +1,6 @@
 // Scope search function for ISO17025 certificates
 const { loadFileContent, parseMDToScopeData } = require('./utils/md');
+const { log, logError } = require('./utils/config');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -39,7 +40,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log('Searching for:', search_query);
+    log('Searching for:', search_query);
 
     // Load certificate scope data dynamically from MD files
     const a2laScopes = await loadScopesFromMD('a2la');
@@ -66,7 +67,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Scope search error:', error);
+    logError('Scope search error:', error);
     return {
       statusCode: 500,
       headers,
@@ -250,11 +251,11 @@ async function loadScopesFromMD(certType) {
     
     const scopeData = parseMDToScopeData(mdContent, certType);
     
-    console.log(`Loaded ${scopeData.scopes.length} scopes from ${filename}`);
+    log(`Loaded ${scopeData.scopes.length} scopes from ${filename}`);
     return scopeData.scopes;
 
   } catch (error) {
-    console.error(`Error loading MD file for ${certType}:`, error);
+    logError(`Error loading MD file for ${certType}:`, error);
     return [];
   }
 }

@@ -1,5 +1,6 @@
 // Certificate data loading function with dynamic MD file support
 const { loadFileContent, parseCertificateMD } = require('./utils/md');
+const { log, logError } = require('./utils/config');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -38,7 +39,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log(`Loading certificate data for: ${cert_type}`);
+    log(`Loading certificate data for: ${cert_type}`);
 
     // Load certificate data dynamically from MD files
     const certificateData = await loadCertificateFromMD(cert_type);
@@ -53,7 +54,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Certificate data loading error:', error);
+    logError('Certificate data loading error:', error);
     return {
       statusCode: 500,
       headers,
@@ -73,11 +74,11 @@ async function loadCertificateFromMD(certType) {
     
     const parsedData = parseCertificateMD(mdContent, certType);
     
-    console.log(`Successfully loaded ${parsedData.test_standards.length} standards from ${filename}`);
+    log(`Successfully loaded ${parsedData.test_standards.length} standards from ${filename}`);
     return parsedData;
     
   } catch (error) {
-    console.error(`Error loading MD file for ${certType}:`, error);
+    logError(`Error loading MD file for ${certType}:`, error);
     throw error; // No fallback - force MD file usage
   }
 }
