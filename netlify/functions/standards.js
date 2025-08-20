@@ -359,15 +359,19 @@ async function fetchStandardsFromExcel(directive, config) {
   } else {
     console.log(`Downloading Excel file for ${directive}:`, excelUrl);
     try {
-      const response = await axios.get(excelUrl, {
-        timeout: 30000,
-      responseType: 'arraybuffer',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,*/*',
-        'Accept-Language': 'en-US,en;q=0.5'
+      const response = await fetch(excelUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,*/*',
+          'Accept-Language': 'en-US,en;q=0.5'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
+      
+      const arrayBuffer = await response.arrayBuffer();
     
     console.log(`Excel download response status: ${response.status}`);
     console.log(`Excel file size: ${arrayBuffer.byteLength} bytes`);
