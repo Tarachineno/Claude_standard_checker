@@ -234,16 +234,27 @@ function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
   
   if (!match) return false;
   
-  const baseNumber = match[1];  // e.g., "301 489"
+  const scopeBaseNumber = match[1];  // e.g., "301 489"
   const scopeParts = scopeStandard.match(/-(\d+)/g);  // ["-1", "-3", "-7", "-52", etc.]
   
   if (!scopeParts) return false;
+  
+  // Extract the base number from OJ standard for comparison
+  // e.g., "489-52" -> "489", "302 077-2" -> "302 077" 
+  const ojBaseNumber = ojPartNumber.includes('-') ? 
+    ojPartNumber.substring(0, ojPartNumber.lastIndexOf('-')) : 
+    ojPartNumber;
+  
+  // Base numbers must match (e.g., "301 489" must match "489" or "301 489")
+  // This prevents "302 077-2" from matching "301 091-1/-2/-3"
+  if (!scopeBaseNumber.includes(ojBaseNumber) && !ojBaseNumber.includes(scopeBaseNumber)) {
+    return false;
+  }
   
   // Extract part numbers (remove the "-" prefix)
   const includedParts = scopeParts.map(part => part.substring(1));
   
   // Check if OJ part number is included in the comprehensive scope
-  // Handle both "489-52" format and "52" format
   const ojPart = ojPartNumber.includes('-') ? ojPartNumber.split('-').pop() : ojPartNumber;
   
   return includedParts.includes(ojPart);
