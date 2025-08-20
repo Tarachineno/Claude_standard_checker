@@ -42,6 +42,17 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **Zero Hardcoding**: Complete elimination of hardcoded certificate data from JavaScript code
 - 🆕 **Pure MD Architecture**: 100% MD file-driven certificate management system
 
+**Production Release (August 2025):**
+- ✅ **Complete Dependency Cleanup**: Removed axios/node-fetch dependencies, unified to Node.js 18+ built-in fetch
+- ✅ **Production-Ready HTTP Client**: All Netlify Functions use consistent fetch API with proper error handling
+- ✅ **Enhanced Configuration Management**: Centralized URL generation and debug logging in utils/config.js
+- ✅ **Improved Download Functionality**: Fixed Excel download with proper Content-Length headers and binary handling
+- ✅ **Resolved i18n Issues**: Fixed duplicate translation keys for better language management
+- ✅ **Comprehensive Testing**: 81.61% accuracy in scope matching validation (JAB: 97.79%, A2LA: 65.44%)
+- ✅ **Range Notation Support**: Enhanced A2LA scope matching for complex standard patterns (EN 302 065-1/-2/-3/-4)
+- ✅ **Cross-Family Match Prevention**: Fixed false positives in comprehensive scope matching
+- ✅ **Timeout Handling**: AbortController integration for robust API timeouts
+
 **🎌 New Language Support:**
 - **English/Japanese Interface**: Complete bilingual UI with real-time switching
 - **Persistent Language Settings**: User preferences stored locally
@@ -539,8 +550,10 @@ EN 12015, EN 12016, EN 300 330...
 
 ### Backend Stack
 - **Netlify Functions**: Node.js serverless runtime
-- **Axios**: HTTP client for Excel file fetching
+- **Built-in Fetch**: Node.js 18+ native HTTP client (axios/node-fetch removed)
 - **XLSX**: Excel file parsing and processing
+- **AbortController**: Timeout handling for HTTP requests
+- **utils/config.js**: Centralized configuration and URL management
 - **Predefined Data**: Comprehensive certificate standards databases
 - **Dynamic Processing**: Real-time data organization and categorization
 - **Cheerio**: Server-side HTML parsing (fallback)
@@ -559,12 +572,16 @@ EN 12015, EN 12016, EN 300 330...
 netlify-pure-webapp/
 ├── netlify/
 │   └── functions/
-│       ├── standards.js         # Excel parsing & standards fetching
-│       ├── download-excel.js    # Excel file download service
+│       ├── utils/
+│       │   ├── config.js        # Centralized configuration and URL management
+│       │   └── md.js            # Markdown parsing utilities
+│       ├── standards.js         # Excel parsing & standards fetching (fetch-based)
+│       ├── download-excel.js    # Excel file download service (fetch + Buffer)
+│       ├── batch-compare.js     # Batch directive comparison (fetch + AbortController)
 │       ├── scope-matcher.js     # Real-time scope matching with dynamic MD loading
 │       ├── scope-search.js      # Certificate scope search with dynamic MD loading
 │       ├── certificate-data.js  # Pure MD-based certificate loading API
-│       ├── parse-md-scopes.js   # MD file parsing API endpoint  
+│       ├── parse-md-scopes.js   # MD file parsing API endpoint
 │       ├── certificate.js      # Basic certificate validation (minimal)
 │       └── directives.js       # Directive metadata
 ├── static/
