@@ -117,6 +117,14 @@ function findMatch(searchQuery, scope) {
     return { type: 'partial' };
   }
   
+  // Range notation matching (e.g., "EN 302 065-1/-2/-3/-4" includes "302 065-2")
+  if (checkRangeNotationMatch(searchQuery, scopeStandard)) {
+    return { 
+      type: 'range_match', 
+      note: '範囲適用' 
+    };
+  }
+  
   // Extract core numbers for more precise matching
   const queryCore = extractStandardCore(searchQuery);
   const scopeCore = extractStandardCore(scope.standard);
@@ -159,6 +167,54 @@ function findMatch(searchQuery, scope) {
   }
   
   return null;
+}
+
+// Check if search query matches a range notation in scope standard
+// e.g., "302 065-2" should match "EN 302 065-1/-2/-3/-4"
+function checkRangeNotationMatch(searchQuery, scopeStandard) {
+  // Look for range notation patterns like "065-1/-2/-3/-4" 
+  const rangePattern = /(\d+(?:-\d+)*)((?:\/-\d+)+)/g;
+  const rangeMatches = scopeStandard.match(rangePattern);
+  
+  if (!rangeMatches) return false;
+  
+  for (const rangeMatch of rangeMatches) {
+    // Extract base part and range parts
+    // e.g., "065-1/-2/-3/-4" -> base: "065", parts: ["-1", "-2", "-3", "-4"]
+    const [basePart, ...rangeParts] = rangeMatch.split('/');
+    
+    // Get the core number from base part (e.g., "065-1" -> "065")
+    const baseCore = basePart.replace(/-\d+$/, '');
+    
+    // Create all possible combinations
+    const allParts = [basePart, ...rangeParts.map(part => baseCore + part)];
+    
+    // Check if search query matches any of these parts
+    for (const part of allParts) {
+      const normalizedPart = part.replace(/\s+/g, '').toLowerCase();
+      const normalizedQuery = searchQuery.replace(/\s+/g, '').toLowerCase();
+      
+      // Check if the query matches this part
+      if (normalizedPart.includes(normalizedQuery) || 
+          normalizedQuery.includes(normalizedPart)) {
+        return true;
+      }
+      
+      // Also check with the prefix from the original standard
+      const prefixMatch = scopeStandard.match(/^([^0-9]*)/);
+      const prefix = prefixMatch ? prefixMatch[1].trim() : '';
+      
+      if (prefix) {
+        const fullPart = (prefix + ' ' + part).replace(/\s+/g, '').toLowerCase();
+        if (fullPart.includes(normalizedQuery) || 
+            normalizedQuery.includes(fullPart)) {
+          return true;
+        }
+      }
+    }
+  }
+  
+  return false;
 }
 
 // Extract core number from standard (e.g., "EN 55032:2015" -> "55032")
