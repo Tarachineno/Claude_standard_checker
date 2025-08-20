@@ -1,6 +1,7 @@
 // Shared utilities for MD file processing
 const fs = require('fs');
 const path = require('path');
+const { getSiteUrl, log, logError } = require('./config');
 
 /**
  * Find data file with standard Netlify paths
@@ -19,12 +20,12 @@ function findDataFile(filename, dataDir = 'data') {
 
   for (const testPath of possiblePaths) {
     if (fs.existsSync(testPath)) {
-      console.log(`Found data file at: ${testPath}`);
+      log(`Found data file at: ${testPath}`);
       return testPath;
     }
   }
 
-  console.log(`Data file not found: ${filename} in ${dataDir}/`);
+  log(`Data file not found: ${filename} in ${dataDir}/`);
   return null;
 }
 
@@ -35,10 +36,10 @@ function findDataFile(filename, dataDir = 'data') {
  * @returns {Promise<string>} - File content as string
  */
 async function fetchRemote(filename, dataDir = 'data') {
-  const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://eu-harmonized-standards.netlify.app';
+  const baseUrl = getSiteUrl();
   const fileUrl = `${baseUrl}/${dataDir}/${filename}`;
   
-  console.log(`Fetching remote file from: ${fileUrl}`);
+  log(`Fetching remote file from: ${fileUrl}`);
   
   const https = require('https');
   const http = require('http');
@@ -54,7 +55,7 @@ async function fetchRemote(filename, dataDir = 'data') {
       let data = '';
       response.on('data', chunk => data += chunk);
       response.on('end', () => {
-        console.log(`Successfully fetched remote file (${data.length} chars)`);
+        log(`Successfully fetched remote file (${data.length} chars)`);
         resolve(data);
       });
     });
@@ -80,17 +81,17 @@ async function loadFileContent(filename, dataDir = 'data') {
     
     if (filePath) {
       const content = fs.readFileSync(filePath, 'utf-8');
-      console.log(`Loaded from file system: ${filePath} (${content.length} chars)`);
+      log(`Loaded from file system: ${filePath} (${content.length} chars)`);
       return content;
     }
     
     // HTTP fallback for Netlify production
-    console.log(`File system failed, trying HTTP fallback for ${filename}`);
+    log(`File system failed, trying HTTP fallback for ${filename}`);
     const content = await fetchRemote(filename, dataDir);
     return content;
     
   } catch (error) {
-    console.error(`Error loading file ${filename}:`, error);
+    logError(`Error loading file ${filename}:`, error);
     throw error;
   }
 }

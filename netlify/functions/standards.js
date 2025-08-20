@@ -1,15 +1,15 @@
 // EU Harmonized Standards Checker - Netlify Function
-const axios = require('axios');
 const cheerio = require('cheerio');
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const { getSiteUrl, getDirectivesUrls, log, logError } = require('./utils/config');
 
 // Load directive configuration from external JSON file with multi-path fallback
 function loadDirectivesData() {
-  console.log('Loading directives data...');
-  console.log('__dirname:', __dirname);
-  console.log('process.cwd():', process.cwd());
+  log('Loading directives data...');
+  log('__dirname:', __dirname);
+  log('process.cwd():', process.cwd());
   
   const possiblePaths = [
     path.join(__dirname, '../../static/api/directives.json'),
@@ -19,51 +19,46 @@ function loadDirectivesData() {
     './static/api/directives.json'
   ];
 
-  console.log('Trying paths:', possiblePaths);
+  log('Trying paths:', possiblePaths);
 
   for (const testPath of possiblePaths) {
     try {
-      console.log(`Checking path: ${testPath}`);
+      log(`Checking path: ${testPath}`);
       if (fs.existsSync(testPath)) {
-        console.log(`Found directives.json at: ${testPath}`);
+        log(`Found directives.json at: ${testPath}`);
         const content = fs.readFileSync(testPath, 'utf-8');
-        console.log(`File content length: ${content.length}`);
+        log(`File content length: ${content.length}`);
         const parsed = JSON.parse(content);
-        console.log(`Parsed JSON structure:`, Object.keys(parsed));
-        console.log(`Directives data:`, parsed.data);
+        log(`Parsed JSON structure:`, Object.keys(parsed));
+        log(`Directives data:`, parsed.data);
         return parsed.data;
       } else {
-        console.log(`Path does not exist: ${testPath}`);
+        log(`Path does not exist: ${testPath}`);
       }
     } catch (e) {
-      console.log(`Error checking path ${testPath}: ${e.message}`);
+      log(`Error checking path ${testPath}: ${e.message}`);
     }
   }
   
   // HTTP fetch fallback
-  console.log('File system access failed, trying HTTP fetch...');
+  log('File system access failed, trying HTTP fetch...');
   try {
-    const fetch = require('node-fetch');
-    const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-    const possibleUrls = [
-      `${siteUrl}/api/directives.json`,
-      `${siteUrl}/static/api/directives.json`,
-      'https://webstandardchacker.netlify.app/api/directives.json'
-    ];
+    // Using built-in fetch (Node.js 18+)
+    const possibleUrls = getDirectivesUrls();
     
-    console.log('Environment variables:');
-    console.log('- URL:', process.env.URL);
-    console.log('- DEPLOY_URL:', process.env.DEPLOY_URL);
+    log('Environment variables:');
+    log('- URL:', process.env.URL);
+    log('- DEPLOY_URL:', process.env.DEPLOY_URL);
     
     // Note: This is synchronous loading, so we can't use await here
     // This is a limitation - HTTP fetch would need to be async
-    console.log('HTTP fetch would require async loading, which is not compatible with module initialization');
-    console.log('Possible URLs would be:', possibleUrls);
+    log('HTTP fetch would require async loading, which is not compatible with module initialization');
+    log('Possible URLs would be:', possibleUrls);
   } catch (e) {
-    console.error(`HTTP fetch setup error: ${e.message}`);
+    logError(`HTTP fetch setup error: ${e.message}`);
   }
   
-  console.error('directives.json not found in any expected location');
+  logError('directives.json not found in any expected location');
   return [];
 }
 
@@ -73,7 +68,7 @@ let directivesData = loadDirectivesData();
 async function getDirectiveConfig(code) {
   // If directives data is empty, try to reload it
   if (!directivesData || directivesData.length === 0) {
-    console.log('Directives data empty, attempting async reload...');
+    log('Directives data empty, attempting async reload...');
     directivesData = await loadDirectivesDataAsync();
   }
   
@@ -82,7 +77,7 @@ async function getDirectiveConfig(code) {
 
 // Async version that can use HTTP fetch
 async function loadDirectivesDataAsync() {
-  console.log('Loading directives data async...');
+  log('Loading directives data async...');
   
   // First try file system paths
   const possiblePaths = [
@@ -96,46 +91,41 @@ async function loadDirectivesDataAsync() {
   for (const testPath of possiblePaths) {
     try {
       if (fs.existsSync(testPath)) {
-        console.log(`Found directives.json at: ${testPath}`);
+        log(`Found directives.json at: ${testPath}`);
         const content = fs.readFileSync(testPath, 'utf-8');
         const parsed = JSON.parse(content);
         return parsed.data;
       }
     } catch (e) {
-      console.log(`Error checking path ${testPath}: ${e.message}`);
+      log(`Error checking path ${testPath}: ${e.message}`);
     }
   }
   
   // HTTP fetch fallback
-  console.log('File system access failed, trying HTTP fetch...');
+  log('File system access failed, trying HTTP fetch...');
   try {
-    const fetch = require('node-fetch');
-    const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-    const possibleUrls = [
-      `${siteUrl}/api/directives.json`,
-      `${siteUrl}/static/api/directives.json`,
-      'https://webstandardchacker.netlify.app/api/directives.json'
-    ];
+    // Using built-in fetch (Node.js 18+)
+    const possibleUrls = getDirectivesUrls();
     
     for (const url of possibleUrls) {
-      console.log(`Trying HTTP fetch from: ${url}`);
+      log(`Trying HTTP fetch from: ${url}`);
       try {
         const response = await fetch(url);
         if (response.ok) {
           const text = await response.text();
           const parsed = JSON.parse(text);
-          console.log(`Successfully fetched directives.json via HTTP from ${url}`);
+          log(`Successfully fetched directives.json via HTTP from ${url}`);
           return parsed.data;
         }
       } catch (fetchError) {
-        console.error(`HTTP fetch error for ${url}: ${fetchError.message}`);
+        logError(`HTTP fetch error for ${url}: ${fetchError.message}`);
       }
     }
   } catch (e) {
-    console.error(`HTTP fetch setup error: ${e.message}`);
+    logError(`HTTP fetch setup error: ${e.message}`);
   }
   
-  console.error('directives.json not found in any expected location');
+  logError('directives.json not found in any expected location');
   return [];
 }
 

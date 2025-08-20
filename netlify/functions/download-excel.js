@@ -1,7 +1,7 @@
 // Download Excel file directly from EC official source - Netlify Function
-const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { getSiteUrl, getDirectivesUrls, log, logError } = require('./utils/config');
 
 // Load directive configuration from external JSON file with multi-path fallback
 async function loadDirectivesData() {
@@ -31,12 +31,7 @@ async function loadDirectivesData() {
   console.log('File system access failed, trying HTTP fetch...');
   try {
     const fetch = require('node-fetch');
-    const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-    const possibleUrls = [
-      `${siteUrl}/api/directives.json`,
-      `${siteUrl}/static/api/directives.json`,
-      'https://webstandardchacker.netlify.app/api/directives.json'
-    ];
+    const possibleUrls = getDirectivesUrls();
     
     for (const url of possibleUrls) {
       console.log(`Trying HTTP fetch from: ${url}`);
@@ -121,10 +116,10 @@ exports.handler = async (event, context) => {
         ...headers,
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="${filename}"`,
-        'Content-Length': response.data.byteLength.toString(),
+        'Content-Length': arrayBuffer.byteLength.toString(),
         'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
       },
-      body: Buffer.from(response.data).toString('base64'),
+      body: Buffer.from(arrayBuffer).toString('base64'),
       isBase64Encoded: true
     };
 

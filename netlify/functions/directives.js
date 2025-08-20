@@ -1,6 +1,7 @@
 // Get available directives - Netlify Function
 const fs = require('fs').promises;
 const path = require('path');
+const { getSiteUrl, getDirectivesUrls, log, logError } = require('./utils/config');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -42,15 +43,9 @@ exports.handler = async (event, context) => {
     if (!directivesData) {
       console.log('File system access failed, trying HTTP fetch...');
       try {
-        const siteUrl = process.env.URL || process.env.DEPLOY_URL || 'https://webstandardchacker.netlify.app';
-        const possibleUrls = [
-          `${siteUrl}/api/directives.json`,
-          `${siteUrl}/static/api/directives.json`,
-          'https://webstandardchacker.netlify.app/api/directives.json'
-        ];
+        const possibleUrls = getDirectivesUrls();
         
-        // Import fetch for Node.js environment
-        const fetch = require('node-fetch');
+        // Using built-in fetch (Node.js 18+)
         
         for (const url of possibleUrls) {
           console.log(`Trying HTTP fetch from: ${url}`);
