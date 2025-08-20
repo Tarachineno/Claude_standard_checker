@@ -52,7 +52,6 @@ const translations = {
         'certificate.number_label': 'Certificate Number:',
         'certificate.organization_label': 'Organization:',
         'certificate.valid_until_label': 'Valid Until:',
-        'certificate.total_standards_label': 'Total Standards:',
         'certificate.load_a2la': 'Load A2LA Certificate Data',
         'certificate.load_jab': 'Load JAB Certificate Data',
         'certificate.search_description': 'Search for specific standards in A2LA and JAB certificate scopes',
@@ -127,7 +126,6 @@ const translations = {
         'certificate.number_label': '証明書番号:',
         'certificate.organization_label': '機関:',
         'certificate.valid_until_label': '有効期限:',
-        'certificate.total_standards_label': '規格総数:',
         'certificate.load_a2la': 'A2LA証明書データ読込',
         'certificate.load_jab': 'JAB証明書データ読込',
         'certificate.search_description': 'A2LAおよびJAB証明書スコープから特定規格を検索',
@@ -1624,7 +1622,6 @@ function displayCertificateResults(data) {
     document.getElementById('cert-number').textContent = data.certificate_info.certificate_number || '-';
     document.getElementById('cert-organization').textContent = data.certificate_info.organization || '-';
     document.getElementById('cert-valid-until').textContent = data.certificate_info.valid_until || '-';
-    document.getElementById('cert-standards-count').textContent = data.total_standards;
 
     // Display categories or facilities based on certificate type
     const categoriesElement = document.getElementById('standards-categories');
