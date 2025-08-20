@@ -16,6 +16,10 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - ✅ **Instant Deployment**: Automatic CI/CD with Netlify
 
 **Latest Updates (August 2025):**
+- 🌐 **Complete Bilingual Support**: Full English/Japanese UI with instant language switching
+- 🔍 **Enhanced Search Functionality**: Space-insensitive search for both OJ standards and ISO17025 certificates
+- 🎯 **ISO17025 Scope Matching Fix**: Improved version-tolerant matching for standards with versions
+- 🚀 **User Experience Improvements**: Persistent language preferences and responsive design
 - 🔧 **Netlify Function Syntax Fix**: Resolved scope-search function Runtime.UserCodeSyntaxError
 - 🆕 **Excel File Integration**: Parse official EC Excel files for real-time data
 - 🆕 **Three-Directive Support**: RED, EMC, and LVD with directive-specific parsing
@@ -37,6 +41,12 @@ A comprehensive web application for accessing EU harmonized standards and compar
 - 🆕 **No-Code Scope Updates**: Annual scope updates through MD file editing without code modifications
 - 🆕 **Zero Hardcoding**: Complete elimination of hardcoded certificate data from JavaScript code
 - 🆕 **Pure MD Architecture**: 100% MD file-driven certificate management system
+
+**🎌 New Language Support:**
+- **English/Japanese Interface**: Complete bilingual UI with real-time switching
+- **Persistent Language Settings**: User preferences stored locally
+- **Professional Japanese Translations**: Technical terms accurately translated
+- **Responsive Language Switching**: No page reload required
 ---
 
 ## 主要機能
