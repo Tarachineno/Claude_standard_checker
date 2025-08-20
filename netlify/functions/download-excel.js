@@ -17,41 +17,41 @@ async function loadDirectivesData() {
   for (const testPath of possiblePaths) {
     try {
       if (fs.existsSync(testPath)) {
-        console.log(`Found directives.json at: ${testPath}`);
+        log(`Found directives.json at: ${testPath}`);
         const content = fs.readFileSync(testPath, 'utf-8');
         const parsed = JSON.parse(content);
         return parsed.data;
       }
     } catch (e) {
-      console.log(`Error checking path ${testPath}: ${e.message}`);
+      log(`Error checking path ${testPath}: ${e.message}`);
     }
   }
   
   // HTTP fetch fallback
-  console.log('File system access failed, trying HTTP fetch...');
+  log('File system access failed, trying HTTP fetch...');
   try {
     const fetch = require('node-fetch');
     const possibleUrls = getDirectivesUrls();
     
     for (const url of possibleUrls) {
-      console.log(`Trying HTTP fetch from: ${url}`);
+      log(`Trying HTTP fetch from: ${url}`);
       try {
         const response = await fetch(url);
         if (response.ok) {
           const text = await response.text();
           const parsed = JSON.parse(text);
-          console.log(`Successfully fetched directives.json via HTTP from ${url}`);
+          log(`Successfully fetched directives.json via HTTP from ${url}`);
           return parsed.data;
         }
       } catch (fetchError) {
-        console.error(`HTTP fetch error for ${url}: ${fetchError.message}`);
+        logError(`HTTP fetch error for ${url}: ${fetchError.message}`);
       }
     }
   } catch (e) {
-    console.error(`HTTP fetch setup error: ${e.message}`);
+    logError(`HTTP fetch setup error: ${e.message}`);
   }
   
-  console.error('directives.json not found in any expected location');
+  logError('directives.json not found in any expected location');
   return [];
 }
 
@@ -73,10 +73,10 @@ exports.handler = async (event, context) => {
 
   try {
     const directive = event.queryStringParameters?.directive;
-    console.log(`Direct Excel download requested for directive: ${directive}`);
+    log(`Direct Excel download requested for directive: ${directive}`);
     
     const config = await getDirectiveConfig(directive);
-    console.log(`Found config for ${directive}:`, config);
+    log(`Found config for ${directive}:`, config);
 
     if (!directive || !config || !config.excel_url) {
       return {
@@ -89,12 +89,10 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log(`Proxying Excel download from: ${config.excel_url}`);
+    log(`Proxying Excel download from: ${config.excel_url}`);
 
     // Download the Excel file directly from EC official source
-    const response = await axios.get(config.excel_url, {
-      timeout: 60000, // 60 seconds timeout for large files
-      responseType: 'arraybuffer',
+    const response = await fetch(config.excel_url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,*/*',
@@ -102,8 +100,13 @@ exports.handler = async (event, context) => {
         'Accept-Encoding': 'gzip, deflate, br'
       }
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    console.log(`Excel download successful: ${response.status}, Size: ${response.data.byteLength} bytes`);
+    const arrayBuffer = await response.arrayBuffer();
+    log(`Excel download successful: ${response.status}, Size: ${arrayBuffer.byteLength} bytes`);
 
     // Generate filename with current date
     const today = new Date().toISOString().split('T')[0];
@@ -124,7 +127,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Excel download error:', error.message);
+    logError('Excel download error:', error.message);
     
     return {
       statusCode: 500,
