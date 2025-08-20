@@ -1,5 +1,4 @@
 // Batch compare ISO17025 standards with all directives - Netlify Function
-const axios = require('axios');
 
 exports.handler = async (event, context) => {
   const headers = {

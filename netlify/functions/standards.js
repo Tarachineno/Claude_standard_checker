@@ -231,8 +231,7 @@ async function fetchStandardsFromEurlex(directive, config) {
     try {
       console.log(`Fetching from: ${url}`);
       
-      const response = await axios.get(url, {
-        timeout: 25000,
+      const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -241,8 +240,13 @@ async function fetchStandardsFromEurlex(directive, config) {
           'Cache-Control': 'no-cache'
         }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      const $ = cheerio.load(response.data);
+      const htmlContent = await response.text();
+      const $ = cheerio.load(htmlContent);
       const standards = parseStandardsFromHtml($, directive);
       
       standards.forEach(standard => {
@@ -318,8 +322,10 @@ async function fetchStandardsFromExcel(directive, config) {
 
   let remoteLastMod = null;
   try {
-    const headResp = await axios.head(excelUrl, { timeout: 10000 });
-    remoteLastMod = headResp.headers['last-modified'] || null;
+    const headResp = await fetch(excelUrl, { method: 'HEAD' });
+    if (headResp.ok) {
+      remoteLastMod = headResp.headers.get('last-modified') || null;
+    }
   } catch (err) {
     console.warn('HEAD request failed:', err.message);
   }
@@ -364,9 +370,9 @@ async function fetchStandardsFromExcel(directive, config) {
     });
     
     console.log(`Excel download response status: ${response.status}`);
-    console.log(`Excel file size: ${response.data.byteLength} bytes`);
+    console.log(`Excel file size: ${arrayBuffer.byteLength} bytes`);
     
-    excelBuffer = response.data;
+    excelBuffer = Buffer.from(arrayBuffer);
     fs.writeFileSync(filePath, excelBuffer);
     fs.writeFileSync(metaPath, JSON.stringify({ lastModified: remoteLastMod || new Date().toISOString() }, null, 2));
     updateAvailable = remoteLastMod && meta?.lastModified && remoteLastMod !== meta.lastModified;
@@ -562,16 +568,20 @@ function convertExcelDate(dateValue) {
 // Function to extract OJ links from EC webpage
 async function getOJLinksFromECPage(ecUrl) {
   try {
-    const response = await axios.get(ecUrl, {
-      timeout: 20000,
+    const response = await fetch(ecUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5'
       }
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    const $ = cheerio.load(response.data);
+    const htmlContent = await response.text();
+    const $ = cheerio.load(htmlContent);
     const ojLinks = [];
 
     // Look for links to eur-lex.europa.eu in the "Publications in the Official Journal" section
