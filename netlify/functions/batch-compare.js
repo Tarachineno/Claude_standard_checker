@@ -1,4 +1,5 @@
 // Batch compare ISO17025 standards with all directives - Netlify Function
+const { getSiteUrl } = require('./utils/config');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -47,16 +48,29 @@ exports.handler = async (event, context) => {
     // Compare with each directive
     for (const directive of directives) {
       try {
-        const compareResponse = await axios.post(`${process.env.URL}/.netlify/functions/compare`, {
-          directive: directive,
-          iso_standards: iso_standards
-        }, {
-          timeout: 15000,
-          headers: { 'Content-Type': 'application/json' }
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        const compareResponse = await fetch(`${getSiteUrl()}/.netlify/functions/compare`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            directive: directive,
+            iso_standards: iso_standards
+          }),
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
+        
+        if (!compareResponse.ok) {
+          throw new Error(`HTTP ${compareResponse.status}`);
+        }
+        
+        const responseData = await compareResponse.json();
 
-        if (compareResponse.data.success) {
-          const comparison = compareResponse.data.data;
+        if (responseData.success) {
+          const comparison = responseData.data;
           results[directive] = comparison;
           
           // Track best match
