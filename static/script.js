@@ -508,7 +508,17 @@ async function fetchStandards() {
                 displayStandards(response.data);
                 // Show download button for Excel file
                 addDownloadButton(directive);
-                showSuccess(`Successfully fetched ${response.data.count} standards from Excel file for ${response.data.directive_name}`);
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:fetchStandards',message:'Received response with filename',data:{excelFilename:response.data.excel_filename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
+                
+                // Build success message with filename if available
+                let successMessage = `Successfully fetched ${response.data.count} standards from Excel file for ${response.data.directive_name}`;
+                if (response.data.excel_filename) {
+                    successMessage += ` (File: ${response.data.excel_filename})`;
+                }
+                showSuccess(successMessage);
             } else {
                 throw new Error(response?.error || 'Failed to fetch standards from Excel file');
             }

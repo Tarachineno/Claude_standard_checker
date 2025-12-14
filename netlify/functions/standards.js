@@ -66,13 +66,22 @@ function loadDirectivesData() {
 let directivesData = loadDirectivesData();
 
 async function getDirectiveConfig(code) {
-  // If directives data is empty, try to reload it
-  if (!directivesData || directivesData.length === 0) {
-    log('Directives data empty, attempting async reload...');
-    directivesData = await loadDirectivesDataAsync();
-  }
+  // Always reload directives data to ensure we have the latest version
+  // This is especially important in development when files might change
+  log('Reloading directives data to ensure latest version...');
+  directivesData = await loadDirectivesDataAsync();
   
-  return directivesData.find(d => d.code === code);
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:getDirectiveConfig',message:'Loaded directives data',data:{directiveCount:directivesData.length,directiveCodes:directivesData.map(d=>d.code)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
+  
+  const config = directivesData.find(d => d.code === code);
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:getDirectiveConfig',message:'Found config for directive',data:{code,configFound:!!config,excelUrl:config?.excel_url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
+  
+  return config;
 }
 
 // Async version that can use HTTP fetch
@@ -94,6 +103,11 @@ async function loadDirectivesDataAsync() {
         log(`Found directives.json at: ${testPath}`);
         const content = fs.readFileSync(testPath, 'utf-8');
         const parsed = JSON.parse(content);
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:loadDirectivesDataAsync',message:'Loaded directives from file',data:{path:testPath,directiveCount:parsed.data?.length,directiveCodes:parsed.data?.map(d=>d.code),redUrl:parsed.data?.find(d=>d.code==='RED')?.excel_url,emcUrl:parsed.data?.find(d=>d.code==='EMC')?.excel_url,lvdUrl:parsed.data?.find(d=>d.code==='LVD')?.excel_url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
+        
         return parsed.data;
       }
     } catch (e) {
@@ -169,6 +183,10 @@ exports.handler = async (event, context) => {
     const result = await fetchStandardsFromEurlex(directive, config);
     const standards = result.standards;
 
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:handler',message:'Preparing response with filename',data:{excelFilename:result.excelFilename || null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+
     return {
       statusCode: 200,
       headers,
@@ -180,7 +198,8 @@ exports.handler = async (event, context) => {
           standards: standards,
           count: standards.length,
           update_available: result.updateAvailable,
-          added_standards: result.added || []
+          added_standards: result.added || [],
+          excel_filename: result.excelFilename || null
         }
       })
     };
@@ -287,6 +306,10 @@ async function fetchStandardsFromExcel(directive, config) {
   const excelUrl = config.excel_url;
   console.log(`Excel URL: ${excelUrl}`);
   
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Starting Excel fetch',data:{directive,excelUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+  
   // Try multiple possible paths for data directory
   let dataDir = null;
   const possibleDataDirs = [
@@ -322,11 +345,28 @@ async function fetchStandardsFromExcel(directive, config) {
 
   let remoteLastMod = null;
   try {
-    const headResp = await fetch(excelUrl, { method: 'HEAD' });
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Starting HEAD request',data:{excelUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
+    const headResp = await fetch(excelUrl, { method: 'HEAD', redirect: 'follow' });
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'HEAD request response',data:{status:headResp.status,statusText:headResp.statusText,ok:headResp.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
     if (headResp.ok) {
       remoteLastMod = headResp.headers.get('last-modified') || null;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Last-Modified header',data:{remoteLastMod},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
     }
   } catch (err) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'HEAD request failed',data:{error:err.message,stack:err.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
     console.warn('HEAD request failed:', err.message);
   }
 
@@ -353,13 +393,107 @@ async function fetchStandardsFromExcel(directive, config) {
   }
 
   let excelBuffer = null;
+  let excelFilename = null;
+  
+  // Extract filename from Content-Disposition header or generate default
+  function extractFilenameFromResponse(response, defaultName) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Extracting filename from response',data:{hasResponse:!!response,defaultName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    const contentDisposition = response.headers.get('content-disposition');
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Content-Disposition header',data:{contentDisposition},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (filenameMatch && filenameMatch[1]) {
+        let filename = filenameMatch[1].replace(/['"]/g, '');
+        // Decode URL-encoded filename if needed
+        try {
+          filename = decodeURIComponent(filename);
+        } catch (e) {
+          // If decode fails, use as-is
+        }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Filename extracted from Content-Disposition',data:{filename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        
+        return filename;
+      }
+    }
+    // Try to extract from URL (check query parameter first, then pathname)
+    try {
+      const urlObj = new URL(defaultName.includes('http') ? defaultName : excelUrl);
+      
+      // First check for filename in URL query parameters
+      const filenameParam = urlObj.searchParams.get('filename');
+      if (filenameParam) {
+        let decodedFilename = filenameParam;
+        try {
+          decodedFilename = decodeURIComponent(filenameParam);
+        } catch (e) {
+          // If decode fails, use as-is
+        }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Filename extracted from URL query parameter',data:{decodedFilename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        
+        return decodedFilename;
+      }
+      
+      // Fallback to pathname if no query parameter
+      const pathname = urlObj.pathname;
+      const urlFilename = pathname.split('/').pop();
+      if (urlFilename && urlFilename.includes('.')) {
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Filename extracted from URL pathname',data:{urlFilename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        
+        return urlFilename;
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:extractFilenameFromResponse',message:'Using default filename',data:{defaultName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    return defaultName;
+  }
+  
   if (!updateAvailable && fs.existsSync(filePath)) {
     excelBuffer = fs.readFileSync(filePath);
     console.log(`Using cached Excel file for ${directive}`);
+    // Try to get filename from meta file
+    if (meta && meta.filename) {
+      excelFilename = meta.filename;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Using cached filename from meta',data:{excelFilename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+    } else {
+      excelFilename = `${directive}.xlsx`;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Using default filename for cache',data:{excelFilename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+    }
   } else {
     console.log(`Downloading Excel file for ${directive}:`, excelUrl);
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Starting Excel file download',data:{excelUrl,directive},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
       const response = await fetch(excelUrl, {
+        redirect: 'follow',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,*/*',
@@ -367,9 +501,25 @@ async function fetchStandardsFromExcel(directive, config) {
         }
       });
       
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Excel download response received',data:{status:response.status,statusText:response.statusText,ok:response.ok,url:response.url,redirected:response.redirected},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
       if (!response.ok) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Response not OK',data:{status:response.status,statusText:response.statusText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      // Extract filename from response
+      excelFilename = extractFilenameFromResponse(response, `${directive}.xlsx`);
+      console.log(`Extracted Excel filename: ${excelFilename}`);
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Filename extracted from download response',data:{excelFilename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       
       const arrayBuffer = await response.arrayBuffer();
     
@@ -378,11 +528,19 @@ async function fetchStandardsFromExcel(directive, config) {
     
     excelBuffer = Buffer.from(arrayBuffer);
     fs.writeFileSync(filePath, excelBuffer);
-    fs.writeFileSync(metaPath, JSON.stringify({ lastModified: remoteLastMod || new Date().toISOString() }, null, 2));
+    // Save filename in meta file
+    fs.writeFileSync(metaPath, JSON.stringify({ 
+      lastModified: remoteLastMod || new Date().toISOString(),
+      filename: excelFilename 
+    }, null, 2));
     updateAvailable = remoteLastMod && meta?.lastModified && remoteLastMod !== meta.lastModified;
     
     console.log(`Excel file saved to: ${filePath}`);
     } catch (downloadError) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Excel download error caught',data:{error:downloadError.message,stack:downloadError.stack,name:downloadError.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
       console.error(`Excel download failed: ${downloadError.message}`);
       throw new Error(`Failed to download Excel file: ${downloadError.message}`);
     }
@@ -412,7 +570,11 @@ async function fetchStandardsFromExcel(directive, config) {
 
     console.log(`Parsed ${standards.length} standards from Excel file`);
 
-    return { standards, updateAvailable, added };
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'standards.js:fetchStandardsFromExcel',message:'Returning result with filename',data:{excelFilename:excelFilename || `${directive}.xlsx`},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+
+    return { standards, updateAvailable, added, excelFilename: excelFilename || `${directive}.xlsx` };
 
   } catch (error) {
     console.error(`Error fetching ${directive} standards from Excel:`, error.message);
