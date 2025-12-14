@@ -16,7 +16,7 @@
                     <p data-i18n="app.description">Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates</p>
                 </div>
                 <div class="language-switch">
-                    <button id="lang-en" class="lang-btn active" data-lang="en">
+                    <button id="lang-en" class="lang-btn" data-lang="en">
                         <i class="fas fa-flag-usa"></i> EN
                     </button>
                     <button id="lang-ja" class="lang-btn" data-lang="ja">
@@ -102,6 +102,11 @@
                                     <option value="invalid">Invalid (Withdrawn)</option>
                                 </select>
                             </div>
+                            <div class="control-group button-only">
+                                <button id="apply-controls-btn" class="btn btn-small">
+                                    <i class="fas fa-filter"></i> <span data-i18n="standards.apply_btn">Apply</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- Row 2: Search and Action buttons -->
@@ -124,14 +129,11 @@
                                 </div>
                             </div>
                             <div class="control-group action-buttons">
-                                <button id="apply-controls-btn" class="btn btn-small">
-                                    <i class="fas fa-filter"></i> Apply
-                                </button>
                                 <button id="reset-controls-btn" class="btn btn-small btn-outline">
-                                    <i class="fas fa-undo"></i> Reset
+                                    <i class="fas fa-undo"></i> <span data-i18n="standards.reset_btn">Reset</span>
                                 </button>
                                 <button id="export-standards-btn" class="btn btn-small btn-secondary">
-                                    <i class="fas fa-file-export"></i> Export
+                                    <i class="fas fa-file-export"></i> <span data-i18n="standards.export_btn">Export</span>
                                 </button>
                             </div>
                         </div>

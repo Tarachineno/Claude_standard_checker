@@ -1665,6 +1665,11 @@ footer {
     margin-top: 0.5rem;
 }
 
+.control-group.button-only {
+    justify-content: flex-end;
+    min-width: auto;
+}
+
 .control-group button + button {
     margin-left: 0.5rem;
 }
