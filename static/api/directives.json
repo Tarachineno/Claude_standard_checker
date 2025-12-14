@@ -6,7 +6,7 @@
       "name": "Radio Equipment Directive",
       "description": "Radio Equipment Directive (RED)",
       "directive_number": "2014/53/EU",
-      "excel_url": "https://single-market-economy.ec.europa.eu/document/download/1b07bf21-0158-466f-9865-2fcba3bf67d6_en?filename=SummaryListForLegislation_generated%2013.10.2025.xlsx",
+      "excel_url": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en",
       "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en",
       "fallback_urls": [
         "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv%3AOJ.L_.2022.289.01.0007.01.ENG&toc=OJ%3AL%3A2022%3A289%3ATOC",
@@ -21,7 +21,7 @@
       "name": "Electromagnetic Compatibility Directive",
       "description": "EMC Directive",
       "directive_number": "2014/30/EU",
-      "excel_url": "https://ec.europa.eu/docsroom/documents/51315/attachments/1/translations/en/renditions/native",
+      "excel_url": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en#:~:text=Summary%20list%20as%20xls%20file",
       "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en",
       "fallback_urls": [
         "https://eur-lex.europa.eu/legal-content/EN/TXT/?toc=OJ%3AL%3A2019%3A206%3ATOC&uri=uriserv%3AOJ.L_.2019.206.01.0027.01.ENG",
@@ -37,7 +37,7 @@
       "name": "Low Voltage Directive",
       "description": "Low Voltage Directive",
       "directive_number": "2014/35/EU",
-      "excel_url": "https://ec.europa.eu/docsroom/documents/62995/attachments/1/translations/en/renditions/native",
+      "excel_url": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en",
       "ec_webpage": "https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en",
       "fallback_urls": [
         "https://eur-lex.europa.eu/eli/dec_impl/2023/2723/oj",
