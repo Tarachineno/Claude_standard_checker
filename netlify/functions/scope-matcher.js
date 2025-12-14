@@ -228,14 +228,16 @@ function extractPartNumber(standard) {
 function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
   if (!ojPartNumber || !scopeStandard) return false;
   
-  // Look for patterns like "EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52"
-  const comprehensivePattern = /(\d+(?:\s+\d+)*)-(\d+)(?:\/-\d+)+/;
+  // Look for patterns like "EN 301 489-1/-3/-7/-9/-15/-17/-19/-24/-51/-52" or "EN 301 489-1 / -3 / -7 / -9 / -15 / -17 / -19 / -24 / -51 / -52"
+  // Updated pattern to handle spaces: " / -" or "/-"
+  const comprehensivePattern = /(\d+(?:\s+\d+)*)-(\d+)(?:\s*\/\s*-\d+)+/;
   const match = scopeStandard.match(comprehensivePattern);
   
   if (!match) return false;
   
   const scopeBaseNumber = match[1];  // e.g., "301 489"
-  const scopeParts = scopeStandard.match(/-(\d+)/g);  // ["-1", "-3", "-7", "-52", etc.]
+  // Updated to handle spaces: match "-" or " / -" patterns
+  const scopeParts = scopeStandard.match(/\s*\/\s*-(\d+)|-(\d+)/g);  // ["-1", " / -3", "-7", " / -52", etc.]
   
   if (!scopeParts) return false;
   
@@ -251,8 +253,12 @@ function isComprehensiveScopeMatch(ojPartNumber, scopeStandard) {
     return false;
   }
   
-  // Extract part numbers (remove the "-" prefix)
-  const includedParts = scopeParts.map(part => part.substring(1));
+  // Extract part numbers (remove the "-" prefix and any spaces/slashes)
+  const includedParts = scopeParts.map(part => {
+    // Handle both "-17" and " / -17" patterns
+    const numMatch = part.match(/-(\d+)/);
+    return numMatch ? numMatch[1] : null;
+  }).filter(p => p !== null);
   
   // Check if OJ part number is included in the comprehensive scope
   const ojPart = ojPartNumber.includes('-') ? ojPartNumber.split('-').pop() : ojPartNumber;

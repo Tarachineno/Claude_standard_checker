@@ -1,3 +1,24 @@
+/* CSS Variables - Orange Color Palette (SGS Japan inspired) */
+:root {
+    /* Orange colors */
+    --primary-orange: #FF6B35;
+    --dark-orange: #E55A2B;
+    --light-orange: #FFF4F0;
+    --accent-orange: #FF8C42;
+    
+    /* Gray colors */
+    --text-dark: #2C3E50;
+    --text-gray: #6C757D;
+    --bg-light: #FAFAFA;
+    --bg-white: #FFFFFF;
+    
+    /* Other colors (maintained) */
+    --warning-yellow: #ffc107;
+    --warning-orange: #ff9800;
+    --error-red: #dc3545;
+    --success-green: #28a745;
+}
+
 /* Reset and base styles */
 * {
     margin: 0;
@@ -8,8 +29,8 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f5f7fa;
+    color: var(--text-dark);
+    background-color: var(--bg-light);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -23,7 +44,7 @@ body {
 
 /* Header */
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--dark-orange) 100%);
     color: white;
     padding: 2rem 0;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -70,7 +91,7 @@ header {
 
 .lang-btn.active {
     background: rgba(255, 255, 255, 0.9);
-    color: #667eea;
+    color: var(--primary-orange);
     border-color: rgba(255, 255, 255, 0.9);
 }
 
@@ -126,9 +147,9 @@ main {
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--dark-orange) 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
 
 /* Tab content */
@@ -158,7 +179,7 @@ main {
 
 .card h2 i {
     margin-right: 10px;
-    color: #667eea;
+    color: var(--primary-orange);
 }
 
 /* Form elements */
@@ -190,8 +211,8 @@ main {
 .form-group select:focus,
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 /* Notice box for OJ update information */
@@ -238,7 +259,7 @@ main {
 }
 
 .notice-links a {
-    color: #0056b3;
+    color: var(--primary-orange);
     text-decoration: none;
     word-break: break-all;
 }
@@ -265,13 +286,13 @@ main {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--accent-orange) 100%);
     color: white;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
 }
 
 .btn-secondary {
@@ -331,9 +352,9 @@ main {
 .search-info p {
     margin: 0;
     padding: 1rem;
-    background: #e8f4fd;
+    background: var(--light-orange);
     border-radius: 6px;
-    color: #1976d2;
+    color: var(--primary-orange);
 }
 
 /* Upload section */
@@ -342,7 +363,7 @@ main {
 }
 
 .upload-area {
-    border: 3px dashed #667eea;
+    border: 3px dashed var(--primary-orange);
     border-radius: 12px;
     padding: 3rem 2rem;
     text-align: center;
@@ -352,19 +373,19 @@ main {
 }
 
 .upload-area:hover {
-    border-color: #5a6fd8;
-    background: #f5f7ff;
+    border-color: var(--accent-orange);
+    background: var(--light-orange);
 }
 
 .upload-area.drag-over {
-    border-color: #4c63d2;
-    background: #e8eeff;
+    border-color: var(--dark-orange);
+    background: var(--light-orange);
     transform: scale(1.02);
 }
 
 .upload-area i {
     font-size: 3rem;
-    color: #667eea;
+    color: var(--primary-orange);
     margin-bottom: 1rem;
 }
 
@@ -374,7 +395,7 @@ main {
 }
 
 .upload-link {
-    color: #667eea;
+    color: var(--primary-orange);
     text-decoration: underline;
     font-weight: 600;
 }
@@ -405,7 +426,7 @@ main {
 }
 
 .count-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--dark-orange) 100%);
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
@@ -428,8 +449,8 @@ main {
 }
 
 .standard-item:hover {
-    border-color: #667eea;
-    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.15);
+    border-color: var(--primary-orange);
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.15);
 }
 
 .standard-header {
@@ -456,8 +477,8 @@ main {
 }
 
 .standard-date {
-    background: #e8f4fd;
-    color: #1976d2;
+    background: var(--light-orange);
+    color: var(--primary-orange);
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.85rem;
@@ -490,8 +511,8 @@ main {
 }
 
 .standard-directive {
-    background: #e3f2fd;
-    color: #1976d2;
+    background: var(--light-orange);
+    color: var(--primary-orange);
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 0.85rem;
@@ -520,7 +541,7 @@ main {
 }
 
 .etsi-link {
-    color: #667eea;
+    color: var(--primary-orange);
     text-decoration: none;
     font-weight: 500;
 }
@@ -594,7 +615,7 @@ main {
 }
 
 .category-count {
-    background: #667eea;
+    background: var(--primary-orange);
     color: white;
     padding: 4px 10px;
     border-radius: 12px;
@@ -627,14 +648,14 @@ main {
 /* Facility display (JAB style) */
 .facility-item {
     background: #fff;
-    border: 2px solid #667eea;
+    border: 2px solid var(--primary-orange);
     border-radius: 10px;
     margin-bottom: 25px;
     overflow: hidden;
 }
 
 .facility-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--dark-orange) 100%);
     color: white;
     padding: 15px 20px;
 }
@@ -686,7 +707,7 @@ main {
 .stat-number {
     font-size: 2rem;
     font-weight: 700;
-    color: #667eea;
+    color: var(--primary-orange);
 }
 
 .stat-label {
@@ -705,7 +726,7 @@ main {
 
 .coverage-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--dark-orange) 100%);
     border-radius: 10px;
     transition: width 0.5s ease;
 }
@@ -775,7 +796,7 @@ main {
     width: 50px;
     height: 50px;
     border: 4px solid #e1e8ed;
-    border-top: 4px solid #667eea;
+    border-top: 4px solid var(--primary-orange);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -956,8 +977,8 @@ footer {
 
 /* Excel-style display enhancements */
 .standard-eso {
-    background-color: #e3f2fd;
-    color: #1565c0;
+    background-color: var(--light-orange);
+    color: var(--primary-orange);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.8rem;
@@ -1078,11 +1099,11 @@ footer {
     background: #f8f9fa;
     padding: 16px;
     border-radius: 8px;
-    border-left: 4px solid #007bff;
+    border-left: 4px solid var(--primary-orange);
 }
 
 .portal-help:nth-child(2) {
-    border-left-color: #7b1fa2;
+    border-left-color: var(--accent-orange);
 }
 
 .portal-help h4 {
@@ -1135,13 +1156,13 @@ footer {
 }
 
 .etsi-link {
-    background-color: #e3f2fd;
-    color: #1565c0;
+    background-color: var(--light-orange);
+    color: var(--primary-orange);
 }
 
 .etsi-link:hover {
-    background-color: #bbdefb;
-    color: #0d47a1;
+    background-color: #FFE0D6;
+    color: var(--dark-orange);
 }
 
 .cen-cenelec-link {
@@ -1471,8 +1492,8 @@ footer {
 }
 
 .facility-info {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: var(--light-orange);
+    color: var(--primary-orange);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -1504,7 +1525,7 @@ footer {
 .btn-link {
     background: none;
     border: none;
-    color: #007bff;
+    color: var(--primary-orange);
     cursor: pointer;
     font-size: 0.85rem;
     text-decoration: none;
@@ -1514,8 +1535,8 @@ footer {
 }
 
 .btn-link:hover {
-    background-color: #e7f3ff;
-    color: #0056b3;
+    background-color: var(--light-orange);
+    color: var(--dark-orange);
 }
 
 .no-results {
@@ -1619,8 +1640,8 @@ footer {
 
 .control-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
 }
 
 .btn-small {
@@ -1631,12 +1652,12 @@ footer {
 
 .btn-outline {
     background-color: transparent !important;
-    border: 1px solid #667eea !important;
-    color: #667eea !important;
+    border: 1px solid var(--primary-orange) !important;
+    color: var(--primary-orange) !important;
 }
 
 .btn-outline:hover {
-    background-color: #667eea !important;
+    background-color: var(--primary-orange) !important;
     color: white !important;
 }
 
@@ -1692,8 +1713,8 @@ footer {
 
 .search-input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
 }
 
 .search-indicator {
