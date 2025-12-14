@@ -4,7 +4,7 @@
 // Global variables
 let uploadedCertificateData = null;
 let currentStandardsData = null; // Store current standards for sorting/filtering
-let currentLanguage = 'en'; // Default language
+let currentLanguage = 'ja'; // Default language
 
 // Scope matching cache to avoid repeated API calls
 let scopeMatchingCache = new Map();
@@ -87,7 +87,12 @@ const translations = {
         'scope.version_tolerant_match': 'Version tolerant match',
         'scope.version_mismatch': 'Version mismatch',
         'scope.prefix_mismatch': 'Prefix mismatch',
-        'scope.no_match': 'No scope coverage'
+        'scope.no_match': 'No scope coverage',
+        'scope.note.comprehensive': 'Comprehensive scope applied (includes {part})',
+        'scope.note.version_mismatch': 'Version mismatch ({version1}↔{version2})',
+        'scope.note.version_tolerant': 'Version tolerant ({version})',
+        'scope.note.scope_applied': 'Scope applied',
+        'scope.note.prefix_mismatch': 'Prefix mismatch ({prefix1}/{prefix2})'
     },
     ja: {
         'app.title': 'EU Harmonized Standards Checker',
@@ -165,7 +170,12 @@ const translations = {
         'scope.version_tolerant_match': 'バージョン包括',
         'scope.version_mismatch': '年版違い',
         'scope.prefix_mismatch': '表記違い',
-        'scope.no_match': '対応スコープなし'
+        'scope.no_match': '対応スコープなし',
+        'scope.note.comprehensive': '包括スコープ適用({part}含む)',
+        'scope.note.version_mismatch': '年版違い({version1}↔{version2})',
+        'scope.note.version_tolerant': 'バージョン包括({version})',
+        'scope.note.scope_applied': 'スコープに適用',
+        'scope.note.prefix_mismatch': '表記違い({prefix1}/{prefix2})'
     }
 };
 
@@ -212,8 +222,8 @@ async function initializeApp() {
     errorModal = document.getElementById('error-modal');
     successModal = document.getElementById('success-modal');
     
-    // Load saved language or default to English
-    currentLanguage = localStorage.getItem('language') || 'en';
+    // Load saved language or default to Japanese
+    currentLanguage = localStorage.getItem('language') || 'ja';
     
     setupEventListeners();
     setupLanguageSwitcher();
@@ -269,6 +279,55 @@ function getTranslation(key, params = {}) {
     return translation.replace(/\{(\w+)\}/g, (match, param) => {
         return params[param] !== undefined ? params[param] : match;
     });
+}
+
+// Translate scope matching notes from backend (Japanese) to current language
+function translateScopeNote(note) {
+    if (!note) return '';
+    
+    // If already in English or current language is Japanese, return as is
+    if (currentLanguage === 'ja') {
+        return note;
+    }
+    
+    // Parse Japanese note patterns and translate
+    // Pattern: 包括スコープ適用(489-17含む)
+    const comprehensiveMatch = note.match(/包括スコープ適用\(([^)]+)含む\)/);
+    if (comprehensiveMatch) {
+        return getTranslation('scope.note.comprehensive', { part: comprehensiveMatch[1] });
+    }
+    
+    // Pattern: 年版違い(2015↔2018)
+    const versionMismatchMatch = note.match(/年版違い\(([^↔]+)↔([^)]+)\)/);
+    if (versionMismatchMatch) {
+        return getTranslation('scope.note.version_mismatch', { 
+            version1: versionMismatchMatch[1], 
+            version2: versionMismatchMatch[2] 
+        });
+    }
+    
+    // Pattern: バージョン包括(2015)
+    const versionTolerantMatch = note.match(/バージョン包括\(([^)]+)\)/);
+    if (versionTolerantMatch) {
+        return getTranslation('scope.note.version_tolerant', { version: versionTolerantMatch[1] });
+    }
+    
+    // Pattern: スコープに適用
+    if (note === 'スコープに適用') {
+        return getTranslation('scope.note.scope_applied');
+    }
+    
+    // Pattern: 表記違い(EN/ETSI) or 表記違い(EN / ETSI)
+    const prefixMismatchMatch = note.match(/表記違い\(([^/]+)\s*\/\s*([^)]+)\)/);
+    if (prefixMismatchMatch) {
+        return getTranslation('scope.note.prefix_mismatch', { 
+            prefix1: prefixMismatchMatch[1].trim(), 
+            prefix2: prefixMismatchMatch[2].trim() 
+        });
+    }
+    
+    // If no pattern matches, return original note
+    return note;
 }
 
 function t(key, params = {}) {
@@ -1193,7 +1252,8 @@ function createScopeMatchingInfo(scopeMatch) {
 // Create individual scope badge
 function createScopeBadge(certType, matchData) {
     if (!matchData || matchData.status === 'no_match') {
-        return `<span class="scope-badge no-match" title="対応スコープなし">
+        const noMatchTitle = getTranslation('scope.no_match');
+        return `<span class="scope-badge no-match" title="${noMatchTitle}">
             <i class="fas fa-times-circle"></i> ${certType} ⚫
         </span>`;
     }
@@ -1208,31 +1268,31 @@ function createScopeBadge(certType, matchData) {
             badgeClass += 'exact-match';
             icon = 'fa-check-circle';
             statusSymbol = '🟢';
-            title = `完全一致: ${matchData.matched_standard}`;
+            title = `${getTranslation('scope.exact_match')}: ${matchData.matched_standard}`;
             break;
         case 'comprehensive_match':
             badgeClass += 'comprehensive-match';
             icon = 'fa-check-circle';
             statusSymbol = '🟢';
-            title = `${matchData.note}: ${matchData.matched_standard}`;
+            title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.comprehensive_match')}: ${matchData.matched_standard}`;
             break;
         case 'version_tolerant_match':
             badgeClass += 'version-tolerant-match';
             icon = 'fa-check-circle';
             statusSymbol = '🟢';
-            title = `${matchData.note}: ${matchData.matched_standard}`;
+            title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.version_tolerant_match')}: ${matchData.matched_standard}`;
             break;
         case 'prefix_mismatch':
             badgeClass += 'prefix-mismatch';
             icon = 'fa-exclamation-circle';
             statusSymbol = '🟡';
-            title = `${matchData.note}: ${matchData.matched_standard}`;
+            title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.prefix_mismatch')}: ${matchData.matched_standard}`;
             break;
         case 'version_mismatch':
             badgeClass += 'version-mismatch';
             icon = 'fa-exclamation-triangle';
             statusSymbol = '🟠';
-            title = `${matchData.note}: ${matchData.matched_standard}`;
+            title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.version_mismatch')}: ${matchData.matched_standard}`;
             break;
         default:
             return createScopeBadge(certType, { status: 'no_match' });
@@ -1242,9 +1302,12 @@ function createScopeBadge(certType, matchData) {
     const clickHandler = matchData.anchor ? 
         `onclick="openScopeDetails('${certType.toLowerCase()}', '${matchData.anchor}')"` : '';
     
+    // Translate the note if it exists
+    const translatedNote = matchData.note ? translateScopeNote(matchData.note) : '';
+    
     return `<span class="${badgeClass}" title="${title}${facilityInfo}" ${clickHandler}>
         <i class="fas ${icon}"></i> ${certType} ${statusSymbol}
-        ${matchData.note ? `<span class="scope-note">⚠️ ${matchData.note}</span>` : ''}
+        ${translatedNote ? `<span class="scope-note">⚠️ ${translatedNote}</span>` : ''}
     </span>`;
 }
 
@@ -1822,7 +1885,8 @@ function createScopeSearchResult(match, certType) {
                           match.match_type === 'version_mismatch' ? 'version-mismatch' : 'partial-match';
     
     const facilityInfo = match.facility ? `<span class="facility-info">${match.facility}</span>` : '';
-    const noteInfo = match.note ? `<span class="match-note">⚠️ ${match.note}</span>` : '';
+    const translatedNote = match.note ? translateScopeNote(match.note) : '';
+    const noteInfo = translatedNote ? `<span class="match-note">⚠️ ${translatedNote}</span>` : '';
     
     return `
         <div class="scope-search-match ${matchTypeClass}">

@@ -1,7 +1,7 @@
 # Release Notes - January 15, 2025
 
 ## 🎯 Overview
-This release includes important improvements to directive URL handling, configuration reloading, and user notifications for OJ (Official Journal) updates.
+This release includes important improvements to directive URL handling, configuration reloading, user notifications for OJ (Official Journal) updates, A2LA scope matching fixes, internationalization enhancements, and default language settings.
 
 ## ✨ New Features
 
@@ -52,6 +52,21 @@ This release includes important improvements to directive URL handling, configur
 - Now correctly matches standards like "EN 301 489-17" against comprehensive scope entries
 - Users can now see A2LA scope information (e.g., "A2LA 🟢 ⚠️ 包括スコープ適用(489-17含む)") in the Fetch results
 
+### Scope Matching Note Translation
+- Fixed issue where scope matching notes were displayed in Japanese even in English mode
+- Problem: Notes like "⚠️ 包括スコープ適用(489-17含む)" were hardcoded in Japanese in the backend
+- Solution: Added translation system for scope matching notes on the frontend
+- Notes are now automatically translated based on the current language setting:
+  - English: "⚠️ Comprehensive scope applied (includes 489-17)"
+  - Japanese: "⚠️ 包括スコープ適用(489-17含む)"
+- All note types are now translated: comprehensive scope, version mismatch, version tolerant, prefix mismatch, and scope applied
+
+### Default Language Setting
+- Changed default language from English to Japanese
+- New users will see the interface in Japanese by default
+- Language preference is still saved in localStorage and persists across sessions
+- Users can switch languages using the language toggle buttons
+
 ## 📝 Technical Details
 
 ### Files Modified
@@ -75,6 +90,9 @@ This release includes important improvements to directive URL handling, configur
 
 - `static/script.js`
   - Added i18n translations for notice box (English and Japanese)
+  - Added translation system for scope matching notes (`translateScopeNote()` function)
+  - Added translation keys for all scope matching note types
+  - Changed default language from English to Japanese
   - Removed debug logging
 
 - `static/style.css`
@@ -89,6 +107,11 @@ This release includes important improvements to directive URL handling, configur
 - `standards.note_red_link`: RED directive label
 - `standards.note_emc_link`: EMC directive label
 - `standards.note_lvd_link`: LVD directive label
+- `scope.note.comprehensive`: Comprehensive scope applied message
+- `scope.note.version_mismatch`: Version mismatch message
+- `scope.note.version_tolerant`: Version tolerant message
+- `scope.note.scope_applied`: Scope applied message
+- `scope.note.prefix_mismatch`: Prefix mismatch message
 
 ## 🔗 Related Links
 
@@ -100,7 +123,8 @@ This release includes important improvements to directive URL handling, configur
 
 - `41d08f7`: Fix: Always reload directives.json and update EMC/LVD URLs
 - `de57d73`: Add OJ update notice with manual verification links
-- `[NEW]`: Fix A2LA scope matching for comprehensive scope patterns with spaces
+- `45f08fb`: Fix A2LA scope matching for comprehensive scope patterns with spaces
+- `[NEW]`: Add translation support for scope matching notes and set Japanese as default language
 
 ## 🚀 Deployment Notes
 
@@ -115,6 +139,8 @@ This release includes important improvements to directive URL handling, configur
   - Can now reliably download Excel files for all directives (EMC, LVD, RED)
   - Can see accurate A2LA certificate scope information in Fetch results
   - Comprehensive scope matching now works correctly for standards like EN 301 489-17
+  - Scope matching notes are now properly translated based on language preference
+  - Interface defaults to Japanese for better accessibility
 - **Developers**: Can update directive URLs without restarting the server
 - **Administrators**: Users are now informed about potential OJ update delays and provided with manual verification links
 
