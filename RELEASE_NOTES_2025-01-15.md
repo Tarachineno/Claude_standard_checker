@@ -124,7 +124,7 @@ This release includes important improvements to directive URL handling, configur
 - `41d08f7`: Fix: Always reload directives.json and update EMC/LVD URLs
 - `de57d73`: Add OJ update notice with manual verification links
 - `45f08fb`: Fix A2LA scope matching for comprehensive scope patterns with spaces
-- `[NEW]`: Add translation support for scope matching notes and set Japanese as default language
+- `42f3bb7`: Add translation support for scope matching notes and set Japanese as default language
 
 ## 🚀 Deployment Notes
 
@@ -147,4 +147,8 @@ This release includes important improvements to directive URL handling, configur
 ---
 
 **Release Date**: January 15, 2025  
-**Version**: Based on commits `41d08f7` and `de57d73`
+**Version**: Based on commits `41d08f7`, `de57d73`, `45f08fb`, and `42f3bb7`
+
+---
+
+**日本語版**: [RELEASE_NOTES_2025-01-15_ja.md](RELEASE_NOTES_2025-01-15_ja.md)
