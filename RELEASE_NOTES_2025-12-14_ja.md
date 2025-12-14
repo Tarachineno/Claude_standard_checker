@@ -8,7 +8,7 @@
 ### 動的Excelリンク抽出機能
 - **RED、EMC、LVD指令のECページからExcelファイルリンクを動的に抽出する機能を実装**
 - ハードコードされた直接ダウンロードURLの代わりに、アプリケーションは以下を実行します：
-  - EC調和規格ページを取得（例：`https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en`）
+  - EC整合規格ページを取得（例：`https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en`）
   - ページコンテンツからExcelファイルリンクを動的に抽出
   - `docsroom` JSON APIエンドポイントとHTMLページへのリダイレクトを処理
   - 必要に応じてドキュメントIDから直接ExcelダウンロードURLを構築
