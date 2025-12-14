@@ -32,7 +32,7 @@ This release includes major improvements to Excel file fetching with dynamic lin
   - **EMC**: Electromagnetic Compatibility Directive page
   - **LVD**: Low Voltage Directive page
 - Fully supports both English and Japanese translations
-- Styled with warning colors (yellow/orange) for better visibility
+- Styled with SGS color scheme for better visibility
 
 ### Default Language Setting
 - Changed default language from English to Japanese
