@@ -74,6 +74,10 @@ const translations = {
         'standards.fetch_method_label': 'Fetch Method:',
         'standards.excel_method': 'Excel File (Parse hEN list)',
         'standards.download_excel': 'Download Excel File',
+        'standards.note_oj_update': 'The latest OJ information may not be reflected. If this is the case, please check manually from the following links.',
+        'standards.note_red_link': 'RED:',
+        'standards.note_emc_link': 'EMC:',
+        'standards.note_lvd_link': 'LVD:',
         'common.loading': 'Processing...',
         'common.no_results': 'No results found',
         'common.error': 'Error',
@@ -148,6 +152,10 @@ const translations = {
         'standards.fetch_method_label': '取得方法:',
         'standards.excel_method': 'Excelファイル（hENリスト解析）',
         'standards.download_excel': 'Excelファイルダウンロード',
+        'standards.note_oj_update': '最新のOJについては反映されていない可能性があります。その場合は以下のリンクから手動で確認してください。',
+        'standards.note_red_link': 'RED:',
+        'standards.note_emc_link': 'EMC:',
+        'standards.note_lvd_link': 'LVD:',
         'common.loading': '処理中...',
         'common.no_results': '結果が見つかりません',
         'common.error': 'エラー',
@@ -508,10 +516,6 @@ async function fetchStandards() {
                 displayStandards(response.data);
                 // Show download button for Excel file
                 addDownloadButton(directive);
-                
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/f3e9e63a-7336-49f8-a2eb-6d31d405971b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:fetchStandards',message:'Received response with filename',data:{excelFilename:response.data.excel_filename},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
                 
                 // Build success message with filename if available
                 let successMessage = `Successfully fetched ${response.data.count} standards from Excel file for ${response.data.directive_name}`;

@@ -194,6 +194,59 @@ main {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* Notice box for OJ update information */
+.notice-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-left: 4px solid #ff9800;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.notice-box i {
+    color: #ff9800;
+    margin-right: 8px;
+}
+
+.notice-box p {
+    margin: 0 0 0.75rem 0;
+    color: #856404;
+    font-weight: 500;
+}
+
+.notice-links {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+}
+
+.notice-links li {
+    margin-bottom: 0.5rem;
+    color: #856404;
+}
+
+.notice-links li:last-child {
+    margin-bottom: 0;
+}
+
+.notice-links span {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.notice-links a {
+    color: #0056b3;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.notice-links a:hover {
+    text-decoration: underline;
+}
+
 /* Buttons */
 .btn {
     padding: 12px 24px;
