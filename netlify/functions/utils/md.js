@@ -123,11 +123,17 @@ function parseMDToScopeData(mdContent, certType) {
       inMetadata = false;
     }
 
-    // Parse facility headers for JAB (【施設X】pattern)
-    if (certType === 'jab' && line.includes('【施設') && line.includes('】')) {
-      const facilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
-      if (facilityMatch) {
-        currentFacility = `施設${facilityMatch[1]}: ${facilityMatch[2].trim()}`;
+    // Parse facility headers for JAB
+    if (certType === 'jab') {
+      const oldFacilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
+      if (oldFacilityMatch) {
+        currentFacility = `施設${oldFacilityMatch[1]}: ${oldFacilityMatch[2].trim()}`;
+        continue;
+      }
+      
+      const newFacilityMatch = line.match(/^## Facility (\d+):\s*(.+?)(?:\s+\{#.+\})?$/);
+      if (newFacilityMatch) {
+        currentFacility = `Facility ${newFacilityMatch[1]}: ${newFacilityMatch[2].trim()}`;
         continue;
       }
     }
@@ -220,15 +226,34 @@ function parseCertificateMD(mdContent, certType) {
     }
 
     // Parse facility headers for JAB
-    if (certType === 'jab' && line.includes('【施設') && line.includes('】')) {
-      const facilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
-      if (facilityMatch) {
+    if (certType === 'jab') {
+      const oldFacilityMatch = line.match(/【施設(\d+)】(.+)（(.+)）/);
+      if (oldFacilityMatch) {
         currentFacility = {
-          facility_number: facilityMatch[1],
-          name: facilityMatch[2].trim(),
-          location: facilityMatch[3],
+          facility_number: oldFacilityMatch[1],
+          name: oldFacilityMatch[2].trim(),
+          location: oldFacilityMatch[3],
           standards: []
         };
+        continue;
+      }
+
+      const newFacilityMatch = line.match(/^## Facility (\d+):\s*(.+?)(?:\s+\{#.+\})?$/);
+      if (newFacilityMatch) {
+        currentFacility = {
+          facility_number: newFacilityMatch[1],
+          name: newFacilityMatch[2].trim(),
+          location: '',
+          standards: []
+        };
+        continue;
+      }
+
+      if (currentFacility && line.startsWith('**Location:**')) {
+        const locMatch = line.match(/\*\*Location:\*\*\s*(.+)/);
+        if (locMatch) {
+          currentFacility.location = locMatch[1].trim();
+        }
         continue;
       }
     }
