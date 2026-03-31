@@ -1226,23 +1226,23 @@ footer {
 }
 
 .scope-badge.comprehensive-match {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-color: #bee5eb;
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
 }
 
 .scope-badge.comprehensive-match:hover {
-    background-color: #bee5eb;
+    background-color: #c3e6cb;
 }
 
 .scope-badge.version-tolerant-match {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-color: #bee5eb;
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
 }
 
 .scope-badge.version-tolerant-match:hover {
-    background-color: #bee5eb;
+    background-color: #c3e6cb;
 }
 
 .scope-badge.prefix-mismatch {
