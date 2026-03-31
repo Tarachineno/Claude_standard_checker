@@ -1720,7 +1720,7 @@ function displayCertificateResults(data) {
                 if (!facilityCategories[category]) {
                     facilityCategories[category] = [];
                 }
-                facilityCategories[category].push(standard.standard_number);
+                facilityCategories[category].push(standard);
             });
 
             facilityItem.innerHTML = `
