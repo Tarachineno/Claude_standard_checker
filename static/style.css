@@ -1246,23 +1246,23 @@ footer {
 }
 
 .scope-badge.prefix-mismatch {
-    background-color: #fff3cd;
-    color: #856404;
-    border-color: #ffeeba;
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
 }
 
 .scope-badge.prefix-mismatch:hover {
-    background-color: #ffeeba;
+    background-color: #c3e6cb;
 }
 
 .scope-badge.version-mismatch {
-    background-color: #ffecd1;
-    color: #8b4513;
-    border-color: #ffd4a3;
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
 }
 
 .scope-badge.version-mismatch:hover {
-    background-color: #ffd4a3;
+    background-color: #c3e6cb;
 }
 
 .scope-badge.no-match {
@@ -1460,13 +1460,13 @@ footer {
 }
 
 .scope-search-match.prefix-mismatch {
-    border-left: 4px solid #ffc107;
-    background-color: #fffef5;
+    border-left: 4px solid #28a745;
+    background-color: #f8fff9;
 }
 
 .scope-search-match.version-mismatch {
-    border-left: 4px solid #fd7e14;
-    background-color: #fff8f0;
+    border-left: 4px solid #28a745;
+    background-color: #f8fff9;
 }
 
 .scope-search-match.partial-match {

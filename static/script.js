@@ -1284,14 +1284,14 @@ function createScopeBadge(certType, matchData) {
             break;
         case 'prefix_mismatch':
             badgeClass += 'prefix-mismatch';
-            icon = 'fa-exclamation-circle';
-            statusSymbol = '🟡';
+            icon = 'fa-check-circle';
+            statusSymbol = '🟢';
             title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.prefix_mismatch')}: ${matchData.matched_standard}`;
             break;
         case 'version_mismatch':
             badgeClass += 'version-mismatch';
-            icon = 'fa-exclamation-triangle';
-            statusSymbol = '🟠';
+            icon = 'fa-check-circle';
+            statusSymbol = '🟢';
             title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.version_mismatch')}: ${matchData.matched_standard}`;
             break;
         default:
@@ -1877,8 +1877,8 @@ function displayScopeSearchResults(data, searchQuery) {
 
 function createScopeSearchResult(match, certType) {
     const matchTypeIcon = match.match_type === 'exact' ? 'fa-check-circle' : 
-                         match.match_type === 'prefix_mismatch' ? 'fa-exclamation-circle' :
-                         match.match_type === 'version_mismatch' ? 'fa-exclamation-triangle' : 'fa-search';
+                         match.match_type === 'prefix_mismatch' ? 'fa-check-circle' :
+                         match.match_type === 'version_mismatch' ? 'fa-check-circle' : 'fa-search';
     
     const matchTypeClass = match.match_type === 'exact' ? 'exact-match' :
                           match.match_type === 'prefix_mismatch' ? 'prefix-mismatch' :
