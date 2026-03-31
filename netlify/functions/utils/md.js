@@ -229,6 +229,12 @@ function parseCertificateMD(mdContent, certType) {
           location: facilityMatch[3],
           standards: []
         };
+        
+        if (!certificateData.facilities) {
+          certificateData.facilities = [];
+        }
+        certificateData.facilities.push(currentFacility);
+        
         continue;
       }
     }
@@ -274,13 +280,7 @@ function parseCertificateMD(mdContent, certType) {
     }
   }
 
-  // For JAB, structure by facilities
-  if (certType === 'jab' && currentFacility) {
-    if (!certificateData.facilities) {
-      certificateData.facilities = [];
-    }
-    certificateData.facilities.push(currentFacility);
-  }
+  // For JAB, structure by facilities is already handled as they are pushed upon creation
 
   return certificateData;
 }
