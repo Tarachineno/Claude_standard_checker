@@ -1741,7 +1741,7 @@ function displayCertificateResults(data) {
                                         if (typeof std === 'string') {
                                             return `<li>${std}</li>`;
                                         } else {
-                                            return `<li><strong>${std.standard || std}</strong> - ${std.description || ''}</li>`;
+                                            return `<li><strong>${std.standard || std}</strong>${std.description ? ' - ' + std.description : ''}</li>`;
                                         }
                                     }).join('')}
                                 </ul>
@@ -1771,7 +1771,7 @@ function displayCertificateResults(data) {
                             if (typeof std === 'string') {
                                 return `<li>${std}</li>`;
                             } else {
-                                return `<li><strong>${std.standard}</strong> - ${std.description || ''}</li>`;
+                                return `<li><strong>${std.standard}</strong>${std.description ? ' - ' + std.description : ''}</li>`;
                             }
                         }).join('')}
                     </ul>
