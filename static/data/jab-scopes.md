@@ -11,9 +11,8 @@
 
 ---
 
-## Facility 1: SGS Japan Inc. Kitayamata Laboratory {#facility-1}
+## 【施設1】SGS Japan Inc. Kitayamata Laboratory（3-5-23, Kitayamata, Tsuzuki-ku, Yokohama-shi, Kanagawa, 224-0021 Japan） {#facility-1}
 
-**Location:** 3-5-23, Kitayamata, Tsuzuki-ku, Yokohama-shi, Kanagawa, 224-0021 Japan  
 **Testing Service:** Testing service at permanent facilities
 
 ### M21.4.1 Continuous Disturbance Tests {#facility-1-continuous-disturbance}
@@ -795,9 +794,8 @@
 
 ---
 
-## Facility 2: TDK Corporation Nikaho Factory (North site) {#facility-2}
+## 【施設2】TDK Corporation Nikaho Factory (North site)（200, Tachisawa, Hirasawa, Nikaho-shi, Akita, Japan） {#facility-2}
 
-**Location:** 200, Tachisawa, Hirasawa, Nikaho-shi, Akita, Japan  
 **Testing Service:** Testing service at permanent facilities
 
 ### M21.4.1 Continuous Disturbance Tests {#facility-2-continuous-disturbance}
