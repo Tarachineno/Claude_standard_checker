@@ -1272,14 +1272,14 @@ function createScopeBadge(certType, matchData) {
             break;
         case 'comprehensive_match':
             badgeClass += 'comprehensive-match';
-            icon = 'fa-check-circle';
-            statusSymbol = '🟢';
+            icon = 'fa-info-circle';
+            statusSymbol = '🔵';
             title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.comprehensive_match')}: ${matchData.matched_standard}`;
             break;
         case 'version_tolerant_match':
             badgeClass += 'version-tolerant-match';
-            icon = 'fa-check-circle';
-            statusSymbol = '🟢';
+            icon = 'fa-info-circle';
+            statusSymbol = '🔵';
             title = matchData.note ? `${translateScopeNote(matchData.note)}: ${matchData.matched_standard}` : `${getTranslation('scope.version_tolerant_match')}: ${matchData.matched_standard}`;
             break;
         case 'prefix_mismatch':
