@@ -2,8 +2,15 @@ import { Hono } from 'hono';
 import { ok, fail } from '../lib/http.js';
 import { CERT_TYPES, loadScopeDocument } from '../lib/scopes.js';
 import { inventoryOf, loadCatalog, withSearchLinks, validateManual, saveManual, syncCatalog } from '../lib/catalog.js';
+import { recentPublisherChanges } from '../lib/publisher-review.js';
 
 const app = new Hono();
+app.get('/catalog/changes', async c => {
+  c.header('Cache-Control', 'no-store');
+  if (!c.env.DB) return fail(c, 503, 'Catalogue database is not configured');
+  try { return ok(c, await recentPublisherChanges(c.env.DB)); }
+  catch { return fail(c, 503, 'Publisher change history unavailable. Check database migrations.'); }
+});
 async function authorize(c) {
   if (!c.env.CATALOG_ADMIN_TOKEN) return false;
   const supplied = c.req.header('Authorization') || '';

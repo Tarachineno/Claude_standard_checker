@@ -11,7 +11,6 @@ import scopes from './routes/scopes.js';
 import quickCheck from './routes/quick-check.js';
 import meta from './routes/meta.js';
 import catalog from './routes/catalog.js';
-import { syncCatalog } from './lib/catalog.js';
 
 const api = new Hono();
 
@@ -61,8 +60,4 @@ export default {
   fetch: app.fetch,
   // Keep app.request for Node integration tests.
   request: app.request.bind(app),
-  async scheduled(event, env) {
-    const c = { env, req: { url: 'https://lab-scope-checker.seidaku.workers.dev/' } };
-    await syncCatalog(c, { limit: 3 });
-  },
 };

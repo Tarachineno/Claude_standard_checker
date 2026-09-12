@@ -58,6 +58,8 @@ for (const lang of ['en', 'ja']) {
 }
 translations.ja['catalog.manual_required'] = '自動取得未対応・手動確認対象';
 translations.en['catalog.manual_required'] = 'Manual verification required; no automatic adapter';
+translations.ja['catalog.review'] = '定期調査で確認';
+translations.en['catalog.review'] = 'Verified by scheduled review';
 Object.assign(translations.ja, { 'scope_oj.check_btn': '認定スコープの版数を一括確認', 'scope_oj.description': '全認定スコープをOJ掲載版・最新Published版と照合します。EMCはPublished、REDはOJを初期の集計基準にします。', 'scope_oj.title': '認定スコープ・OJ・Published版の比較' });
 Object.assign(translations.en, { 'scope_oj.check_btn': 'Check all scope editions', 'scope_oj.description': 'Compare all scopes with OJ and current Published editions. EMC defaults to Published; RED defaults to OJ.', 'scope_oj.title': 'Accreditation / OJ / Published edition comparison' });
 
@@ -211,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const history = (await apiCall('/catalog/history?key=' + encodeURIComponent(button.dataset.catalogHistory))).data;
                 catalogueElement('scope-detail-title').textContent = t('catalog.history') + ' · ' + button.dataset.catalogHistory;
-                catalogueElement('scope-detail-body').innerHTML = history.map(h => '<p>' + esc(h.recorded_at) + ' · ' + esc(h.origin) + '<br>' +
+                catalogueElement('scope-detail-body').innerHTML = history.map(h => '<p>' + esc(h.recorded_at) + ' · ' + esc(h.payload_json.verification_method === 'scheduled_review' ? t('catalog.review') : h.origin) + '<br>' +
                     esc((h.payload_json.editions || []).map(e => e.designation).join(' / ')) + '<br>' + esc(h.payload_json.note || '') + '</p>').join('');
                 catalogueElement('scope-detail-modal').classList.remove('hidden');
             } catch (error) { showError(error.message); }

@@ -95,3 +95,7 @@ package-lock.json
 .dev.vars
 seed/*.sql
 *.bundle
+
+# Weekly publisher research evidence and local database backups (never publish)
+reports/publisher-review/
+reports/publisher-review-setup-*/

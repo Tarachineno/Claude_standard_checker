@@ -84,18 +84,6 @@ const translations = {
         'certificate.cards_error': 'Accreditation information could not be loaded.',
         'certificate.cards_retry': 'Retry loading accreditation information',
         'certificate.scope_count': '{count} scope items',
-        'certificate.update_help_title': 'ISO/IEC 17025 Accreditation Certificate Add / Update Help',
-        'certificate.update_help_intro': 'When adding or updating an accreditation certificate, update the certificate PDF and scope data together, validate them, and then publish.',
-        'certificate.update_help_pdf_title': '1. Accreditation certificate PDF',
-        'certificate.update_help_pdf': 'Replace the matching file in static/certificates/: a2la.pdf or jab.pdf.',
-        'certificate.update_help_scope_title': '2. Accreditation scope data',
-        'certificate.update_help_scope': 'Update the matching Markdown file in static/data/: a2la-scopes.md or jab-scopes.md.',
-        'certificate.update_help_validate_title': '3. Validate and seed',
-        'certificate.update_help_validate': 'Run npm run validate, then npm run db:seed to update D1.',
-        'certificate.update_help_deploy_title': '4. Deploy',
-        'certificate.update_help_deploy': 'Run npm run deploy. The accreditation certificate PDF and scope details then become available from this tab.',
-        'certificate.update_help_format_link': 'Open scope format guide',
-        'certificate.update_help_note': 'Keep the accreditation certificate PDF, Markdown scope, and D1 data aligned. Do not leave accreditation metadata or the validity date blank.',
         'scope_oj.check_btn': 'Check all current scopes against active OJ editions',
         'scope_oj.description': 'Compare every current JAB/A2LA D1 scope item with the active Official Journal edition.',
         'scope_oj.title': 'Current Accreditation Scopes vs Active OJ Editions',
@@ -249,18 +237,6 @@ const translations = {
         'certificate.cards_error': '認定書情報を取得できませんでした。',
         'certificate.cards_retry': '認定書情報の取得を再試行',
         'certificate.scope_count': 'スコープ {count} 件',
-        'certificate.update_help_title': 'ISO/IEC 17025認定証の追加・更新ヘルプ',
-        'certificate.update_help_intro': '認定証を追加・更新する場合は、認定証PDFと認定スコープを一緒に更新し、検証してから公開します。',
-        'certificate.update_help_pdf_title': '1. 認定証PDF',
-        'certificate.update_help_pdf': '対象ファイルを static/certificates/ の a2la.pdf または jab.pdf に差し替えます。',
-        'certificate.update_help_scope_title': '2. 認定スコープデータ',
-        'certificate.update_help_scope': '対象の static/data/a2la-scopes.md または static/data/jab-scopes.md を更新します。',
-        'certificate.update_help_validate_title': '3. 検証とD1投入',
-        'certificate.update_help_validate': 'npm run validate を実行し、続けて npm run db:seed でD1を更新します。',
-        'certificate.update_help_deploy_title': '4. デプロイ',
-        'certificate.update_help_deploy': 'npm run deploy を実行すると、このタブから認定証PDFとスコープ詳細を参照できるようになります。',
-        'certificate.update_help_format_link': 'スコープ書式ガイドを開く',
-        'certificate.update_help_note': '認定証PDF、スコープMD、D1データの内容を一致させ、認定メタデータや有効期限を空欄にしないでください。',
         'scope_oj.check_btn': '現行認定スコープとOJ有効版数を一括確認',
         'scope_oj.description': 'D1にあるJAB/A2LAの現行認定スコープ全件を、OJ掲載で有効な版数と突合します。',
         'scope_oj.title': '現行認定スコープとOJ有効版数の突合結果',
@@ -439,6 +415,7 @@ function updateLanguageDisplay() {
     document.documentElement.lang = currentLanguage;
     renderAccreditationCards();
     if (typeof renderCatalog === 'function' && typeof catalogData !== 'undefined' && catalogData) renderCatalog();
+    if (typeof renderPublisherNotices === 'function') renderPublisherNotices();
     
     // Update page title
     document.title = getTranslation('app.title');

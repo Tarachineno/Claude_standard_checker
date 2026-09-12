@@ -23,7 +23,7 @@ export async function loadCatalog(c) {
       const manual = row.manual_json ? JSON.parse(row.manual_json) : null;
       return { key: row.reference_key, designation: row.designation, provider: row.provider,
         ...(manual || auto || {}), source_url: (manual || auto)?.source_url || row.source_url,
-        origin: manual ? 'manual' : 'automatic', error: manual ? null : row.error,
+        origin: manual?.verification_method === 'scheduled_review' ? 'review' : manual ? 'manual' : 'automatic', error: manual ? null : row.error,
         automatic_error: row.error, attempted_at: row.attempted_at, next_check_at: row.next_check_at,
         automatic: manual ? auto : null,
       };

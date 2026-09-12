@@ -45,6 +45,11 @@
             <button class="tab-btn" data-tab="certificate" data-i18n="nav.iso17025_certificate">ISO/IEC 17025 Accreditation</button>
         </nav>
 
+        <aside id="publisher-change-banner" class="update-banner hidden" aria-live="polite">
+            <button type="button" id="publisher-change-close" class="update-banner-close" aria-label="Close">&times;</button>
+            <p><i class="fas fa-bell"></i> <strong id="publisher-change-title"></strong></p>
+            <details><summary id="publisher-change-details-label"></summary><ul id="publisher-change-list"></ul></details>
+        </aside>
 
         <!-- Quick Check Tab（営業向け：規格番号を貼るだけで認定範囲と OJ 掲載を判定） -->
         <section id="quick-tab" class="tab-content active">
@@ -341,25 +346,6 @@
                     </div>
                 </div>
 
-                <div class="certificate-update-help">
-                    <details>
-                        <summary><i class="fas fa-circle-question"></i> <span data-i18n="certificate.update_help_title">ISO/IEC 17025 Accreditation Certificate Add / Update Help</span></summary>
-                        <div class="certificate-help-body">
-                            <p data-i18n="certificate.update_help_intro">When adding or updating an accreditation certificate, update the certificate PDF and scope data together, validate them, and then publish.</p>
-                            <ol class="certificate-help-steps">
-                                <li><strong data-i18n="certificate.update_help_pdf_title">1. Accreditation certificate PDF</strong><br><span data-i18n="certificate.update_help_pdf">Replace the matching file in static/certificates/: a2la.pdf or jab.pdf.</span></li>
-                                <li><strong data-i18n="certificate.update_help_scope_title">2. Scope data</strong><br><span data-i18n="certificate.update_help_scope">Update the matching Markdown file in static/data/: a2la-scopes.md or jab-scopes.md.</span></li>
-                                <li><strong data-i18n="certificate.update_help_validate_title">3. Validate and seed</strong><br><span data-i18n="certificate.update_help_validate">Run npm run validate, then npm run db:seed to update D1.</span></li>
-                                <li><strong data-i18n="certificate.update_help_deploy_title">4. Deploy</strong><br><span data-i18n="certificate.update_help_deploy">Run npm run deploy. The accreditation certificate PDF and scope details then become available from this tab.</span></li>
-                            </ol>
-                            <a class="btn btn-small btn-outline" href="/data/SCOPE_FORMAT.md" target="_blank" rel="noopener noreferrer">
-                                <i class="fas fa-book-open"></i> <span data-i18n="certificate.update_help_format_link">Open scope format guide</span>
-                            </a>
-                            <p class="certificate-help-note" data-i18n="certificate.update_help_note">Keep the accreditation certificate PDF, Markdown scope, and D1 data aligned. Do not leave accreditation metadata or the validity date blank.</p>
-                        </div>
-                    </details>
-                </div>
-                
             </div>
         </section>
 
@@ -401,5 +387,6 @@
 
     <script src="script.js"></script>
     <script src="catalog.js"></script>
+    <script src="publisher-notices.js"></script>
 </body>
 </html>

@@ -46,11 +46,11 @@ function comparison() {
   return data;
 }
 
-test('removed certificate selector/list/search do not leave broken event bindings; help is retained', () => {
+test('removed certificate selector/list/search and update help do not leave broken event bindings', () => {
   const ui = view();
   for (const id of ['certificate-type-select', 'load-certificate-btn', 'certificate-results', 'scope-search-input']) assert.equal(ui.get(id), null);
-  assert.match(html, /certificate\.update_help_title/);
-  assert.match(html, /href="\/data\/SCOPE_FORMAT\.md"/);
+  assert.ok(!html.includes('certificate.update_help_title'));
+  assert.ok(!html.includes('href="/data/SCOPE_FORMAT.md"'));
   assert.ok(ui.get('scope-oj-accreditation').listeners.change);
   assert.ok(ui.get('scope-oj-facility').listeners.change);
 });
