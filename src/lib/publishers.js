@@ -69,6 +69,8 @@ export const SEARCH_URLS = {
   ks: () => 'https://standard.go.kr/KSCI/standardIntro/getStandardSearchList.do',
   vcci: () => 'https://www.vcci.jp/english/member/index.html',
   fcc: () => 'https://apps.fcc.gov/oetcf/kdb/index.cfm',
+  semi: () => 'https://store-us.semi.org/',
+  as_nzs: () => 'https://www.standards.govt.nz/',
 };
 
 export function parseEtsi(rows, ref) {

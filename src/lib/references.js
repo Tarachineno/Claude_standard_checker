@@ -16,6 +16,8 @@ export function publisherOf(namespace, number) {
   if (namespace.startsWith('KS')) return 'ks';
   if (namespace.startsWith('VCCI')) return 'vcci';
   if (['MP', 'UNII', 'FCC KDB'].includes(namespace)) return 'fcc';
+  if (namespace === 'SEMI') return 'semi';
+  if (namespace === 'AS/NZS') return 'as_nzs';
   return 'manual';
 }
 

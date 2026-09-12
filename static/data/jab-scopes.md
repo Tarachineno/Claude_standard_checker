@@ -5,9 +5,16 @@
 **Valid Until:** 2028-12-31  
 **Accreditation Body:** JAB  
 **Accreditation Standard:** ISO/IEC 17025:2017 (JIS Q 17025:2018)  
-**Source Documents:**  
-- JAB認定証(白黒版)(2028.12.31)_RTL02770-20260217.pdf  
-- jab-scopes.md  
+**Source Document:** JAB Cert (2028.12.31)_RTL02770-20260217.pdf  
+**Source PDF SHA256:** b5ae8a9b20951ff2cc0e12a5f0c77fdab8f9e277463576072d55383dff070924  
+**Scope Revision:** 2026-02-17  
+**Issue Number:** RTL02770-20260217  
+**Renewed:** 2025-01-01  
+**Initial Accreditation:** 2008-12-08  
+**Scope Notes:** Electrical Testing。認定対象施設は付属書のとおり。列挙された方法による試験所活動のみが認定対象であり、規格内のリスクマネジメント・リスクアセスメント等のその他活動は認定範囲に含まれない（PDF p.13）。  
+**Edition Policy:** PDF p.13: 版数が認定範囲に明記されていない規格・方法は、現行版の発行日から遅くとも6か月以内に現行版へ移行する。  
+**Facility Notes:** PDF p.9: 施設2はSGS Japan Inc. Kitayamata Laboratoryが使用する施設としてTDK Corporation Nikaho Factory (North site)を記載。認定書のName of Premisesは北山田試験所、Location of facility usedは秋田TDK所在地。両施設ともTesting service at permanent facilities。  
+**FCC Note:** PDF p.13: 認定はFCC equipment authorization programへの受入れを意味しない。FCC承認試験所一覧は https://apps.fcc.gov/oetcf/eas/ で別途確認する。  
 
 ---
 
@@ -269,7 +276,7 @@
 - **EN 55025**
 - **ISO 13766-1** - except bodies of construction machinery
 
-### 21.4.10 Harmonic Current Emission Tests {#facility-1-harmonic-current}
+### M21.4.10 Harmonic Current Emission Tests {#facility-1-harmonic-current}
 
 - **IEC 61000-3-2**
 - **EN 61000-3-2**
@@ -546,6 +553,10 @@
 - **ISO 80601-2-56**
 - **EN ISO 80601-2-56**
 
+- **ISO 80601-2-61**
+- **EN ISO 80601-2-61**
+- **JIS T 80601-2-61**
+
 ### M21.4.17 Surge Immunity Tests {#facility-1-surge-immunity}
 
 - **EN 55024**
@@ -680,7 +691,7 @@
 - **IEC 61000-6-2**
 - **EN 61326-1**
 - **IEC 61326-1**
-- **Except short duration test**
+**Category Note:** PDF p.8のM21.4.19欄に "Except short duration test" と記載。独立した規格ではなく区分の注記として保持し、適用範囲はPDF原文で確認する。
 - **IEC 60601-1-2**
 - **EN 60601-1-2**
 - **JIS T 0601-1-2**
@@ -1120,7 +1131,7 @@
 - **IEC 61000-6-2**
 - **EN 61326-1**
 - **IEC 61326-1**
-- **Except short duration test**
+**Category Note:** PDF p.12のM21.4.19欄に "Except short duration test" と記載。独立した規格ではなく区分の注記として保持し、適用範囲はPDF原文で確認する。
 - **IEC 60601-1-2**
 - **EN 60601-1-2**
 - **JIS T 0601-1-2**
@@ -1166,21 +1177,13 @@
 - **EN 301 489-1**
 - **EN 301 489-3**
 
-### M21.27 Radio Transmitter Tests {#facility-2-radio-transmitter}
+### M21.27 / M21.27.3 Radio Transmitter Tests - Spurious Emission Intensity {#facility-2-radio-transmitter}
 
-- **EN 300 330:V2.1.1(2017-02)**
+- **EN 300 330:V2.1.1(2017-02)** - This test is limited to magnetic field strengths below 30 MHz, for Transmitter H-field and Radiated spurious. (PDF p.13)
 
-### M21.27.3 Spurious Emission Intensity {#facility-2-spurious-emission}
+### M21.28 / M21.28.1 Radio Receiver Tests - Limit of Radio Waves Which Are Secondarily Emitted {#facility-2-radio-receiver}
 
-- This test is limited to magnetic field strengths below 30 MHz, for Transmitter H-field and Radiated spurious.
-
-### M21.28 Radio Receiver Tests {#facility-2-radio-receiver}
-
-- **EN 300 330:V2.1.1(2017-02)**
-
-### M21.28.1 Limit of Radio Waves Which Are Secondarily Emitted {#facility-2-radio-waves-secondarily-emitted}
-
-- This test is limited to magnetic field strength below 30 MHz.
+- **EN 300 330:V2.1.1(2017-02)** - This test is limited to magnetic field strength below 30 MHz. (PDF p.13)
 
 ---
 

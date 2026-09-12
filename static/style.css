@@ -720,6 +720,10 @@ main {
 }
 
 .scope-oj-summary-valid { background: #2e7d32; }
+.scope-oj-summary-card { border: 2px solid transparent; font: inherit; text-align: left; cursor: pointer; width: 100%; }
+.scope-oj-summary-card:hover { filter: brightness(1.08); }
+.scope-oj-summary-card[aria-pressed="true"] { border-color: #fff; outline: 3px solid #23384d; outline-offset: 2px; }
+.scope-oj-summary-card:focus-visible { outline: 3px solid #23384d; outline-offset: 3px; }
 .scope-oj-summary-warning { background: #c62828; }
 .scope-oj-summary-caution { background: #ef8b00; }
 .scope-oj-summary-not_listed { background: #687783; }
@@ -2141,7 +2145,11 @@ footer {
 .quick-sources { margin-top: 12px; font-size: 0.8rem; color: var(--text-gray); }
 
 /* --- スコープ詳細モーダル（「詳細を見る」で開く、D1/MDの実データ） --- */
-#scope-detail-modal .modal-content { max-width: 560px; }
+#scope-detail-modal .modal-content { max-width: 640px; max-height: 90vh; overflow-y: auto; }
+.scope-detail-notes { padding: 10px 12px; background: #fff8eb; border-left: 3px solid var(--warning-orange); font-size: 0.85rem; line-height: 1.6; overflow-wrap: anywhere; }
+.scope-detail-notes p { margin: 0 0 8px; }
+.scope-detail-notes p:last-child { margin-bottom: 0; }
+.official-publisher-links { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 12px 0; }
 .scope-detail-list { list-style: none; padding: 0; margin: 10px 0; max-height: 320px; overflow-y: auto; }
 .scope-detail-list li { padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
 .scope-detail-list li:last-child { border-bottom: none; }

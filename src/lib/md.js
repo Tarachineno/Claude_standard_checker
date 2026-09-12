@@ -70,6 +70,14 @@ export function parseScopesDocument(mdContent, certType) {
       continue;
     }
 
+    // 区分の制限・脚注は規格として数えず、D1のextra_infoにも保持する。
+    const categoryNote = line.match(/^\*\*Category Note:\*\*\s*(.+)$/);
+    if (categoryNote && anchor) {
+      const notes = (info.category_notes ||= {});
+      notes[anchor] = [notes[anchor], categoryNote[1].trim()].filter(Boolean).join('\n');
+      continue;
+    }
+
     if (line.startsWith('- **')) {
       const im = line.match(ITEM_LINE);
       if (im) {

@@ -18,7 +18,7 @@ function view() {
   const context = createContext({
     Date, URL, console, navigator: {}, window: { addEventListener() {} }, localStorage: { setItem() {} },
     document: { getElementById: get, addEventListener() {}, querySelectorAll: () => [],
-      querySelector: () => ({ classList: { add() {} } }), documentElement: {} },
+      querySelector: () => ({ classList: { add() {} }, focus() {} }), documentElement: {} },
   });
   const run = code => runInContext(code, context);
   for (const script of scripts) run(script);
@@ -53,6 +53,52 @@ test('removed certificate selector/list/search do not leave broken event binding
   assert.match(html, /href="\/data\/SCOPE_FORMAT\.md"/);
   assert.ok(ui.get('scope-oj-accreditation').listeners.change);
   assert.ok(ui.get('scope-oj-facility').listeners.change);
+});
+
+test('summary buttons apply the same filter as the dropdown and retain other filters', () => {
+  for (const lang of ['ja', 'en']) {
+    const ui = view();
+    ui.context.fixture = comparison();
+    ui.run(`currentLanguage = '${lang}'; scopeOjCheckData = fixture; renderEditionComparison(fixture);`);
+    const summary = ui.get('scope-oj-summary');
+    assert.equal((summary.innerHTML.match(/<button type="button"/g) || []).length, 5);
+    const allCards = summary.innerHTML;
+    const accreditationKey = ui.run('scopeAccreditationKey(fixture.items[2])');
+    ui.get('scope-oj-accreditation').value = accreditationKey;
+    ui.get('scope-oj-search').value = 'IEC';
+    for (const status of ['valid', 'warning', 'caution', 'not_listed', 'unverified']) {
+      summary.listeners.click({ target: { closest: () => ({ dataset: { scopeStatus: status } }) } });
+      assert.equal(ui.get('scope-oj-status-filter').value, status);
+      assert.match(summary.innerHTML, new RegExp(`data-scope-status="${status}" aria-pressed="true"`));
+      assert.equal((summary.innerHTML.match(/aria-pressed="true"/g) || []).length, 1);
+      const byCard = ui.get('scope-oj-tbody').innerHTML;
+      ui.get('scope-oj-status-filter').listeners.change();
+      assert.equal(ui.get('scope-oj-tbody').innerHTML, byCard);
+      assert.equal(ui.get('scope-oj-accreditation').value, accreditationKey);
+      assert.equal(ui.get('scope-oj-search').value, 'IEC');
+    }
+    ui.get('scope-oj-status-filter').value = 'all';
+    ui.get('scope-oj-status-filter').listeners.change();
+    assert.ok(!summary.innerHTML.includes('aria-pressed="true"'));
+    assert.ok(allCards.includes('scope-oj-summary-caution'));
+  }
+});
+
+test('scope detail shows escaped certificate notes, category restrictions and revision', () => {
+  const ui = view();
+  ui.context.detail = {
+    category: 'Magnetic field', anchor: '#field', items: [{ standard: 'IEC 61000-4-8' }],
+    facility: { number: '2', name: 'TDK' }, source: 'd1',
+    certificate_info: { scope_revision: '2026-02-17', scope_notes: '<script>alert(1)</script>',
+      edition_policy: '6 months', facility_notes: 'Location of facility used', fcc_note: 'FCC acceptance separate',
+      category_notes: { '#field': 'Except short duration test', '#other': 'wrong category' } },
+  };
+  for (const lang of ['ja', 'en']) {
+    ui.run(`currentLanguage = '${lang}'; renderScopeDetailModal('jab', detail);`);
+    const body = ui.get('scope-detail-body').innerHTML;
+    for (const text of ['2026-02-17', '6 months', 'Location of facility used', 'Except short duration test', '&lt;script&gt;']) assert.ok(body.includes(text));
+    assert.ok(!body.includes('<script>') && !body.includes('wrong category'));
+  }
 });
 
 test('comparison shows five columns in both languages, including empty results', () => {

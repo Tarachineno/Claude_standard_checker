@@ -90,7 +90,7 @@ function renderEditionComparison(data) {
     const statuses = ['valid', 'warning', 'caution', 'not_listed', 'unverified'];
     const summary = Object.fromEntries(statuses.map(status => [status, matching.filter(item => selected(item).status === status).length]));
     catalogueElement('scope-oj-summary').innerHTML = ['valid', 'warning', 'caution', 'not_listed', 'unverified'].map(s =>
-        '<div class="scope-oj-summary-card scope-oj-summary-' + s + '"><span>' + esc(statusText(s)) + '</span><strong>' + (summary?.[s] || 0) + '</strong></div>').join('');
+        '<button type="button" class="scope-oj-summary-card scope-oj-summary-' + s + '" data-scope-status="' + s + '" aria-pressed="' + (filter === s) + '"><span>' + esc(statusText(s)) + '</span><strong>' + (summary?.[s] || 0) + '</strong></button>').join('');
     catalogueElement('scope-oj-result-count').textContent = t('scope_oj.result_count', { shown: items.length, total: data.items.length });
     const sources = Object.entries(data.sources.oj || {}).map(([d, s]) => d + ': ' + (s.last_checked ? new Date(s.last_checked).toLocaleString() : s.source || 'error')).join(' · ');
     const stale = Object.values(data.sources.oj || {}).some(s => ['kv-stale', 'bundled', 'fallback'].includes(s.source) || s.error);
@@ -160,7 +160,8 @@ function renderCatalog() {
         const record = ref.record;
         const error = record?.error;
         const edition = (record?.editions || []).map(e => esc(e.designation) + ' <small>' + esc(e.status) + '</small>').join('<br>');
-        return '<tr><td><strong>' + esc(ref.designation) + '</strong><small>' + esc(ref.provider.toUpperCase()) + ' · ' + ref.scope_count + '</small></td><td>' +
+        const providerLabel = { semi: 'SEMI', as_nzs: 'Standards Australia / Standards New Zealand (AS/NZS)' }[ref.provider] || ref.provider.toUpperCase();
+        return '<tr><td><strong>' + esc(ref.designation) + '</strong><small>' + esc(providerLabel) + ' · ' + ref.scope_count + '</small></td><td>' +
             (edition || esc(t('catalog.missing'))) + (!ref.automatic_supported ? '<small>' + esc(t('catalog.manual_required')) + '</small>' : '') + (error ? '<small class="catalog-error">' + esc(error) + '</small>' : '') +
             '</td><td>' + esc(verificationText(record)) + (record?.origin ? '<small>' + esc(t('catalog.' + record.origin)) + '</small>' : '') +
             safeSourceLink(record?.editions?.at(-1)?.source_url || record?.source_url || ref.search_url, t('catalog.source')) + '</td><td class="catalog-row-actions">' +

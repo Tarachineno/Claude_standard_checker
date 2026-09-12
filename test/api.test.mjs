@@ -57,11 +57,11 @@ test('GET /api/certificate-data (MD fallback, no D1)', async () => {
   const j = await r.json();
   assert.equal(j.success, true);
   assert.equal(j.data.certificate_type, 'JAB_MD_Dynamic');
-  assert.equal(j.data.total_standards, 1050);
+  assert.equal(j.data.total_standards, 1051);
   assert.equal(j.data.facilities.length, 2);
   assert.equal(j.data.source, 'md');
   const a = await (await get('/api/certificate-data?cert_type=a2la')).json();
-  assert.equal(a.data.total_standards, 83);
+  assert.equal(a.data.total_standards, 88);
   assert.equal(a.data.certificate_info.certificate_number, '7080.01');
   assert.equal((await get('/api/certificate-data?cert_type=x')).status, 400);
 });
@@ -71,7 +71,7 @@ test('GET /api/accreditations returns compact current metadata and PDF links wit
   assert.equal(response.status, 200);
   const { data } = await response.json();
   assert.deepEqual(data.items.map(item => item.cert_type), ['a2la', 'jab']);
-  assert.deepEqual(data.items.map(item => item.item_count), [83, 1050]);
+  assert.deepEqual(data.items.map(item => item.item_count), [88, 1051]);
   for (const item of data.items) {
     assert.equal(item.available, true);
     assert.equal(item.source, 'md');
@@ -103,7 +103,7 @@ test('GET /api/scope-oj-version-check compares every current scope item', async 
   assert.equal(r.status, 200);
   const j = await r.json();
   assert.equal(j.success, true);
-  assert.equal(j.data.items.length, 1050 + 83);
+  assert.equal(j.data.items.length, 1051 + 88);
   assert.equal(j.data.summary.total, j.data.items.length);
   assert.ok(j.data.summary.valid + j.data.summary.warning + j.data.summary.caution + j.data.summary.not_listed + j.data.summary.unverified === j.data.items.length);
   assert.equal(j.data.sources.scopes.jab.source, 'md');

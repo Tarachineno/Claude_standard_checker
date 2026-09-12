@@ -227,7 +227,7 @@
                     <div class="catalog-controls">
                         <button id="catalog-load-btn" class="btn btn-secondary" data-i18n="catalog.load">Load catalogue</button>
                         <label for="catalog-provider" data-i18n="catalog.provider">Publisher</label>
-                        <select id="catalog-provider"><option value="all">All</option><option value="etsi">ETSI</option><option value="cenelec">CEN/CENELEC</option><option value="iec">IEC/CISPR</option><option value="iso">ISO</option><option value="ieee">ANSI/IEEE</option><option value="ised">ISED</option><option value="jisc">JIS</option><option value="ks">KS</option><option value="vcci">VCCI</option><option value="fcc">FCC</option><option value="manual">Other</option></select>
+                        <select id="catalog-provider"><option value="all">All</option><option value="etsi">ETSI</option><option value="cenelec">CEN/CENELEC</option><option value="iec">IEC/CISPR</option><option value="iso">ISO</option><option value="ieee">ANSI/IEEE</option><option value="ised">ISED</option><option value="jisc">JIS</option><option value="ks">KS</option><option value="vcci">VCCI</option><option value="fcc">FCC</option><option value="semi">SEMI</option><option value="as_nzs">Standards Australia / Standards New Zealand (AS/NZS)</option><option value="manual">Other</option></select>
                         <input id="catalog-search" type="search" aria-label="Catalogue search" data-i18n="catalog.search" placeholder="Search references" />
                     </div>
                     <p id="catalog-message" role="status"></p>
@@ -250,6 +250,14 @@
                     </details>
                 </div>
                 <div class="search-info">
+                    <h3 data-i18n="search.additional_publishers">Additional official publisher portals</h3>
+                    <div class="official-publisher-links">
+                        <a href="https://store-us.semi.org/" target="_blank" rel="noopener noreferrer">SEMI — F47 / E6</a>
+                        <a href="https://store.standards.org.au/" target="_blank" rel="noopener noreferrer">Standards Australia — AS/NZS</a>
+                        <a href="https://www.standards.govt.nz/" target="_blank" rel="noopener noreferrer">Standards New Zealand — AS/NZS</a>
+                        <a href="https://tms.wi-fi.org/" target="_blank" rel="noopener noreferrer">Wi-Fi Alliance — Test Management System</a>
+                    </div>
+                    <p class="muted" data-i18n="search.additional_publishers_note">Enter the reference in the publisher portal. Wi-Fi Alliance test plans require authorized access. These links do not enable automatic edition verification.</p>
                     <h3><i class="fas fa-info-circle"></i> <span data-i18n="search.how_to_title">How to Search</span></h3>
                     <div class="search-help-grid">
                         <div class="portal-help">

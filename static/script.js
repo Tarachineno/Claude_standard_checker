@@ -21,6 +21,8 @@ const translations = {
         'nav.search_standards': 'Official Standards Search',
         'nav.iso17025_certificate': 'ISO/IEC 17025 Accreditation Certificate',
         'quick.title': 'Quick Check — can we test it under accreditation?',
+        'search.additional_publishers': 'Additional official publisher portals',
+        'search.additional_publishers_note': 'Enter the reference in the publisher portal. Wi-Fi Alliance test plans require authorized access. These links do not enable automatic edition verification.',
         'quick.description': 'Paste standard numbers (one per line, or comma separated). JAB / A2LA accreditation scopes and the EU Official Journal lists (EMC / RED / LVD) are checked at once.',
         'quick.placeholder': 'EN 55032:2015\nEN 301 489-17 V3.2.4\nEN 300 328 V2.2.2\nIEC 61000-4-2',
         'quick.check_btn': 'Check',
@@ -183,7 +185,9 @@ const translations = {
         'nav.oj_standards': 'OJ規格',
         'nav.search_standards': '規格団体公式検索',
         'nav.iso17025_certificate': 'ISO/IEC 17025認定証',
-        'quick.title': 'クイック判定 — この規格、認定範囲で試験できる？',
+        'quick.title': 'クイック判定 — この規格、うちのラボで試験できる？',
+        'search.additional_publishers': 'その他の発行団体・公式参照先',
+        'search.additional_publishers_note': '公式ポータル内で規格番号を検索してください。Wi-Fi Allianceの試験計画は利用権限が必要です。リンク追加だけでは版数の自動取得は行いません。',
         'quick.description': '規格番号を貼り付けてください（1行に1つ、またはカンマ区切り）。JAB / A2LA の認定スコープと、EU官報（OJ）の整合規格リスト（EMC / RED / LVD）をまとめて照合します。',
         'quick.placeholder': 'EN 55032:2015\nEN 301 489-17 V3.2.4\nEN 300 328 V2.2.2\nIEC 61000-4-2',
         'quick.check_btn': '判定する',
@@ -550,6 +554,13 @@ function setupEventListeners() {
     document.getElementById('scope-oj-check-btn').addEventListener('click', runScopeOjVersionCheck);
     document.getElementById('scope-oj-status-filter').addEventListener('change', () => {
         if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
+    });
+    document.getElementById('scope-oj-summary').addEventListener('click', event => {
+        const status = event.target.closest('[data-scope-status]')?.dataset.scopeStatus;
+        if (!scopeOjCheckData || !['valid', 'warning', 'caution', 'not_listed', 'unverified'].includes(status)) return;
+        document.getElementById('scope-oj-status-filter').value = status;
+        renderScopeOjVersionResults(scopeOjCheckData);
+        document.querySelector(`[data-scope-status="${status}"]`)?.focus();
     });
     document.getElementById('scope-oj-search').addEventListener('input', () => {
         if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
@@ -1535,7 +1546,7 @@ function createScopeBadge(certType, matchData) {
     </span>`;
 }
 
-// Open scope details in MD file
+// Open current D1/MD scope details, including certificate and category conditions.
 async function openScopeDetails(certType, anchor) {
     try {
         const response = await apiCall(`/scope-detail?cert_type=${certType}&anchor=${encodeURIComponent(anchor)}`);
@@ -1562,12 +1573,22 @@ function renderScopeDetailModal(certType, data) {
     const certUntil = data.certificate_info?.valid_until || '-';
     const sourceLabel = data.source === 'd1' ? t('quick.detail_source_db') : t('quick.detail_source_md');
     const pdfUrl = `/certificates/${certType}.pdf`;
+    const info = data.certificate_info || {};
+    const labels = currentLanguage === 'ja'
+        ? ['認定範囲の注記', '版数の取扱い', '施設の注記', 'FCCの注記', '区分の注記']
+        : ['Scope notes', 'Edition policy', 'Facility notes', 'FCC note', 'Category note'];
+    const noteValues = [info.scope_notes, info.edition_policy, data.facility?.number === '2' ? info.facility_notes : null,
+        info.fcc_note, info.category_notes?.[data.anchor]];
+    const notes = noteValues.map((note, i) => typeof note === 'string' && note
+        ? `<p><strong>${esc(labels[i])}:</strong> ${esc(note)}</p>` : '').join('');
+    const revision = info.scope_revision ? ` ・ ${currentLanguage === 'ja' ? '認定範囲改訂日' : 'Scope revision'} ${esc(info.scope_revision)}` : '';
 
     document.getElementById('scope-detail-body').innerHTML = `
         ${facility}
+        ${notes ? `<div class="scope-detail-notes">${notes}</div>` : ''}
         <ul class="scope-detail-list">${rows}</ul>
         <div class="scope-detail-footer">
-            <span class="muted">${esc(certType.toUpperCase())} ${esc(certNo)} ・ ${esc(t('quick.detail_valid_until'))} ${esc(certUntil)} ・ ${esc(sourceLabel)}</span>
+            <span class="muted">${esc(certType.toUpperCase())} ${esc(certNo)} ・ ${esc(t('quick.detail_valid_until'))} ${esc(certUntil)}${revision} ・ ${esc(sourceLabel)}</span>
             <a href="${esc(pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-outline">
                 <i class="fas fa-file-pdf"></i> ${esc(t('quick.detail_open_pdf'))}
             </a>
