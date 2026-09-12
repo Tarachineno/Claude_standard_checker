@@ -7,7 +7,7 @@ const catalogueTranslations = {
         checked: 'Last verified / source', last_checked: 'Last verified', date_unknown: 'Unknown', actions: 'Actions', admin: 'Refresh / manually verify editions', admin_help: 'Saving requires an administration key. The key is kept only in this page; it is not saved to browser storage.',
         token: 'Administration key', refresh_batch: 'Refresh next 3 references', edition_input: 'One edition including amendments / corrigenda', publication_status: 'Publication status',
         date: 'Publication date (optional)', url: 'Official source URL', note: 'Verification note', save: 'Save verified edition', help: 'Catalogue setup and verification guide',
-        directive: 'OJ directive', basis: 'Summary / filter basis', published_basis: 'Latest Published', oj_basis: 'Active OJ', basis_result: 'Selected basis',
+        directive: 'OJ directive', basis: 'Summary / filter basis', published_basis: 'Latest Published', oj_basis: 'Active OJ',
         unverified: 'Unverified', manual: 'Manually verified', automatic: 'Automatic', supplement: 'Verify / edit', refresh: 'Refresh', source: 'Official source',
         saved: 'Verified edition saved. Rerun the bulk check to update results.', unavailable: 'Catalogue unavailable. See setup guide.', missing: 'Not yet verified',
         needs_key: 'Enter the administration key in the refresh / verification section.', refreshed: 'Processed {count} references. Failed checks retain the previous result.',
@@ -20,7 +20,7 @@ const catalogueTranslations = {
         checked: '最終確認日時・出典', last_checked: '最終確認日時', date_unknown: '不明', actions: '操作', admin: '公式情報の再取得・手動補完', admin_help: '保存には管理キーが必要です。キーはこのページ内だけで使用し、ブラウザーには保存しません。',
         token: '管理キー', refresh_batch: '未更新の3規格を取得', edition_input: '最新版（追補・正誤票を含む1版）', publication_status: '発行状態',
         date: '発行日（任意）', url: '公式の根拠URL', note: '確認根拠・メモ', save: '確認した版を保存', help: '版情報の取得・補完ヘルプ',
-        directive: 'OJの対象指令', basis: '集計・絞り込み基準', published_basis: '最新Published版', oj_basis: '有効なOJ掲載版', basis_result: '選択基準の結果',
+        directive: 'OJの対象指令', basis: '集計・絞り込み基準', published_basis: '最新Published版', oj_basis: '有効なOJ掲載版',
         unverified: '未確認', manual: '手動確認済み', automatic: '自動取得', supplement: '確認・補完', refresh: '再取得', source: '公式出典',
         saved: '確認した版を保存しました。一括確認を再実行すると結果に反映されます。', unavailable: '版情報の台帳を利用できません。ヘルプの初期設定を確認してください。', missing: '未取得・未確認',
         needs_key: '「公式情報の再取得・手動補完」に管理キーを入力してください。', refreshed: '{count}規格を処理しました。取得失敗時は前回の情報を保持します。',
@@ -107,13 +107,12 @@ function renderEditionComparison(data) {
                 '<small>' + esc(verificationText(p.record)) + (p.record?.origin ? ' · ' + esc(t('catalog.' + p.record.origin)) : '') + '</small>' +
                 safeSourceLink(p.latest?.source_url || p.record?.source_url, t('catalog.source')) + '</div>';
         }).join('');
-        const check = selected(item);
         const detail = item.anchor ? '<br><button type="button" class="btn-link" data-scope-detail-cert="' + esc(item.cert_type) + '" data-scope-detail-anchor="' + esc(item.anchor) + '">' + esc(t('quick.detail_link')) + '</button>' : '';
         return '<tr><td>' + esc(item.cert_type.toUpperCase()) + '<small>' + esc(item.certificate_number || '') + '</small></td><td>' +
             esc(scopeFacilityLabel(item)) + '<small>' + esc(item.category || '') + '</small></td><td><strong>' + esc(item.standard) +
             '</strong>' + detail + '</td><td>' + (oj || esc(t('catalog.unverified'))) + '</td><td>' + (published || esc(t('catalog.unverified'))) +
-            '</td><td>' + statusBadge(check.status) + '<small>' + esc(scopeOjReasonLabel(check.reason)) + '</small></td></tr>';
-    }).join('') || '<tr><td colspan="6" class="scope-oj-empty">' + esc(t('scope_oj.no_results')) + '</td></tr>';
+            '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="scope-oj-empty">' + esc(t('scope_oj.no_results')) + '</td></tr>';
     catalogueElement('scope-oj-check-results').classList.remove('hidden');
 }
 

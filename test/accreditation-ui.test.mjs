@@ -55,6 +55,55 @@ test('removed certificate selector/list/search do not leave broken event binding
   assert.ok(ui.get('scope-oj-facility').listeners.change);
 });
 
+test('comparison shows five columns in both languages, including empty results', () => {
+  const header = html.match(/<table class="scope-oj-table">\s*<thead>([\s\S]*?)<\/thead>/)[1];
+  assert.equal((header.match(/<th\b/g) || []).length, 5);
+  assert.ok(!header.includes('catalog.basis_result'));
+  for (const lang of ['ja', 'en']) {
+    const ui = view();
+    ui.context.fixture = comparison();
+    ui.run(`currentLanguage = "${lang}"; renderEditionComparison(fixture);`);
+    const rows = [...ui.get('scope-oj-tbody').innerHTML.matchAll(/<tr>([\s\S]*?)<\/tr>/g)];
+    assert.equal(rows.length, 4);
+    for (const [, row] of rows) {
+      assert.equal((row.match(/<td\b/g) || []).length, 5);
+      assert.match(row, /data-scope-detail-anchor/);
+      assert.match(row, /scope-oj-status-/);
+    }
+    ui.context.fixture.items = [];
+    ui.run('renderEditionComparison(fixture);');
+    assert.match(ui.get('scope-oj-tbody').innerHTML, /colspan="5"/);
+  }
+});
+
+test('compound-scope aggregation still drives basis-specific filtering without a summary column', () => {
+  const ui = view();
+  const catalog = ['IEC 61326-1:2020', 'EN 55032:2015'].map(designation => {
+    const ref = parseStandardReferences(designation)[0];
+    return { key: ref.key, checked_at: '2026-09-12T00:00:00Z', origin: 'manual',
+      editions: [{ designation, edition: ref.editions[0], status: 'published' }] };
+  });
+  const fixture = buildScopeOjVersionCheck([{ certType: 'jab', doc: { items: [
+    { standard: 'IEC 61326-1:2020 / EN 55032:2010', anchor: '#compound' },
+  ] } }], { EMC: [{ number: 'EN 55032:2010' }] }, '2026-09-12', { directive: 'EMC', catalog });
+  fixture.sources = { oj: {}, catalog: { available: true } };
+  assert.equal(fixture.items[0].references.length, 2);
+  assert.equal(fixture.items[0].published.status, 'warning');
+  assert.equal(fixture.items[0].status, 'valid');
+  ui.context.fixture = fixture;
+  ui.get('scope-oj-status-filter').value = 'warning';
+  ui.run('renderEditionComparison(fixture);');
+  assert.equal((ui.get('scope-oj-tbody').innerHTML.match(/<td\b/g) || []).length, 5);
+  assert.match(ui.get('scope-oj-summary').innerHTML, /scope-oj-summary-warning[^]*?<strong>1<\/strong>/);
+  ui.get('scope-oj-basis').value = 'oj';
+  ui.run('renderEditionComparison(fixture);');
+  assert.match(ui.get('scope-oj-tbody').innerHTML, /colspan="5"/);
+  assert.match(ui.get('scope-oj-summary').innerHTML, /scope-oj-summary-valid[^]*?<strong>1<\/strong>/);
+  ui.get('scope-oj-status-filter').value = 'valid';
+  ui.run('renderEditionComparison(fixture);');
+  assert.equal((ui.get('scope-oj-tbody').innerHTML.match(/<td\b/g) || []).length, 5);
+});
+
 test('accreditation/facility filters are independent of status and summaries reflect the filtered population', () => {
   const ui = view();
   ui.context.fixture = comparison();
