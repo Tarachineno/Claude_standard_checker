@@ -78,9 +78,12 @@ export function checkPublished(ref, record, today) {
   }
   const checked = assessEditions(ref, [{ editions: [latest.edition] }], 'published');
   if (latest.reference_changed) Object.assign(checked, { status: 'caution', reason: 'reference_changed' });
-  const checkedAt = Date.parse(record.checked_at);
-  const stale = !Number.isFinite(checkedAt) || Date.parse(today + 'T23:59:59Z') - checkedAt > 8 * 86400000;
-  return { ...base, ...checked, latest, stale, ...(record.error || stale ? { status: 'unverified', reason: record.error ? 'fetch_failed' : 'catalog_stale' } : {}) };
+  // Verification dates are displayed for context, not used as an expiry timer.
+  // Missing verification metadata and actual fetch failures still need review.
+  const invalidCheckedAt = !Number.isFinite(Date.parse(record.checked_at));
+  return { ...base, ...checked, latest, ...(record.error || invalidCheckedAt ? {
+    status: 'unverified', reason: record.error ? 'fetch_failed' : 'verification_date_invalid',
+  } : {}) };
 }
 
 const counts = checks => Object.fromEntries(['valid', 'warning', 'caution', 'not_listed', 'unverified'].map(s => [s, checks.filter(c => c.status === s).length]));

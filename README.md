@@ -92,7 +92,8 @@ npm test                 # ロジックと API の自動テスト（Node.js 22.1
 - 規格団体公式検索タブにPublished版台帳・公式取得・根拠URL付き手動補完・履歴を追加しています。
 - 自動取得対象: ETSI、CEN/CENELEC、IEC/CISPR、ISED（RSS/ICES）。ISO、ANSI/IEEE、JIS、KS、VCCI、FCC系等は手動確認で補完します。検索結果の断片や古い詳細ページだけから最新版とは断定しません。
 - 台帳は追加マイグレーション `0002_publisher_catalog.sql`。既存の認定書・認定スコープは変更しません。今回の機能追加で再シードは不要です。
-- Cronは15分ごとに最大3規格。成功した規格は7日後、失敗した規格は1日後に再試行。最終確認から8日超・取得失敗は前回値を保持したまま未確認にします。
+- 台帳と一括照合結果に最終確認日時を表示します。自動取得・手動補完ともに、日数の経過だけでは未確認に戻しません。判定は保存済みの版情報に基づき、現在の最新版であることの保証とは区別します。
+- Cronは15分ごとに最大3規格。成功した規格は7日後、失敗した規格は1日後に再試行。取得失敗時は前回値とその最終確認日時を保持し、未確認として参考表示します。確認日時の欠落・不正や根拠不足も未確認のままです。
 
 本番適用順序・管理キー設定・制約は [版情報の運用ヘルプ](static/data/CATALOG_HELP.md) を参照してください。公開APIは `GET /api/catalog`、`GET /api/catalog/history?key=EN:61326-1`、`GET /api/scope-oj-version-check?directive=EMC`。書込み用の `/api/catalog/manual`・`/refresh`・`/clear-manual` は `Authorization: Bearer <CATALOG_ADMIN_TOKEN>` を必須とします。
 

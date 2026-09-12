@@ -2,9 +2,9 @@
 let catalogData = null;
 const catalogueTranslations = {
     en: {
-        title: 'Published edition catalogue', intro: 'Publisher editions are checked independently of OJ listings. Source and verification dates are retained.',
+        title: 'Published edition catalogue', intro: 'Publisher editions are checked independently of OJ listings. Last verification dates are shown; elapsed time alone does not invalidate results.',
         load: 'Load catalogue', provider: 'Publisher', search: 'Search references', reference: 'Reference', edition: 'Published edition',
-        checked: 'Verified / source', actions: 'Actions', admin: 'Refresh / manually verify editions', admin_help: 'Saving requires an administration key. The key is kept only in this page; it is not saved to browser storage.',
+        checked: 'Last verified / source', last_checked: 'Last verified', date_unknown: 'Unknown', actions: 'Actions', admin: 'Refresh / manually verify editions', admin_help: 'Saving requires an administration key. The key is kept only in this page; it is not saved to browser storage.',
         token: 'Administration key', refresh_batch: 'Refresh next 3 references', edition_input: 'One edition including amendments / corrigenda', publication_status: 'Publication status',
         date: 'Publication date (optional)', url: 'Official source URL', note: 'Verification note', save: 'Save verified edition', help: 'Catalogue setup and verification guide',
         directive: 'OJ directive', basis: 'Summary / filter basis', published_basis: 'Latest Published', oj_basis: 'Active OJ', basis_result: 'Selected basis',
@@ -15,9 +15,9 @@ const catalogueTranslations = {
         cache: 'OJ data includes cached / bundled information; check the source dates before relying on it.', history: 'History', clear: 'Use automatic data', cleared: 'Manual override removed; history is retained.'
     },
     ja: {
-        title: 'Published版の管理', intro: 'OJ掲載とは別に、発行団体の最新版を確認します。出典と確認日時を残します。',
+        title: 'Published版の管理', intro: 'OJ掲載とは別に、発行団体の最新版を確認します。最終確認日時を表示し、日数の経過だけでは判定を変更しません。',
         load: '版情報を表示', provider: '発行団体', search: '規格番号で絞り込み', reference: '規格', edition: 'Published版',
-        checked: '確認日時・出典', actions: '操作', admin: '公式情報の再取得・手動補完', admin_help: '保存には管理キーが必要です。キーはこのページ内だけで使用し、ブラウザーには保存しません。',
+        checked: '最終確認日時・出典', last_checked: '最終確認日時', date_unknown: '不明', actions: '操作', admin: '公式情報の再取得・手動補完', admin_help: '保存には管理キーが必要です。キーはこのページ内だけで使用し、ブラウザーには保存しません。',
         token: '管理キー', refresh_batch: '未更新の3規格を取得', edition_input: '最新版（追補・正誤票を含む1版）', publication_status: '発行状態',
         date: '発行日（任意）', url: '公式の根拠URL', note: '確認根拠・メモ', save: '確認した版を保存', help: '版情報の取得・補完ヘルプ',
         directive: 'OJの対象指令', basis: '集計・絞り込み基準', published_basis: '最新Published版', oj_basis: '有効なOJ掲載版', basis_result: '選択基準の結果',
@@ -33,7 +33,7 @@ const extraReasons = {
         amendments_missing: 'Base edition matches; required amendments / corrigenda are not fully listed in the scope.',
         reference_unknown: 'Reference could not be identified. Review the original scope.',
         catalog_missing: 'Publisher edition has not been verified.', published_missing: 'No current Published edition confirmed.',
-        fetch_failed: 'Source update failed. The previous value is shown for reference.', catalog_stale: 'Publisher verification is more than 8 days old.',
+        fetch_failed: 'Source update failed. The previous value is shown for reference.', verification_date_invalid: 'The last verification date is missing or invalid.',
         reference_changed: 'Publisher lists a different designation. Confirm the successor / adoption relationship.',
         version_match: 'The accreditation scope includes the target edition.',
         scope_version_old: 'The accreditation scope only lists older editions.',
@@ -44,7 +44,7 @@ const extraReasons = {
         amendments_missing: '本体版は一致していますが、追補・正誤票の包含を確認できません。',
         reference_unknown: '規格を特定できません。認定スコープの原文を確認してください。',
         catalog_missing: '発行団体の版数を未確認です。', published_missing: '現行のPublished版を確認できません。',
-        fetch_failed: '更新確認に失敗しました。前回値は参考表示です。', catalog_stale: '版情報の最終確認から8日を超えています。',
+        fetch_failed: '更新確認に失敗しました。前回値は参考表示です。', verification_date_invalid: '最終確認日時が未記録、または不正です。',
         reference_changed: '発行団体の規格名が変わっています。後継・採用関係を確認してください。',
         version_match: '認定スコープに対象版が含まれています。',
         scope_version_old: '認定スコープは対象版より古い版のみです。',
@@ -65,6 +65,11 @@ const catalogueElement = id => document.getElementById(id);
 const editionText = edition => [edition.base, ...(edition.amendments || []), ...(edition.corrections || [])].join('+');
 const statusText = status => status === 'unverified' ? t('catalog.unverified') : scopeOjStatusLabel(status);
 const statusBadge = status => '<span class="scope-oj-status scope-oj-status-' + esc(status) + '">' + esc(statusText(status)) + '</span>';
+const verificationText = record => {
+    const timestamp = Date.parse(record?.checked_at);
+    const date = Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString() : t('catalog.date_unknown');
+    return t('catalog.last_checked') + ': ' + date;
+};
 const safeSourceLink = (url, label) => {
     try {
         const u = new URL(url);
@@ -95,7 +100,7 @@ function renderEditionComparison(data) {
             const p = ref.published;
             return '<div class="edition-reference"><strong>' + esc(p.latest?.designation || ref.designation) + '</strong> ' + statusBadge(p.status) +
                 '<small>' + esc(scopeOjReasonLabel(p.reason)) + '</small>' +
-                (p.record?.checked_at ? '<small>' + esc(new Date(p.record.checked_at).toLocaleString()) + ' · ' + esc(t('catalog.' + p.record.origin)) + '</small>' : '') +
+                '<small>' + esc(verificationText(p.record)) + (p.record?.origin ? ' · ' + esc(t('catalog.' + p.record.origin)) : '') + '</small>' +
                 safeSourceLink(p.latest?.source_url || p.record?.source_url, t('catalog.source')) + '</div>';
         }).join('');
         const check = selected(item);
@@ -128,7 +133,7 @@ function renderCatalog() {
         const edition = (record?.editions || []).map(e => esc(e.designation) + ' <small>' + esc(e.status) + '</small>').join('<br>');
         return '<tr><td><strong>' + esc(ref.designation) + '</strong><small>' + esc(ref.provider.toUpperCase()) + ' · ' + ref.scope_count + '</small></td><td>' +
             (edition || esc(t('catalog.missing'))) + (!ref.automatic_supported ? '<small>' + esc(t('catalog.manual_required')) + '</small>' : '') + (error ? '<small class="catalog-error">' + esc(error) + '</small>' : '') +
-            '</td><td>' + (record?.checked_at ? esc(new Date(record.checked_at).toLocaleString()) + '<small>' + esc(t('catalog.' + record.origin)) + '</small>' : '') +
+            '</td><td>' + esc(verificationText(record)) + (record?.origin ? '<small>' + esc(t('catalog.' + record.origin)) + '</small>' : '') +
             safeSourceLink(record?.editions?.at(-1)?.source_url || record?.source_url || ref.search_url, t('catalog.source')) + '</td><td class="catalog-row-actions">' +
             '<button class="btn btn-small btn-outline" data-catalog-edit="' + esc(ref.key) + '">' + esc(t('catalog.supplement')) + '</button> ' +
             (ref.automatic_supported ? '<button class="btn btn-small btn-outline" data-catalog-refresh="' + esc(ref.key) + '">' + esc(t('catalog.refresh')) + '</button> ' : '') +

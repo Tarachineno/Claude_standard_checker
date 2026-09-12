@@ -59,14 +59,41 @@ test('Published chooses latest, preserves missing-edition caution and rejects dr
   record.editions[1].status = 'published'; record.editions[1].publication_date = '2026-09-13';
   assert.equal(checkPublished(parse('IEC 61326-1:2013')[0], record, today).status, 'valid');
 });
-test('failed/stale checks retain previous values but are never valid', () => {
+test('Published verification does not expire after eight days, months or years', () => {
+  for (const origin of ['automatic', 'manual']) {
+    for (const checked_at of ['2026-09-04T00:00:00Z', '2026-09-01T00:00:00Z', '2026-01-01T00:00:00Z', '2021-01-01T00:00:00Z']) {
+      const record = pub('IEC 61326-1:2020', { origin, checked_at });
+      for (const [scope, status, reason] of [
+        ['IEC 61326-1:2020', 'valid', 'version_match'],
+        ['IEC 61326-1:2013', 'warning', 'scope_version_old'],
+        ['IEC 61326-1', 'caution', 'scope_version_missing'],
+      ]) {
+        const result = checkPublished(parse(scope)[0], record, today);
+        assert.equal(result.status, status);
+        assert.equal(result.reason, reason);
+        assert.equal(result.record.checked_at, checked_at);
+      }
+    }
+  }
+});
+test('failed checks retain previous values and verification dates but are never valid', () => {
   const ref = parse('IEC 61326-1:2020')[0];
-  for (const extra of [{ error: 'HTTP 503' }, { checked_at: '2026-09-01T00:00:00Z' }, { checked_at: 'bad date' }]) {
-    const result = checkPublished(ref, pub('IEC 61326-1:2020', extra), today);
+  for (const checked_at of [today + 'T00:00:00Z', '2021-01-01T00:00:00Z']) {
+    const result = checkPublished(ref, pub('IEC 61326-1:2020', { checked_at, error: 'HTTP 503' }), today);
     assert.equal(result.status, 'unverified');
+    assert.equal(result.reason, 'fetch_failed');
     assert.equal(result.latest.edition.base, '2020');
+    assert.equal(result.record.checked_at, checked_at);
   }
   assert.equal(checkPublished(ref, null, today).status, 'unverified');
+});
+test('missing or invalid verification dates remain unverified without implying expiry', () => {
+  for (const checked_at of [undefined, null, '', 'bad date']) {
+    const result = checkPublished(parse('IEC 61326-1:2020')[0], pub('IEC 61326-1:2020', { checked_at }), today);
+    assert.equal(result.status, 'unverified');
+    assert.equal(result.reason, 'verification_date_invalid');
+    assert.equal(result.latest.edition.base, '2020');
+  }
 });
 test('Issue editions are comparable; years versus versions are not', () => {
   assert.equal(checkPublished(parse('RSS-210 Issue 10')[0], pub('RSS-210 Issue 11'), today).status, 'warning');

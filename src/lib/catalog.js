@@ -101,7 +101,7 @@ export async function syncCatalog(c, { keys, limit = 5, force = false } = {}) {
         results.push({ key: ref.key, success: true, editions: fetched.editions.map(e => e.designation) });
       } catch (err) {
         const error = String(err.message).slice(0, 250);
-        // Keep the last successful value and mark it stale / failed, never empty it out.
+        // Keep the last successful value and record the failed attempt, never empty it out.
         await db.prepare(`UPDATE publisher_catalog SET attempted_at=?1,error=?2,next_check_at=?3 WHERE reference_key=?4`)
           .bind(attempted, error, new Date(Date.now() + 86400000).toISOString(), ref.key).run();
         results.push({ key: ref.key, success: false, error });
