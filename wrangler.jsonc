@@ -22,13 +22,15 @@
     "not_found_handling": "none"
   },
 
-  // JAB / A2LA 認定スコープの保存先（SQLite ベースの D1）
+  // JAB / A2LA 認定スコープの保存先（SQLite ベースの D1）。
+  // ローカル開発でもテストデータではなく本番の Cloudflare D1 を直接参照する（remote: true）。
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "standards-checker",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
+      "database_id": "26d57b2e-cb20-4823-aa4b-ff5fdc9e636a",
+      "migrations_dir": "migrations",
+      "remote": true
     }
   ],
 
@@ -36,7 +38,7 @@
   "kv_namespaces": [
     {
       "binding": "CACHE",
-      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+      "id": "6b00aed8ea274f4a8d29c7de1269c4a5"
     }
   ],
 
