@@ -930,7 +930,7 @@
 - **EN 301 489-1**
 - **EN 301 489-3**
 
-### M21.4.10 Harmonic Current Emission Tests {#facility-2-1ghz-and-over}
+### M21.4.10 Harmonic Current Emission Tests {#facility-2-harmonic-current}
 
 - **EN 12015**
 - **EN 301 489-1**

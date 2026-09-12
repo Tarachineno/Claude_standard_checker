@@ -11,8 +11,9 @@
     "test": "node --test",
     "db:migrate": "wrangler d1 migrations apply standards-checker --remote",
     "db:migrate:local": "wrangler d1 migrations apply standards-checker --local",
-    "db:seed": "node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --remote --file=seed/scopes.sql",
-    "db:seed:local": "node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --local --file=seed/scopes.sql",
+    "validate": "node scripts/validate-scopes.mjs",
+    "db:seed": "npm run validate && node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --remote --file=seed/scopes.sql",
+    "db:seed:local": "npm run validate && node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --local --file=seed/scopes.sql",
     "setup:local": "npm run db:migrate:local && npm run db:seed:local"
   },
   "dependencies": {

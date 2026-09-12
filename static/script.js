@@ -142,7 +142,7 @@ const translations = {
         'quick.clear_btn': 'クリア',
         'quick.hint': 'ヒント: Ctrl+Enter で判定',
         'quick.legend_ok': '認定範囲内',
-        'quick.legend_check': '年版違いで掲載あり — エンジニアに確認',
+        'quick.legend_check': '版違いで掲載あり — エンジニアに確認',
         'quick.legend_ng': 'JAB・A2LA どちらの認定範囲にもなし',
         'quick.results_title': '判定結果',
         'quick.copy_btn': '表をコピー',
