@@ -7,6 +7,29 @@ import { buildScopeOjVersionCheck } from '../src/lib/scope-oj.js';
 
 const script = readFileSync(new URL('../static/catalog.js', import.meta.url), 'utf8');
 
+test('official portal search follows catalogue management and precedes additional publishers', () => {
+  const html = readFileSync(new URL('../static/index.html', import.meta.url), 'utf8');
+  const searchTab = html.match(/<section id="search-tab"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(searchTab, 'official search tab exists');
+  const markers = [
+    'class="publisher-catalog"',
+    'id="catalog-admin"',
+    'data-i18n="catalog.help"',
+    'data-i18n="search.description"',
+    'id="search-input"',
+    'id="search-etsi-btn"',
+    'id="search-cen-btn"',
+    'data-i18n="search.additional_publishers"',
+  ];
+  let previous = -1;
+  for (const marker of markers) {
+    const position = searchTab.indexOf(marker);
+    assert.ok(position > previous, `${marker} appears in the expected order`);
+    assert.equal(html.split(marker).length - 1, 1, `${marker} occurs only once`);
+    previous = position;
+  }
+});
+
 function renderViews(lang, checked_at, origin = 'manual') {
   const reference = parseStandardReferences('IEC 61326-1:2020')[0];
   const record = { key: reference.key, origin, checked_at, editions: [{

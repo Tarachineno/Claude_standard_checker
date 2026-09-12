@@ -211,21 +211,6 @@
         <section id="search-tab" class="tab-content">
             <div class="card">
                 <h2><i class="fas fa-search"></i> <span data-i18n="search.title">Official Standards Search</span></h2>
-                <p data-i18n="search.description">Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.</p>
-                <div class="search-form">
-                    <div class="form-group">
-                        <input type="text" id="search-input" data-i18n="search.input_placeholder" placeholder="Enter standard number or keyword (e.g., 50360:2017, 18031-1)" />
-                        <div class="search-buttons">
-                            <button id="search-etsi-btn" class="btn btn-primary etsi-search-btn" data-i18n="search.etsi_btn">
-                                <i class="fas fa-external-link-alt"></i> Search on ETSI Portal
-                            </button>
-                            <button id="search-cen-btn" class="btn btn-secondary cen-search-btn" data-i18n="search.cenelec_btn">
-                                <i class="fas fa-external-link-alt"></i> Search on CEN-CENELEC Portal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="publisher-catalog">
                     <h3 data-i18n="catalog.title">Published edition catalogue</h3>
                     <p data-i18n="catalog.intro">Publisher editions, source links and last verification dates.</p>
@@ -253,6 +238,20 @@
                         </form>
                         <p><a href="/data/CATALOG_HELP.md" target="_blank" rel="noopener" data-i18n="catalog.help">Catalogue setup and verification guide</a></p>
                     </details>
+                </div>
+                <p data-i18n="search.description">Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.</p>
+                <div class="search-form">
+                    <div class="form-group">
+                        <input type="text" id="search-input" data-i18n="search.input_placeholder" placeholder="Enter standard number or keyword (e.g., 50360:2017, 18031-1)" />
+                        <div class="search-buttons">
+                            <button id="search-etsi-btn" class="btn btn-primary etsi-search-btn" data-i18n="search.etsi_btn">
+                                <i class="fas fa-external-link-alt"></i> Search on ETSI Portal
+                            </button>
+                            <button id="search-cen-btn" class="btn btn-secondary cen-search-btn" data-i18n="search.cenelec_btn">
+                                <i class="fas fa-external-link-alt"></i> Search on CEN-CENELEC Portal
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="search-info">
                     <h3 data-i18n="search.additional_publishers">Additional official publisher portals</h3>
