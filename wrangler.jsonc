@@ -9,7 +9,7 @@
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "eu-standards-checker",
+  "name": "lab-scope-checker",
   "main": "src/index.js",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
