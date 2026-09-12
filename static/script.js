@@ -153,7 +153,7 @@ const translations = {
         'quick.oj_harmonised': '掲載あり',
         'quick.oj_withdrawn': '取下げ済',
         'quick.oj_not_listed': '掲載なし',
-        'quick.oj_other_edition': '年版違い',
+        'quick.oj_other_edition': '版違い',
         'quick.no_scope': 'スコープなし',
         'quick.also': '他',
         'quick.sources': 'JAB {jab_no}（有効期限 {jab_until}）· A2LA {a2la_no}（有効期限 {a2la_until}）· OJリスト: {oj} · 判定日時 {at}',
