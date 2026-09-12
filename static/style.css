@@ -1810,16 +1810,21 @@ footer {
 .quick-summary { font-weight: 400; color: var(--text-gray); font-size: 0.95rem; margin-left: 10px; }
 .quick-result-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .table-wrap { overflow-x: auto; }
-.quick-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+.quick-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; table-layout: fixed; }
 .quick-table th {
     text-align: left; padding: 10px 12px; background: var(--light-orange); color: var(--text-dark);
-    border-bottom: 2px solid var(--primary-orange); white-space: nowrap;
+    border-bottom: 2px solid var(--primary-orange); white-space: normal;
 }
-.quick-table td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.quick-table th:nth-child(1), .quick-table td:nth-child(1) { width: 15%; }
+.quick-table th:nth-child(2), .quick-table td:nth-child(2) { width: 7%; }
+.quick-table th:nth-child(3), .quick-table td:nth-child(3) { width: 26%; }
+.quick-table th:nth-child(4), .quick-table td:nth-child(4) { width: 26%; }
+.quick-table th:nth-child(5), .quick-table td:nth-child(5) { width: 26%; }
+.quick-table td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: top; overflow-wrap: break-word; }
 .quick-table tr.row-ok    { border-left: 4px solid var(--success-green); }
 .quick-table tr.row-check { border-left: 4px solid var(--warning-orange); background: #fffaf2; }
 .quick-table tr.row-ng    { border-left: 4px solid var(--error-red); background: #fff6f6; }
-.quick-std { white-space: nowrap; font-size: 1rem; }
+.quick-std { font-size: 1rem; }
 .quick-verdict { white-space: nowrap; }
 .quick-table .facility-info { display: inline-block; font-size: 0.8rem; color: var(--text-gray); background: #f3f3f3; border-radius: 4px; padding: 1px 6px; margin-top: 4px; }
 .quick-table .scope-note { display: inline-block; font-size: 0.8rem; color: var(--warning-orange); margin-top: 4px; }
@@ -1831,7 +1836,7 @@ footer {
 .oj-listed    { background: #e6f6ea; color: #1e7e34; }
 .oj-withdrawn { background: #fdecea; color: #b02a37; }
 .oj-none      { background: #eee; color: var(--text-gray); }
-.oj-row { font-size: 0.85rem; line-height: 1.4; white-space: nowrap; }
+.oj-row { font-size: 0.85rem; line-height: 1.4; }
 .oj-directive { display: inline-block; min-width: 2.8em; font-weight: 700; color: var(--primary-orange); }
 .quick-sources { margin-top: 12px; font-size: 0.8rem; color: var(--text-gray); }
 

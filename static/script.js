@@ -144,7 +144,7 @@ const translations = {
         'quick.col_standard': '規格',
         'quick.col_verdict': '総合',
         'quick.col_oj': 'OJ整合規格（EMC / RED / LVD）',
-        'quick.summary': '{total}件中 OK {ok} / 要確認 {check} / NG {ng}',
+        'quick.summary': '{total}件中 OK {ok} / CHECK {check} / NG {ng}',
         'quick.oj_harmonised': '掲載あり',
         'quick.oj_withdrawn': '取下げ済',
         'quick.oj_not_listed': '掲載なし',
@@ -2155,7 +2155,7 @@ let lastQuickResult = null;
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 function verdictLabel(v) {
-    return v === 'ok' ? 'OK' : v === 'check' ? (currentLanguage === 'ja' ? '要確認' : 'CHECK') : 'NG';
+    return v === 'ok' ? 'OK' : v === 'check' ? 'CHECK' : 'NG';
 }
 
 function scopeCell(certType, m) {
