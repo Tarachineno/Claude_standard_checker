@@ -1,7 +1,7 @@
 {
-  "name": "eu-harmonized-standards-checker",
+  "name": "lab-scope-checker",
   "version": "3.0.0",
-  "description": "EU Harmonized Standards Checker - Cloudflare Workers edition (static assets + Hono API + D1 scope database)",
+  "description": "Lab Scope Checker - Cloudflare Workers edition (static assets + Hono API + D1 scope database)",
   "private": true,
   "type": "module",
   "main": "src/index.js",

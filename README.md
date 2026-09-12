@@ -57,7 +57,7 @@ npm run db:migrate
 npm run db:seed
 
 # 3) デプロイ
-npm run deploy                                       # → https://eu-standards-checker.<account>.workers.dev
+npm run deploy                                       # → https://lab-scope-checker.seidaku.workers.dev
 ```
 
 独自ドメイン（例 `standards.seidaku.com`）を付ける場合は、ダッシュボードの **Workers & Pages → eu-standards-checker → Settings → Domains & Routes → Add → Custom domain**。DNS は自動で入ります。
@@ -274,7 +274,7 @@ npm run deploy
 
 ### Web Application (Recommended)
 
-1. **Visit the Live Application**: [EU Harmonized Standards Checker](https://eu-harmonized-standards.netlify.app)
+1. **Visit the Live Application**: [Lab Scope Checker](https://lab-scope-checker.seidaku.workers.dev)
 
 2. **Select a Directive**: Choose from RED, EMC, or LVD
 

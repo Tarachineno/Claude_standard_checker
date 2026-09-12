@@ -325,7 +325,7 @@ async function initializeApp() {
     setupLanguageSwitcher();
     updateLanguageDisplay();
     await loadDirectives();
-    console.log('EU Harmonized Standards Checker initialized');
+    console.log('Lab Scope Checker initialized');
 }
 
 // Language switching functions
@@ -1779,7 +1779,7 @@ function exportStandards() {
     });
 
     const csvContent = generateCSV(standards);
-    downloadFile(csvContent, 'eu-harmonized-standards.csv', 'text/csv');
+    downloadFile(csvContent, 'lab-scope-checker-standards.csv', 'text/csv');
     
     showSuccess(`Exported ${standards.length} standards to CSV file`);
 }

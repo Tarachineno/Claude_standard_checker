@@ -1,4 +1,4 @@
-// EU Harmonized Standards Checker — Cloudflare Workers エントリポイント
+// Lab Scope Checker — Cloudflare Workers エントリポイント
 //
 //   静的ファイル（static/）は Workers Static Assets が先に配信し、一致しないパスだけがここに届く。
 //   API は /api/* に集約。旧 Netlify 版のパス（/.netlify/functions/*）も同じルーターに向けてあるので、
@@ -24,6 +24,21 @@ api.route('/', quickCheck);
 const app = new Hono();
 app.route('/api', api);
 app.route('/.netlify/functions', api);
+
+// Markdown の日本語表示用。Static Assets の既定レスポンスには charset が付かないため、
+// .md は Worker 経由で UTF-8 を明示して返す（HTML / JS / PDF は従来どおり直接配信）。
+app.get('/data/:filename', async c => {
+  const filename = c.req.param('filename') || '';
+  if (!filename.toLowerCase().endsWith('.md')) return c.notFound();
+
+  const asset = await c.env.ASSETS.fetch(new Request(new URL(c.req.path, c.req.url)));
+  if (!asset.ok) return c.notFound();
+
+  const headers = new Headers(asset.headers);
+  headers.set('Content-Type', 'text/markdown; charset=utf-8');
+  headers.set('Content-Disposition', 'inline');
+  return new Response(asset.body, { status: asset.status, statusText: asset.statusText, headers });
+});
 
 const isApi = c => c.req.path.startsWith('/api/') || c.req.path.startsWith('/.netlify/functions/');
 

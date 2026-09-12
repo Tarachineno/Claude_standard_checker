@@ -21,6 +21,13 @@ test('GET /api/health', async () => {
   assert.equal(j.data.runtime, 'cloudflare-workers');
 });
 
+test('GET /data/SCOPE_FORMAT.md serves Markdown with an explicit UTF-8 charset', async () => {
+  const r = await get('/data/SCOPE_FORMAT.md');
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get('content-type') || '', /text\/markdown;\s*charset=utf-8/i);
+  assert.match(await r.text(), /スコープ/);
+});
+
 test('GET /api/directives (and legacy /.netlify/functions path)', async () => {
   for (const p of ['/api/directives', '/.netlify/functions/directives']) {
     const r = await get(p);

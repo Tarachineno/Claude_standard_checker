@@ -1,5 +1,5 @@
 /**
- * Cloudflare Workers configuration — EU Harmonized Standards Checker
+ * Cloudflare Workers configuration — Lab Scope Checker
  *
  * 初回デプロイ前にやること（README「Cloudflare へのデプロイ」参照）:
  *   1. npx wrangler d1 create standards-checker   → 出力された database_id を下の d1_databases に貼る
@@ -19,7 +19,8 @@
   "assets": {
     "directory": "./static",
     "binding": "ASSETS",
-    "not_found_handling": "none"
+    "not_found_handling": "none",
+    "run_worker_first": ["/data/*.md"]
   },
 
   // JAB / A2LA 認定スコープの保存先（SQLite ベースの D1）。
