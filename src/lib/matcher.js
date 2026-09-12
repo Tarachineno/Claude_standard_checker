@@ -89,7 +89,7 @@ function matchOne(ojStandard, ojCore, ojVersion, ojPart, scope) {
     if (norm(ojStandard) === norm(scope.standard)) return { status: 'exact_match', note: null, ...base };
 
     if (ojVersion && scopeVersion && ojVersion !== scopeVersion) {
-      return { status: 'version_mismatch', note: `年版違い(${ojVersion}↔${scopeVersion})`, ...base };
+      return { status: 'version_mismatch', note: `版違い(${ojVersion}↔${scopeVersion})`, ...base };
     }
 
     // 旧実装は年版の数字だけを消していたため "EN 55032:2015" の ":" が残り、
@@ -207,7 +207,7 @@ function findSearchMatch(q, scope) {
   if (q === s) return { type: 'exact' };
   const qv = extractVersion(q);
   const sv = extractVersion(scope.standard);
-  if (qv && sv && qv !== sv) return { type: 'version_mismatch', note: `年版違い(${qv}↔${sv})` };
+  if (qv && sv && qv !== sv) return { type: 'version_mismatch', note: `版違い(${qv}↔${sv})` };
   const qPrefix = extractPrefix(q);
   const sPrefix = extractPrefix(scope.standard);
   if (qPrefix.toLowerCase() !== sPrefix.toLowerCase()) {

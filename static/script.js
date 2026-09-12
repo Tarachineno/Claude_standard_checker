@@ -234,11 +234,11 @@ const translations = {
         'scope.exact_match': '完全一致',
         'scope.comprehensive_match': '包括スコープ',
         'scope.version_tolerant_match': 'バージョン包括',
-        'scope.version_mismatch': '年版違い',
+        'scope.version_mismatch': '版違い',
         'scope.prefix_mismatch': '表記違い',
         'scope.no_match': '対応スコープなし',
         'scope.note.comprehensive': '包括スコープ適用({part}含む)',
-        'scope.note.version_mismatch': '年版違い({version1}↔{version2})',
+        'scope.note.version_mismatch': '版違い({version1}↔{version2})',
         'scope.note.version_tolerant': 'バージョン包括({version})',
         'scope.note.scope_applied': 'スコープに適用',
         'scope.note.prefix_mismatch': '表記違い({prefix1}/{prefix2})'
@@ -367,8 +367,8 @@ function translateScopeNote(note) {
         return getTranslation('scope.note.comprehensive', { part: comprehensiveMatch[1] });
     }
     
-    // Pattern: 年版違い(2015↔2018)
-    const versionMismatchMatch = note.match(/年版違い\(([^↔]+)↔([^)]+)\)/);
+    // Pattern: 版違い(2015↔2018)
+    const versionMismatchMatch = note.match(/版違い\(([^↔]+)↔([^)]+)\)/);
     if (versionMismatchMatch) {
         return getTranslation('scope.note.version_mismatch', { 
             version1: versionMismatchMatch[1], 
