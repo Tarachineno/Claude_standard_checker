@@ -1,5 +1,5 @@
-// EU Harmonized Standards Checker - Frontend JavaScript
-// Pure JavaScript implementation for Netlify deployment
+// Lab Scope Checker - Frontend JavaScript
+// Pure JavaScript implementation for Cloudflare Workers Static Assets
 
 // Global variables
 let uploadedCertificateData = null;
@@ -12,12 +12,13 @@ let scopeMatchingCache = new Map();
 // Internationalization (i18n) translations
 const translations = {
     en: {
-        'app.title': 'EU Harmonized Standards Checker',
-        'app.description': 'Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates',
+        'app.title': 'Lab Scope Checker',
+        'app.description': 'Compare EU harmonised standards with ISO/IEC 17025 laboratory scopes',
+        'app.footer': 'Lab Scope Checker · ISO/IEC 17025 scope and EU harmonised standards reference',
         'nav.quick_check': 'Quick Check',
         'nav.oj_standards': 'OJ Standards',
-        'nav.search_standards': 'Search Standards', 
-        'nav.iso17025_certificate': 'ISO17025 Certificate',
+        'nav.search_standards': 'Official Standards Search',
+        'nav.iso17025_certificate': 'ISO/IEC 17025 Accreditation Certificate',
         'quick.title': 'Quick Check — can we test it under accreditation?',
         'quick.description': 'Paste standard numbers (one per line, or comma separated). JAB / A2LA accreditation scopes and the EU Official Journal lists (EMC / RED / LVD) are checked at once.',
         'quick.placeholder': 'EN 55032:2015\nEN 301 489-17 V3.2.4\nEN 300 328 V2.2.2\nIEC 61000-4-2',
@@ -47,7 +48,7 @@ const translations = {
         'quick.detail_source_db': 'source: D1 database',
         'quick.detail_source_md': 'source: MD file',
         'quick.detail_valid_until': 'valid until',
-        'quick.detail_open_pdf': 'Open certificate PDF',
+        'quick.detail_open_pdf': 'Open accreditation certificate PDF',
         'quick.detail_link': 'Detail',
         'standards.title_main': 'EU Harmonized Standards',
         'standards.description': 'Fetch and analyze standards from Official Journal publications',
@@ -72,23 +73,35 @@ const translations = {
         'standards.apply_btn': 'Apply',
         'standards.reset_btn': 'Reset',
         'standards.export_btn': 'Export',
-        'certificate.title': 'ISO17025 Certificate Analysis',
-        'certificate.description': 'Compare your standards with ISO17025 certified testing laboratories',
-        'certificate.type_label': 'Select Certificate Type:',
-        'certificate.load_btn': 'Load Certificate Data',
-        'certificate.search_title': 'Search Certificate Scopes',
+        'certificate.title': 'ISO/IEC 17025 Accreditation Scope',
+        'certificate.description': 'Compare your standards with ISO/IEC 17025 accredited laboratory scopes',
+        'certificate.type_label': 'Select an Accreditation:',
+        'certificate.load_btn': 'Load Accreditation Scope',
+        'certificate.search_title': 'Search Accreditation Scopes',
         'certificate.search_placeholder': 'Enter standard number (e.g., EN 301 783, 55032)',
         'certificate.search_btn': 'Search',
         'certificate.clear_btn': 'Clear',
-        'certificate.info_title': 'Certificate Information',
-        'certificate.number_label': 'Certificate Number:',
-        'certificate.organization_label': 'Organization:',
+        'certificate.info_title': 'Accreditation Information',
+        'certificate.number_label': 'Accreditation Number:',
+        'certificate.organization_label': 'Accredited Organization:',
         'certificate.valid_until_label': 'Valid Until:',
-        'certificate.load_a2la': 'Load A2LA Certificate Data',
-        'certificate.load_jab': 'Load JAB Certificate Data',
-        'certificate.search_description': 'Search for specific standards in A2LA and JAB certificate scopes',
-        'search.title': 'Search Standards on Official Portals',
-        'search.description': 'Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.',
+        'certificate.load_a2la': 'Load A2LA Accreditation Scope',
+        'certificate.load_jab': 'Load JAB Accreditation Scope',
+        'certificate.search_description': 'Search for specific standards in A2LA and JAB accreditation scopes',
+        'certificate.update_help_title': 'ISO/IEC 17025 Accreditation Certificate Add / Update Help',
+        'certificate.update_help_intro': 'When adding or updating an accreditation certificate, update the certificate PDF and scope data together, validate them, and then publish.',
+        'certificate.update_help_pdf_title': '1. Accreditation certificate PDF',
+        'certificate.update_help_pdf': 'Replace the matching file in static/certificates/: a2la.pdf or jab.pdf.',
+        'certificate.update_help_scope_title': '2. Accreditation scope data',
+        'certificate.update_help_scope': 'Update the matching Markdown file in static/data/: a2la-scopes.md or jab-scopes.md.',
+        'certificate.update_help_validate_title': '3. Validate and seed',
+        'certificate.update_help_validate': 'Run npm run validate, then npm run db:seed to update D1.',
+        'certificate.update_help_deploy_title': '4. Deploy',
+        'certificate.update_help_deploy': 'Run npm run deploy. The accreditation certificate PDF and scope details then become available from this tab.',
+        'certificate.update_help_format_link': 'Open scope format guide',
+        'certificate.update_help_note': 'Keep the accreditation certificate PDF, Markdown scope, and D1 data aligned. Do not leave accreditation metadata or the validity date blank.',
+        'search.title': 'Official Standards Search',
+        'search.description': 'Search for standards on official standards-organization portals. Choose a portal and enter a standard number or keyword.',
         'search.input_placeholder': 'Enter standard number or keyword (e.g., 50360:2017, 18031-1)',
         'search.etsi_btn': 'Search on ETSI Portal',
         'search.cenelec_btn': 'Search on CEN-CENELEC Portal',
@@ -114,7 +127,7 @@ const translations = {
         'common.loading': 'Processing...',
         'common.no_results': 'No results found',
         'common.error': 'Error',
-        'scope.title': 'ISO17025 Certificate Scope:',
+        'scope.title': 'ISO/IEC 17025 Accreditation Scope:',
         'scope.exact_match': 'Exact match',
         'scope.comprehensive_match': 'Comprehensive scope',
         'scope.version_tolerant_match': 'Version tolerant match',
@@ -128,12 +141,13 @@ const translations = {
         'scope.note.prefix_mismatch': 'Prefix mismatch ({prefix1}/{prefix2})'
     },
     ja: {
-        'app.title': 'EU Harmonized Standards Checker',
-        'app.description': 'Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates',
+        'app.title': 'Lab Scope Checker',
+        'app.description': 'EU整合規格とISO/IEC 17025認定試験所のスコープを照合',
+        'app.footer': 'Lab Scope Checker｜ISO/IEC 17025認定スコープとEU整合規格の照合',
         'nav.quick_check': 'クイック判定',
         'nav.oj_standards': 'OJ規格',
-        'nav.search_standards': '規格検索',
-        'nav.iso17025_certificate': 'ISO17025証明書',
+        'nav.search_standards': '規格団体公式検索',
+        'nav.iso17025_certificate': 'ISO/IEC 17025認定証',
         'quick.title': 'クイック判定 — この規格、認定範囲で試験できる？',
         'quick.description': '規格番号を貼り付けてください（1行に1つ、またはカンマ区切り）。JAB / A2LA の認定スコープと、EU官報（OJ）の整合規格リスト（EMC / RED / LVD）をまとめて照合します。',
         'quick.placeholder': 'EN 55032:2015\nEN 301 489-17 V3.2.4\nEN 300 328 V2.2.2\nIEC 61000-4-2',
@@ -163,7 +177,7 @@ const translations = {
         'quick.detail_source_db': 'データ元: D1データベース',
         'quick.detail_source_md': 'データ元: MDファイル',
         'quick.detail_valid_until': '有効期限',
-        'quick.detail_open_pdf': '認定書PDFを開く',
+        'quick.detail_open_pdf': '認定証PDFを開く',
         'quick.detail_link': '詳細',
         'standards.title_main': 'EU調和規格',
         'standards.description': '官報公告から規格を取得・分析',
@@ -188,23 +202,35 @@ const translations = {
         'standards.apply_btn': '適用',
         'standards.reset_btn': 'リセット',
         'standards.export_btn': 'エクスポート',
-        'certificate.title': 'ISO17025証明書分析',
-        'certificate.description': '規格をISO17025認定試験所の証明書と比較',
-        'certificate.type_label': '証明書タイプを選択:',
-        'certificate.load_btn': '証明書データ読込',
-        'certificate.search_title': '証明書スコープ検索',
+        'certificate.title': 'ISO/IEC 17025認定スコープ',
+        'certificate.description': '規格をISO/IEC 17025認定試験所のスコープと比較',
+        'certificate.type_label': '認定を選択:',
+        'certificate.load_btn': '認定スコープ読込',
+        'certificate.search_title': '認定スコープ検索',
         'certificate.search_placeholder': '規格番号を入力（例：EN 301 783、55032）',
         'certificate.search_btn': '検索',
         'certificate.clear_btn': 'クリア',
-        'certificate.info_title': '証明書情報',
-        'certificate.number_label': '証明書番号:',
-        'certificate.organization_label': '機関:',
+        'certificate.info_title': '認定情報',
+        'certificate.number_label': '認定番号:',
+        'certificate.organization_label': '認定機関:',
         'certificate.valid_until_label': '有効期限:',
-        'certificate.load_a2la': 'A2LA証明書データ読込',
-        'certificate.load_jab': 'JAB証明書データ読込',
-        'certificate.search_description': 'A2LAおよびJAB証明書スコープから特定規格を検索',
-        'search.title': '規格検索',
-        'search.description': '公式規格ポータルで特定の規格を検索します。希望するポータルを選択し、規格番号またはキーワードを入力してください。',
+        'certificate.load_a2la': 'A2LA認定スコープ読込',
+        'certificate.load_jab': 'JAB認定スコープ読込',
+        'certificate.search_description': 'A2LAおよびJABの認定スコープから特定規格を検索',
+        'certificate.update_help_title': 'ISO/IEC 17025認定証の追加・更新ヘルプ',
+        'certificate.update_help_intro': '認定証を追加・更新する場合は、認定証PDFと認定スコープを一緒に更新し、検証してから公開します。',
+        'certificate.update_help_pdf_title': '1. 認定証PDF',
+        'certificate.update_help_pdf': '対象ファイルを static/certificates/ の a2la.pdf または jab.pdf に差し替えます。',
+        'certificate.update_help_scope_title': '2. 認定スコープデータ',
+        'certificate.update_help_scope': '対象の static/data/a2la-scopes.md または static/data/jab-scopes.md を更新します。',
+        'certificate.update_help_validate_title': '3. 検証とD1投入',
+        'certificate.update_help_validate': 'npm run validate を実行し、続けて npm run db:seed でD1を更新します。',
+        'certificate.update_help_deploy_title': '4. デプロイ',
+        'certificate.update_help_deploy': 'npm run deploy を実行すると、このタブから認定証PDFとスコープ詳細を参照できるようになります。',
+        'certificate.update_help_format_link': 'スコープ書式ガイドを開く',
+        'certificate.update_help_note': '認定証PDF、スコープMD、D1データの内容を一致させ、認定メタデータや有効期限を空欄にしないでください。',
+        'search.title': '規格団体公式検索',
+        'search.description': '規格団体の公式ポータルで規格を検索します。ポータルを選択し、規格番号またはキーワードを入力してください。',
         'search.input_placeholder': '規格番号またはキーワードを入力（例：50360:2017、18031-1）',
         'search.etsi_btn': 'ETSIポータルで検索',
         'search.cenelec_btn': 'CEN-CENELECポータルで検索',
@@ -230,7 +256,7 @@ const translations = {
         'common.loading': '処理中...',
         'common.no_results': '結果が見つかりません',
         'common.error': 'エラー',
-        'scope.title': 'ISO17025証明書スコープ:',
+        'scope.title': 'ISO/IEC 17025認定スコープ:',
         'scope.exact_match': '完全一致',
         'scope.comprehensive_match': '包括スコープ',
         'scope.version_tolerant_match': 'バージョン包括',
@@ -1350,7 +1376,7 @@ function createScopeMatchingInfo(scopeMatch) {
     const { a2la, jab } = scopeMatch.scope_matches;
     
     let matchingInfo = '<div class="scope-matching-info">';
-    matchingInfo += '<div class="scope-title">ISO17025 Certificate Scope:</div>';
+    matchingInfo += `<div class="scope-title">${getTranslation('scope.title')}</div>`;
     matchingInfo += '<div class="scope-badges">';
     
     // A2LA Badge
@@ -1804,7 +1830,7 @@ async function loadCertificateData() {
     const selectedType = document.getElementById('certificate-type-select').value;
     
     if (!selectedType) {
-        showError('Please select a valid certificate type');
+        showError('Please select a valid accreditation');
         return;
     }
     
@@ -1828,14 +1854,14 @@ async function loadCertificateData() {
             displayCertificateResults(certificateData, selectedType);
             
             const src = certificateData.source === 'd1' ? 'D1 database' : 'MD file';
-            showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully! (${certificateData.total_standards ?? certificateData.test_standards.length} standards from ${src})`);
+            showSuccess(`${selectedType.toUpperCase()} accreditation scope loaded successfully! (${certificateData.total_standards ?? certificateData.test_standards.length} standards from ${src})`);
         } else {
-            throw new Error(response.error || 'Certificate data loading failed');
+            throw new Error(response.error || 'Accreditation scope data loading failed');
         }
         
     } catch (error) {
         console.error('Error loading certificate data:', error);
-        showError(`Failed to load certificate data: ${error.message}`);
+        showError(`Failed to load accreditation scope data: ${error.message}`);
     } finally {
         hideLoading();
     }
@@ -1843,7 +1869,7 @@ async function loadCertificateData() {
 
 // categorizeStandards function removed - categories now come from MD files via API
 
-/** カテゴリ/施設一覧の1規格分。anchor があれば「詳細を見る」（D1詳細モーダル → 認定書PDF）を添える */
+/** カテゴリ/施設一覧の1規格分。anchor があれば「詳細を見る」（D1詳細モーダル → 認定証PDF）を添える */
 function standardLine(std, certType) {
     if (typeof std === 'string') return `<li>${esc(std)}</li>`;
     const link = std.anchor
@@ -2002,7 +2028,7 @@ function displayScopeSearchResults(data, searchQuery) {
         const a2laSection = document.createElement('div');
         a2laSection.className = 'search-results-section';
         a2laSection.innerHTML = `
-            <h6><i class="fas fa-certificate"></i> A2LA Certificate (${data.a2la_matches.length} matches)</h6>
+            <h6><i class="fas fa-certificate"></i> A2LA Accreditation (${data.a2la_matches.length} matches)</h6>
             <div class="search-matches">
                 ${data.a2la_matches.map(match => createScopeSearchResult(match, 'a2la')).join('')}
             </div>
@@ -2015,7 +2041,7 @@ function displayScopeSearchResults(data, searchQuery) {
         const jabSection = document.createElement('div');
         jabSection.className = 'search-results-section';
         jabSection.innerHTML = `
-            <h6><i class="fas fa-certificate"></i> JAB Certificate (${data.jab_matches.length} matches)</h6>
+            <h6><i class="fas fa-certificate"></i> JAB Accreditation (${data.jab_matches.length} matches)</h6>
             <div class="search-matches">
                 ${data.jab_matches.map(match => createScopeSearchResult(match, 'jab')).join('')}
             </div>

@@ -597,6 +597,61 @@ main {
     margin-bottom: 2rem;
 }
 
+.certificate-update-help {
+    margin: 1.25rem 0 1.75rem;
+    border: 1px solid #f0c27b;
+    border-radius: 8px;
+    background: #fffaf3;
+}
+
+.certificate-update-help summary {
+    cursor: pointer;
+    padding: 14px 16px;
+    color: #7a4b00;
+    font-weight: 700;
+    list-style: none;
+}
+
+.certificate-update-help summary::-webkit-details-marker {
+    display: none;
+}
+
+.certificate-update-help summary::after {
+    content: '+';
+    float: right;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.certificate-update-help details[open] summary::after {
+    content: '−';
+}
+
+.certificate-help-body {
+    padding: 0 16px 16px;
+    border-top: 1px solid #f5e0b8;
+    color: #4a3a25;
+}
+
+.certificate-help-body > p:first-child {
+    margin-top: 14px;
+}
+
+.certificate-help-steps {
+    margin: 12px 0 16px;
+    padding-left: 22px;
+}
+
+.certificate-help-steps li {
+    margin-bottom: 10px;
+}
+
+.certificate-help-note {
+    margin: 14px 0 0;
+    color: #6b5a43;
+    font-size: 0.9rem;
+}
+
 .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

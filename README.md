@@ -1,6 +1,6 @@
-# EU Harmonized Standards Checker
+# Lab Scope Checker
 
-A comprehensive web application for accessing EU harmonized standards and comparing with ISO17025 certificates. Built with pure JavaScript. **Current deployment target: Cloudflare Workers (branch `cloudflare-workers`, see below).** The Netlify edition lives on branch `netlify-pure-webapp`.
+A web application for comparing EU harmonised standards with ISO/IEC 17025 laboratory scopes. Built with pure JavaScript. **Current deployment target: Cloudflare Workers (branch `cloudflare-workers`, see below).** The Netlify edition lives on branch `netlify-pure-webapp`.
 
 ---
 

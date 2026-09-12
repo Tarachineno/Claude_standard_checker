@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EU Harmonized Standards Checker</title>
+    <title>Lab Scope Checker</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,8 +12,8 @@
         <div class="container">
             <div class="header-content">
                 <div class="header-text">
-                    <h1><i class="fas fa-clipboard-check"></i> <span data-i18n="app.title">EU Harmonized Standards Checker</span></h1>
-                    <p data-i18n="app.description">Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates</p>
+                    <h1><i class="fas fa-flask"></i> <span data-i18n="app.title">Lab Scope Checker</span></h1>
+                    <p data-i18n="app.description">Compare EU harmonised standards with ISO/IEC 17025 laboratory scopes</p>
                 </div>
                 <div class="header-right">
                 <div id="user-badge" class="user-badge hidden" title="Cloudflare Access でログイン中"><i class="fas fa-user-check"></i> <span id="user-email"></span></div>
@@ -41,8 +41,8 @@
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="quick" data-i18n="nav.quick_check">Quick Check</button>
             <button class="tab-btn" data-tab="standards" data-i18n="nav.oj_standards">OJ Standards</button>
-            <button class="tab-btn" data-tab="search" data-i18n="nav.search_standards">Search Standards</button>
-            <button class="tab-btn" data-tab="certificate" data-i18n="nav.iso17025_certificate">ISO17025 Certificate</button>
+            <button class="tab-btn" data-tab="search" data-i18n="nav.search_standards">Official Standards Search</button>
+            <button class="tab-btn" data-tab="certificate" data-i18n="nav.iso17025_certificate">ISO/IEC 17025 Accreditation</button>
         </nav>
 
 
@@ -205,7 +205,7 @@
         <!-- Search Tab -->
         <section id="search-tab" class="tab-content">
             <div class="card">
-                <h2><i class="fas fa-search"></i> <span data-i18n="search.title">Search Standards</span></h2>
+                <h2><i class="fas fa-search"></i> <span data-i18n="search.title">Official Standards Search</span></h2>
                 <p data-i18n="search.description">Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.</p>
                 <div class="search-form">
                     <div class="form-group">
@@ -250,31 +250,50 @@
         <!-- Certificate Tab -->
         <section id="certificate-tab" class="tab-content">
             <div class="card">
-                <h2><i class="fas fa-certificate"></i> <span data-i18n="certificate.title">ISO17025 Certificate Analysis</span></h2>
+                <h2><i class="fas fa-certificate"></i> <span data-i18n="certificate.title">ISO/IEC 17025 Accreditation Scope</span></h2>
                 <div class="certificate-selection">
                     <div class="form-group">
-                        <label for="certificate-type-select" data-i18n="certificate.type_label">Select Certificate Type:</label>
+                        <label for="certificate-type-select" data-i18n="certificate.type_label">Select an Accreditation:</label>
                         <select id="certificate-type-select">
-                            <option value="">-- Select a Certificate Type --</option>
-                            <option value="a2la">A2LA Certificate</option>
-                            <option value="jab">JAB Certificate</option>
+                            <option value="">-- Select an Accreditation --</option>
+                            <option value="a2la">A2LA Accreditation</option>
+                            <option value="jab">JAB Accreditation</option>
                         </select>
                     </div>
                     <button id="load-certificate-btn" class="btn btn-primary" disabled data-i18n="certificate.load_btn">
-                        <i class="fas fa-download"></i> Load Certificate Data
+                        <i class="fas fa-download"></i> Load Accreditation Scope
                     </button>
+                </div>
+
+                <div class="certificate-update-help">
+                    <details>
+                        <summary><i class="fas fa-circle-question"></i> <span data-i18n="certificate.update_help_title">ISO/IEC 17025 Accreditation Certificate Add / Update Help</span></summary>
+                        <div class="certificate-help-body">
+                            <p data-i18n="certificate.update_help_intro">When adding or updating an accreditation certificate, update the certificate PDF and scope data together, validate them, and then publish.</p>
+                            <ol class="certificate-help-steps">
+                                <li><strong data-i18n="certificate.update_help_pdf_title">1. Accreditation certificate PDF</strong><br><span data-i18n="certificate.update_help_pdf">Replace the matching file in static/certificates/: a2la.pdf or jab.pdf.</span></li>
+                                <li><strong data-i18n="certificate.update_help_scope_title">2. Scope data</strong><br><span data-i18n="certificate.update_help_scope">Update the matching Markdown file in static/data/: a2la-scopes.md or jab-scopes.md.</span></li>
+                                <li><strong data-i18n="certificate.update_help_validate_title">3. Validate and seed</strong><br><span data-i18n="certificate.update_help_validate">Run npm run validate, then npm run db:seed to update D1.</span></li>
+                                <li><strong data-i18n="certificate.update_help_deploy_title">4. Deploy</strong><br><span data-i18n="certificate.update_help_deploy">Run npm run deploy. The accreditation certificate PDF and scope details then become available from this tab.</span></li>
+                            </ol>
+                            <a class="btn btn-small btn-outline" href="/data/SCOPE_FORMAT.md" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-book-open"></i> <span data-i18n="certificate.update_help_format_link">Open scope format guide</span>
+                            </a>
+                            <p class="certificate-help-note" data-i18n="certificate.update_help_note">Keep the accreditation certificate PDF, Markdown scope, and D1 data aligned. Do not leave accreditation metadata or the validity date blank.</p>
+                        </div>
+                    </details>
                 </div>
                 
                 <div id="certificate-results" class="results-section hidden">
-                    <h3 data-i18n="certificate.info_title">Certificate Information</h3>
+                    <h3 data-i18n="certificate.info_title">Accreditation Information</h3>
                     <div class="certificate-info">
                         <div class="info-grid">
                             <div class="info-item">
-                                <label data-i18n="certificate.number_label">Certificate Number:</label>
+                                <label data-i18n="certificate.number_label">Accreditation Number:</label>
                                 <span id="cert-number">-</span>
                             </div>
                             <div class="info-item">
-                                <label data-i18n="certificate.organization_label">Organization:</label>
+                                <label data-i18n="certificate.organization_label">Accredited Organization:</label>
                                 <span id="cert-organization">-</span>
                             </div>
                             <div class="info-item">
@@ -287,8 +306,8 @@
 
                     <!-- Standards Search Section -->
                     <div class="standards-search-section">
-                        <h4><i class="fas fa-search"></i> <span data-i18n="certificate.search_title">Search Certificate Scopes</span></h4>
-                        <p data-i18n="certificate.search_description">Search for specific standards in A2LA and JAB certificate scopes</p>
+                        <h4><i class="fas fa-search"></i> <span data-i18n="certificate.search_title">Search Accreditation Scopes</span></h4>
+                        <p data-i18n="certificate.search_description">Search for specific standards in A2LA and JAB accreditation scopes</p>
                         <div class="search-form">
                             <div class="form-group">
                                 <input type="text" id="scope-search-input" data-i18n="certificate.search_placeholder" placeholder="Enter standard number (e.g., EN 301 783, 55032)" />
@@ -347,7 +366,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025-2026 EU Harmonized Standards Checker. Built for compliance verification. <span id="app-runtime" class="footer-runtime"></span></p>
+            <p>&copy; 2025-2026 <span data-i18n="app.footer">Lab Scope Checker · ISO/IEC 17025 scope and EU harmonised standards reference</span>. <span id="app-runtime" class="footer-runtime"></span></p>
         </div>
     </footer>
 
