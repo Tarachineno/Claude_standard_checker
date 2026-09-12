@@ -2,7 +2,7 @@
 // Pure JavaScript implementation for Cloudflare Workers Static Assets
 
 // Global variables
-let uploadedCertificateData = null;
+const accreditationCardState = { items: null, loading: false, error: false };
 let currentStandardsData = null; // Store current standards for sorting/filtering
 let currentLanguage = 'ja'; // Default language
 
@@ -75,20 +75,13 @@ const translations = {
         'standards.reset_btn': 'Reset',
         'standards.export_btn': 'Export',
         'certificate.title': 'ISO/IEC 17025 Accreditation Scope',
-        'certificate.description': 'Compare your standards with ISO/IEC 17025 accredited laboratory scopes',
-        'certificate.type_label': 'Select an Accreditation:',
-        'certificate.load_btn': 'Load Accreditation Scope',
-        'certificate.search_title': 'Search Accreditation Scopes',
-        'certificate.search_placeholder': 'Enter standard number (e.g., EN 301 783, 55032)',
-        'certificate.search_btn': 'Search',
-        'certificate.clear_btn': 'Clear',
-        'certificate.info_title': 'Accreditation Information',
         'certificate.number_label': 'Accreditation Number:',
         'certificate.organization_label': 'Accredited Organization:',
         'certificate.valid_until_label': 'Valid Until:',
-        'certificate.load_a2la': 'Load A2LA Accreditation Scope',
-        'certificate.load_jab': 'Load JAB Accreditation Scope',
-        'certificate.search_description': 'Search for specific standards in A2LA and JAB accreditation scopes',
+        'certificate.cards_loading': 'Loading accreditation information…',
+        'certificate.cards_error': 'Accreditation information could not be loaded.',
+        'certificate.cards_retry': 'Retry loading accreditation information',
+        'certificate.scope_count': '{count} scope items',
         'certificate.update_help_title': 'ISO/IEC 17025 Accreditation Certificate Add / Update Help',
         'certificate.update_help_intro': 'When adding or updating an accreditation certificate, update the certificate PDF and scope data together, validate them, and then publish.',
         'certificate.update_help_pdf_title': '1. Accreditation certificate PDF',
@@ -105,6 +98,15 @@ const translations = {
         'scope_oj.description': 'Compare every current JAB/A2LA D1 scope item with the active Official Journal edition.',
         'scope_oj.title': 'Current Accreditation Scopes vs Active OJ Editions',
         'scope_oj.filter_label': 'Filter:',
+        'scope_oj.accreditation_filter': 'Accreditation:',
+        'scope_oj.all_accreditations': 'All accreditations',
+        'scope_oj.facility_filter': 'Facility:',
+        'scope_oj.all_facilities': 'All facilities',
+        'scope_oj.facility_number': 'Facility {number}',
+        'scope_oj.facility_unspecified': 'Facility not specified',
+        'scope_oj.summary_hint': 'Counts reflect the accreditation, facility and search filters, before the status filter.',
+        'scope_oj.search_label': 'Search scopes',
+        'scope_oj.no_results': 'No scopes match these filters.',
         'scope_oj.filter_all': 'All',
         'scope_oj.filter_valid': 'Valid',
         'scope_oj.filter_warning': 'Warning',
@@ -236,20 +238,13 @@ const translations = {
         'standards.reset_btn': 'リセット',
         'standards.export_btn': 'エクスポート',
         'certificate.title': 'ISO/IEC 17025認定スコープ',
-        'certificate.description': '規格をISO/IEC 17025認定試験所のスコープと比較',
-        'certificate.type_label': '認定を選択:',
-        'certificate.load_btn': '認定スコープ読込',
-        'certificate.search_title': '認定スコープ検索',
-        'certificate.search_placeholder': '規格番号を入力（例：EN 301 783、55032）',
-        'certificate.search_btn': '検索',
-        'certificate.clear_btn': 'クリア',
-        'certificate.info_title': '認定情報',
-        'certificate.number_label': '認定番号:',
-        'certificate.organization_label': '認定機関:',
+        'certificate.number_label': '認定書番号:',
+        'certificate.organization_label': '認定取得組織:',
         'certificate.valid_until_label': '有効期限:',
-        'certificate.load_a2la': 'A2LA認定スコープ読込',
-        'certificate.load_jab': 'JAB認定スコープ読込',
-        'certificate.search_description': 'A2LAおよびJABの認定スコープから特定規格を検索',
+        'certificate.cards_loading': '認定書情報を読み込み中…',
+        'certificate.cards_error': '認定書情報を取得できませんでした。',
+        'certificate.cards_retry': '認定書情報の取得を再試行',
+        'certificate.scope_count': 'スコープ {count} 件',
         'certificate.update_help_title': 'ISO/IEC 17025認定証の追加・更新ヘルプ',
         'certificate.update_help_intro': '認定証を追加・更新する場合は、認定証PDFと認定スコープを一緒に更新し、検証してから公開します。',
         'certificate.update_help_pdf_title': '1. 認定証PDF',
@@ -266,6 +261,15 @@ const translations = {
         'scope_oj.description': 'D1にあるJAB/A2LAの現行認定スコープ全件を、OJ掲載で有効な版数と突合します。',
         'scope_oj.title': '現行認定スコープとOJ有効版数の突合結果',
         'scope_oj.filter_label': '絞り込み:',
+        'scope_oj.accreditation_filter': '認定:',
+        'scope_oj.all_accreditations': 'すべての認定',
+        'scope_oj.facility_filter': '施設:',
+        'scope_oj.all_facilities': 'すべての施設',
+        'scope_oj.facility_number': '施設{number}',
+        'scope_oj.facility_unspecified': '施設記載なし',
+        'scope_oj.summary_hint': '集計は認定・施設・検索条件に連動します（判定で絞り込む前の件数）。',
+        'scope_oj.search_label': 'スコープ検索',
+        'scope_oj.no_results': '条件に一致するスコープはありません。',
         'scope_oj.filter_all': 'すべて',
         'scope_oj.filter_valid': '有効',
         'scope_oj.filter_warning': '警告',
@@ -429,6 +433,7 @@ function updateLanguageDisplay() {
     
     // Update document language attribute
     document.documentElement.lang = currentLanguage;
+    renderAccreditationCards();
     if (typeof renderCatalog === 'function' && typeof catalogData !== 'undefined' && catalogData) renderCatalog();
     
     // Update page title
@@ -539,11 +544,9 @@ function setupEventListeners() {
     });
 
     // Certificate tab
-    const certificateTypeSelect = document.getElementById('certificate-type-select');
-    const loadCertificateBtn = document.getElementById('load-certificate-btn');
-
-    certificateTypeSelect.addEventListener('change', handleCertificateTypeChange);
-    loadCertificateBtn.addEventListener('click', loadCertificateData);
+    document.getElementById('accreditation-cards').addEventListener('click', event => {
+        if (event.target.closest('[data-accreditation-retry]')) loadAccreditationCards();
+    });
     document.getElementById('scope-oj-check-btn').addEventListener('click', runScopeOjVersionCheck);
     document.getElementById('scope-oj-status-filter').addEventListener('change', () => {
         if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
@@ -552,11 +555,14 @@ function setupEventListeners() {
         if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
     });
 
-    // Scope search
-    document.getElementById('scope-search-btn').addEventListener('click', performScopeSearch);
-    document.getElementById('clear-search-btn').addEventListener('click', clearScopeSearch);
-    document.getElementById('scope-search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performScopeSearch();
+    for (const id of ['scope-oj-accreditation', 'scope-oj-facility']) {
+        document.getElementById(id).addEventListener('change', () => {
+            if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
+        });
+    }
+    document.getElementById('scope-oj-tbody').addEventListener('click', event => {
+        const button = event.target.closest('[data-scope-detail-anchor]');
+        if (button) openScopeDetails(button.dataset.scopeDetailCert, button.dataset.scopeDetailAnchor);
     });
 
     // Standards results search
@@ -588,7 +594,7 @@ function switchTab(tabName) {
     // Update tab content
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     document.getElementById(`${tabName}-tab`).classList.add('active');
-
+    if (tabName === 'certificate') loadAccreditationCards();
 }
 
 // API functions
@@ -1885,160 +1891,46 @@ function downloadFile(content, filename, mimeType) {
     URL.revokeObjectURL(url);
 }
 
-// Certificate selection functions
-function handleCertificateTypeChange(e) {
-    const selectedType = e.target.value;
-    const loadBtn = document.getElementById('load-certificate-btn');
-    
-    if (selectedType) {
-        loadBtn.disabled = false;
-        const buttonKey = selectedType === 'a2la' ? 'certificate.load_a2la' : 'certificate.load_jab';
-        loadBtn.innerHTML = `<i class="fas fa-download"></i> ${t(buttonKey)}`;
-    } else {
-        loadBtn.disabled = true;
-        loadBtn.innerHTML = `<i class="fas fa-download"></i> ${t('certificate.load_btn')}`;
-    }
-}
 
-async function loadCertificateData() {
-    const selectedType = document.getElementById('certificate-type-select').value;
-    
-    if (!selectedType) {
-        showError('Please select a valid accreditation');
-        return;
-    }
-    
-    showLoading();
-    
+async function loadAccreditationCards() {
+    if (accreditationCardState.loading) return;
+    accreditationCardState.loading = true;
+    accreditationCardState.error = false;
+    renderAccreditationCards();
     try {
-        console.log(`Loading certificate data for: ${selectedType}`);
-        
-        // Load certificate data from MD files via API
-        const response = await apiCall(`/certificate-data?cert_type=${selectedType}`, {
-            method: 'GET'
-        });
-
-        if (response.success) {
-            const certificateData = response.data;
-            
-            // Set global variable
-            uploadedCertificateData = certificateData;
-            
-            // Display the results
-            displayCertificateResults(certificateData, selectedType);
-            
-            const src = certificateData.source === 'd1' ? 'D1 database' : 'MD file';
-            showSuccess(`${selectedType.toUpperCase()} accreditation scope loaded successfully! (${certificateData.total_standards ?? certificateData.test_standards.length} standards from ${src})`);
-        } else {
-            throw new Error(response.error || 'Accreditation scope data loading failed');
-        }
-        
-    } catch (error) {
-        console.error('Error loading certificate data:', error);
-        showError(`Failed to load accreditation scope data: ${error.message}`);
+        const response = await apiCall('/accreditations');
+        if (!response.success || !Array.isArray(response.data?.items) || !response.data.items.length) throw new Error('Accreditations unavailable');
+        accreditationCardState.items = response.data.items;
+    } catch {
+        // Do not present an earlier successful load as current after a failed refresh.
+        accreditationCardState.items = null;
+        accreditationCardState.error = true;
     } finally {
-        hideLoading();
+        accreditationCardState.loading = false;
+        renderAccreditationCards();
     }
 }
 
-// categorizeStandards function removed - categories now come from MD files via API
-
-/** カテゴリ/施設一覧の1規格分。anchor があれば「詳細を見る」（D1詳細モーダル → 認定証PDF）を添える */
-function standardLine(std, certType) {
-    if (typeof std === 'string') return `<li>${esc(std)}</li>`;
-    const link = std.anchor
-        ? ` <button class="btn-link" onclick="openScopeDetails('${certType}', '${esc(std.anchor)}')" title="Scope detail"><i class="fas fa-circle-info"></i> ${esc(t('quick.detail_link'))}</button>`
-        : '';
-    return `<li><strong>${esc(std.standard || std)}</strong>${std.description ? ' - ' + esc(std.description) : ''}${link}</li>`;
-}
-
-function displayCertificateResults(data, certType) {
-    const resultsSection = document.getElementById('certificate-results');
-
-    // Update certificate info
-    document.getElementById('cert-number').textContent = data.certificate_info.certificate_number || '-';
-    document.getElementById('cert-organization').textContent = data.certificate_info.organization || '-';
-    document.getElementById('cert-valid-until').textContent = data.certificate_info.valid_until || '-';
-
-    const pdfWrap = document.getElementById('cert-pdf-link-wrap');
-    if (pdfWrap) {
-        pdfWrap.innerHTML = `<a href="/certificates/${certType}.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-outline"><i class="fas fa-file-pdf"></i> ${esc(t('quick.detail_open_pdf'))}</a>`;
-    }
-
-    // Display categories or facilities based on certificate type
-    const categoriesElement = document.getElementById('standards-categories');
-    categoriesElement.innerHTML = '';
-
-    if (data.certificate_type === 'JAB_MD_Dynamic' && data.facilities) {
-        // JAB style display with facilities
-        data.facilities.forEach(facility => {
-            const facilityItem = document.createElement('div');
-            facilityItem.className = 'facility-item';
-            
-            // Standards are already included in facility object from API
-            const facilityStandards = facility.standards || [];
-            
-            // Group standards by category for this facility
-            const facilityCategories = {};
-            facilityStandards.forEach(standard => {
-                const category = standard.category;
-                if (!facilityCategories[category]) {
-                    facilityCategories[category] = [];
-                }
-                facilityCategories[category].push(standard);
-            });
-
-            facilityItem.innerHTML = `
-                <div class="facility-header">
-                    <h4>【施設${facility.facility_number}】${facility.name}（${facility.location}）</h4>
-                </div>
-                <div class="facility-categories">
-                    ${Object.entries(facilityCategories).map(([category, standards]) => `
-                        <div class="category-item">
-                            <div class="category-header" onclick="toggleCategory(this)">
-                                <span class="category-name">${category}</span>
-                                <span class="category-count">${standards.length}</span>
-                            </div>
-                            <div class="category-standards">
-                                <ul>
-                                    ${standards.map(std => standardLine(std, certType)).join('')}
-                                </ul>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            categoriesElement.appendChild(facilityItem);
-        });
-    } else {
-        // A2LA style display with categories
-        Object.entries(data.categories).forEach(([category, standards]) => {
-            const categoryItem = document.createElement('div');
-            categoryItem.className = 'category-item';
-
-            categoryItem.innerHTML = `
-                <div class="category-header" onclick="toggleCategory(this)">
-                    <span class="category-name">${category}</span>
-                    <span class="category-count">${standards.length}</span>
-                </div>
-                <div class="category-standards">
-                    <ul>
-                        ${standards.map(std => standardLine(std, certType)).join('')}
-                    </ul>
-                </div>
-            `;
-
-            categoriesElement.appendChild(categoryItem);
-        });
-    }
-
-    resultsSection.classList.remove('hidden');
-}
-
-function toggleCategory(header) {
-    const standards = header.nextElementSibling;
-    standards.classList.toggle('active');
+function renderAccreditationCards() {
+    const container = document.getElementById('accreditation-cards');
+    container.setAttribute('aria-busy', String(accreditationCardState.loading));
+    const items = accreditationCardState.items || [];
+    let html = items.map(item => {
+        const info = item.available ? `<dl>
+            <div><dt>${esc(t('certificate.number_label'))}</dt><dd>${esc(item.certificate_number || '—')}</dd></div>
+            <div><dt>${esc(t('certificate.organization_label'))}</dt><dd>${esc(item.organization || '—')}</dd></div>
+            <div><dt>${esc(t('certificate.valid_until_label'))}</dt><dd>${esc(item.valid_until || '—')}</dd></div>
+        </dl><p class="muted">${esc(t('certificate.scope_count', { count: item.item_count }))} · ${esc(t(item.source === 'd1' ? 'quick.detail_source_db' : 'quick.detail_source_md'))}</p>`
+            : `<p role="alert">${esc(t('certificate.cards_error'))}</p>`;
+        const pdf = /^\/certificates\/[a-z0-9_-]+\.pdf$/i.test(item.pdf_url || '')
+            ? `<a href="${esc(item.pdf_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-outline">${esc(t('quick.detail_open_pdf'))}</a>` : '';
+        return `<article class="accreditation-card"><h3>${esc(item.cert_type.toUpperCase())}</h3>${info}${pdf}</article>`;
+    }).join('');
+    if (accreditationCardState.error) html += `<p role="alert">${esc(t('certificate.cards_error'))}</p>`;
+    if (accreditationCardState.error || items.some(item => !item.available)) {
+        html += `<div class="accreditation-card-retry"><button type="button" class="btn btn-small btn-outline" data-accreditation-retry ${accreditationCardState.loading ? 'disabled' : ''}>${esc(t('certificate.cards_retry'))}</button></div>`;
+    } else if (!items.length) html = `<p>${esc(t('certificate.cards_loading'))}</p>`;
+    container.innerHTML = html;
 }
 
 // 現行D1認定スコープ全件とOJ有効版数の一括確認
@@ -2077,121 +1969,6 @@ function renderScopeOjVersionResults(data) {
     renderEditionComparison(data);
 }
 
-// Scope search functions
-async function performScopeSearch() {
-    const searchQuery = document.getElementById('scope-search-input').value.trim();
-    
-    if (!searchQuery) {
-        showError('Please enter a standard number to search');
-        return;
-    }
-
-    try {
-        showLoading();
-        console.log('Searching scopes for:', searchQuery);
-        
-        const response = await apiCall('/scope-search', {
-            method: 'POST',
-            body: JSON.stringify({
-                search_query: searchQuery
-            })
-        });
-
-        if (response.success) {
-            displayScopeSearchResults(response.data, searchQuery);
-            showSuccess(`Found ${response.data.total_matches} matches for "${searchQuery}"`);
-        } else {
-            throw new Error(response.error || 'Scope search failed');
-        }
-    } catch (error) {
-        console.error('Scope search failed:', error);
-        showError(`Scope search failed: ${error.message}`);
-    } finally {
-        hideLoading();
-    }
-}
-
-function clearScopeSearch() {
-    document.getElementById('scope-search-input').value = '';
-    document.getElementById('scope-search-results').classList.add('hidden');
-}
-
-function displayScopeSearchResults(data, searchQuery) {
-    const resultsSection = document.getElementById('scope-search-results');
-    const contentElement = document.getElementById('scope-search-content');
-    
-    contentElement.innerHTML = '';
-    
-    if (data.total_matches === 0) {
-        contentElement.innerHTML = `
-            <div class="no-results">
-                <p><i class="fas fa-search"></i> No matches found for "${searchQuery}"</p>
-                <p class="search-tip">Try searching with partial standard numbers (e.g., "55032", "61000-4-2")</p>
-            </div>
-        `;
-        resultsSection.classList.remove('hidden');
-        return;
-    }
-    
-    // A2LA Results
-    if (data.a2la_matches && data.a2la_matches.length > 0) {
-        const a2laSection = document.createElement('div');
-        a2laSection.className = 'search-results-section';
-        a2laSection.innerHTML = `
-            <h6><i class="fas fa-certificate"></i> A2LA Accreditation (${data.a2la_matches.length} matches)</h6>
-            <div class="search-matches">
-                ${data.a2la_matches.map(match => createScopeSearchResult(match, 'a2la')).join('')}
-            </div>
-        `;
-        contentElement.appendChild(a2laSection);
-    }
-    
-    // JAB Results
-    if (data.jab_matches && data.jab_matches.length > 0) {
-        const jabSection = document.createElement('div');
-        jabSection.className = 'search-results-section';
-        jabSection.innerHTML = `
-            <h6><i class="fas fa-certificate"></i> JAB Accreditation (${data.jab_matches.length} matches)</h6>
-            <div class="search-matches">
-                ${data.jab_matches.map(match => createScopeSearchResult(match, 'jab')).join('')}
-            </div>
-        `;
-        contentElement.appendChild(jabSection);
-    }
-    
-    resultsSection.classList.remove('hidden');
-}
-
-function createScopeSearchResult(match, certType) {
-    const matchTypeIcon = match.match_type === 'exact' ? 'fa-check-circle' : 
-                         match.match_type === 'prefix_mismatch' ? 'fa-check-circle' :
-                         match.match_type === 'version_mismatch' ? 'fa-check-circle' : 'fa-search';
-    
-    const matchTypeClass = match.match_type === 'exact' ? 'exact-match' :
-                          match.match_type === 'prefix_mismatch' ? 'prefix-mismatch' :
-                          match.match_type === 'version_mismatch' ? 'version-mismatch' : 'partial-match';
-    
-    const facilityInfo = match.facility ? `<span class="facility-info">${match.facility}</span>` : '';
-    const translatedNote = match.note ? translateScopeNote(match.note) : '';
-    const noteInfo = translatedNote ? `<span class="match-note">⚠️ ${translatedNote}</span>` : '';
-    
-    return `
-        <div class="scope-search-match ${matchTypeClass}">
-            <div class="match-header">
-                <i class="fas ${matchTypeIcon}"></i>
-                <strong class="standard-number">${match.standard}</strong>
-                ${facilityInfo}
-            </div>
-            <div class="match-description">${match.description || ''}</div>
-            ${noteInfo}
-            <div class="match-actions">
-                <button class="btn-link" onclick="openScopeDetails('${certType}', '${match.anchor}')">
-                    <i class="fas fa-external-link-alt"></i> View Details
-                </button>
-            </div>
-        </div>
-    `;
-}
 
 // Utility functions
 function showLoading() {

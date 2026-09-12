@@ -15,6 +15,23 @@ const certTypeOf = c => {
   return CERT_TYPES.includes(t) ? t : null;
 };
 
+// GET /api/accreditations — compact current metadata for the accreditation cards.
+app.get('/accreditations', async c => {
+  const items = await Promise.all(CERT_TYPES.map(async certType => {
+    const base = { cert_type: certType, pdf_url: `/certificates/${certType}.pdf` };
+    try {
+      const { doc, source } = await loadScopeDocument(c, certType);
+      return { ...base, available: true, source, certificate_number: doc.info?.certificate_number || null,
+        organization: doc.info?.organization || null, valid_until: doc.info?.valid_until || null,
+        item_count: doc.items.length };
+    } catch (err) {
+      console.error(`[accreditations] ${certType}:`, err.message);
+      return { ...base, available: false };
+    }
+  }));
+  return ok(c, { items });
+});
+
 // GET /api/certificate-data?cert_type=a2la|jab
 app.get('/certificate-data', async c => {
   const certType = certTypeOf(c);

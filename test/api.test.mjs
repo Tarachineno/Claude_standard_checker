@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import app from '../src/index.js';
 import { env } from './helpers.mjs';
+import { clearScopeCache } from '../src/lib/scopes.js';
 
 // EC への到達は環境依存なので、テスト中は外部 fetch を必ず失敗させて同梱 Excel のパスを通す
 const realFetch = globalThis.fetch;
@@ -63,6 +64,38 @@ test('GET /api/certificate-data (MD fallback, no D1)', async () => {
   assert.equal(a.data.total_standards, 83);
   assert.equal(a.data.certificate_info.certificate_number, '7080.01');
   assert.equal((await get('/api/certificate-data?cert_type=x')).status, 400);
+});
+
+test('GET /api/accreditations returns compact current metadata and PDF links without scope lists', async () => {
+  const response = await get('/api/accreditations');
+  assert.equal(response.status, 200);
+  const { data } = await response.json();
+  assert.deepEqual(data.items.map(item => item.cert_type), ['a2la', 'jab']);
+  assert.deepEqual(data.items.map(item => item.item_count), [83, 1050]);
+  for (const item of data.items) {
+    assert.equal(item.available, true);
+    assert.equal(item.source, 'md');
+    assert.ok(item.certificate_number && item.valid_until && item.organization);
+    assert.equal(item.pdf_url, `/certificates/${item.cert_type}.pdf`);
+    assert.equal('test_standards' in item, false);
+  }
+});
+
+test('accreditation metadata failure is isolated to the affected card and can be retried', async () => {
+  clearScopeCache();
+  const broken = { ...env, ASSETS: { async fetch(request) {
+    if (new URL(request.url).pathname.endsWith('/jab-scopes.md')) return new Response('unavailable', { status: 503 });
+    return env.ASSETS.fetch(request);
+  } } };
+  try {
+    const { data } = await (await app.request('/api/accreditations', {}, broken)).json();
+    assert.equal(data.items[0].available, true);
+    assert.equal(data.items[1].available, false);
+    assert.equal(data.items[1].certificate_number, undefined);
+    assert.equal(data.items[1].pdf_url, '/certificates/jab.pdf');
+    const retried = await (await get('/api/accreditations')).json();
+    assert.ok(retried.data.items.every(item => item.available));
+  } finally { clearScopeCache(); }
 });
 
 test('GET /api/scope-oj-version-check compares every current scope item', async () => {

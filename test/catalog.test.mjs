@@ -94,6 +94,11 @@ test('catalogue writes leave existing current D1 accreditation data intact', asy
     const doc = await loadScopeDocument({ env: bindings, req: { url: 'https://local.test/' } }, 'jab', { noCache: true });
     assert.equal(doc.source, 'd1'); assert.equal(doc.doc.items.length, 1);
     assert.equal(doc.doc.items[0].standard, 'EN 61326-1:2012/2013');
+    const cards = await (await app.request('/api/accreditations', {}, bindings)).json();
+    const jab = cards.data.items.find(item => item.cert_type === 'jab');
+    assert.equal(jab.source, 'd1');
+    assert.equal(jab.certificate_number, 'TEST-JAB');
+    assert.equal(jab.item_count, 1);
     assert.equal(JSON.stringify(DB.sqlite.prepare('SELECT * FROM scope_items').all()), before);
   } finally { clearScopeCache(); DB.sqlite.close(); }
 });

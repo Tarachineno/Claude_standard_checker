@@ -279,18 +279,8 @@
         <section id="certificate-tab" class="tab-content">
             <div class="card">
                 <h2><i class="fas fa-certificate"></i> <span data-i18n="certificate.title">ISO/IEC 17025 Accreditation Scope</span></h2>
-                <div class="certificate-selection">
-                    <div class="form-group">
-                        <label for="certificate-type-select" data-i18n="certificate.type_label">Select an Accreditation:</label>
-                        <select id="certificate-type-select">
-                            <option value="">-- Select an Accreditation --</option>
-                            <option value="a2la">A2LA Accreditation</option>
-                            <option value="jab">JAB Accreditation</option>
-                        </select>
-                    </div>
-                    <button id="load-certificate-btn" class="btn btn-primary" disabled data-i18n="certificate.load_btn">
-                        <i class="fas fa-download"></i> Load Accreditation Scope
-                    </button>
+                <div id="accreditation-cards" class="accreditation-cards" aria-live="polite" aria-busy="false">
+                    <p data-i18n="certificate.cards_loading">Loading accreditation information…</p>
                 </div>
 
                 <div class="scope-oj-check-actions">
@@ -304,8 +294,13 @@
 
                 <div id="scope-oj-check-results" class="scope-oj-check-results hidden">
                     <h3><i class="fas fa-code-compare"></i> <span data-i18n="scope_oj.title">Current Accreditation Scopes vs Active OJ Editions</span></h3>
+                    <p class="muted" data-i18n="scope_oj.summary_hint">Counts reflect the accreditation, facility and search filters, before the status filter.</p>
                     <div id="scope-oj-summary" class="scope-oj-summary"></div>
                     <div class="scope-oj-controls">
+                        <label for="scope-oj-accreditation" data-i18n="scope_oj.accreditation_filter">Accreditation:</label>
+                        <select id="scope-oj-accreditation"><option value="all" data-i18n="scope_oj.all_accreditations">All accreditations</option></select>
+                        <label for="scope-oj-facility" data-i18n="scope_oj.facility_filter">Facility:</label>
+                        <select id="scope-oj-facility"><option value="all" data-i18n="scope_oj.all_facilities">All facilities</option></select>
                         <label for="scope-oj-basis" data-i18n="catalog.basis">Summary / filter basis</label>
                         <select id="scope-oj-basis"><option value="published" data-i18n="catalog.published_basis">Latest Published</option><option value="oj" data-i18n="catalog.oj_basis">Active OJ</option></select>
                         <label for="scope-oj-status-filter" data-i18n="scope_oj.filter_label">Filter:</label>
@@ -317,8 +312,9 @@
                             <option value="not_listed" data-i18n="scope_oj.filter_not_listed">Not listed</option>
                             <option value="unverified" data-i18n="catalog.unverified">Unverified</option>
                         </select>
+                        <label for="scope-oj-search" class="sr-only" data-i18n="scope_oj.search_label">Search scopes</label>
                         <input id="scope-oj-search" type="search" data-i18n="scope_oj.search_placeholder" placeholder="Filter by standard, facility, or certificate number" />
-                        <span id="scope-oj-result-count" class="muted"></span>
+                        <span id="scope-oj-result-count" class="muted" role="status"></span>
                     </div>
                     <p id="scope-oj-sources" class="scope-oj-sources"></p>
                     <div class="table-wrap scope-oj-table-wrap">
@@ -357,53 +353,6 @@
                     </details>
                 </div>
                 
-                <div id="certificate-results" class="results-section hidden">
-                    <h3 data-i18n="certificate.info_title">Accreditation Information</h3>
-                    <div class="certificate-info">
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <label data-i18n="certificate.number_label">Accreditation Number:</label>
-                                <span id="cert-number">-</span>
-                            </div>
-                            <div class="info-item">
-                                <label data-i18n="certificate.organization_label">Accredited Organization:</label>
-                                <span id="cert-organization">-</span>
-                            </div>
-                            <div class="info-item">
-                                <label data-i18n="certificate.valid_until_label">Valid Until:</label>
-                                <span id="cert-valid-until">-</span>
-                            </div>
-                        </div>
-                        <div id="cert-pdf-link-wrap"></div>
-                    </div>
-
-                    <!-- Standards Search Section -->
-                    <div class="standards-search-section">
-                        <h4><i class="fas fa-search"></i> <span data-i18n="certificate.search_title">Search Accreditation Scopes</span></h4>
-                        <p data-i18n="certificate.search_description">Search for specific standards in A2LA and JAB accreditation scopes</p>
-                        <div class="search-form">
-                            <div class="form-group">
-                                <input type="text" id="scope-search-input" data-i18n="certificate.search_placeholder" placeholder="Enter standard number (e.g., EN 301 783, 55032)" />
-                                <button id="scope-search-btn" class="btn btn-primary" data-i18n="certificate.search_btn">
-                                    <i class="fas fa-search"></i> Search Scopes
-                                </button>
-                                <button id="clear-search-btn" class="btn btn-secondary" data-i18n="certificate.clear_btn">
-                                    <i class="fas fa-times"></i> Clear
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div id="scope-search-results" class="search-results hidden">
-                            <h5>Search Results</h5>
-                            <div id="scope-search-content"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="categories-section">
-                        <h4>Standards by Category</h4>
-                        <div id="standards-categories"></div>
-                    </div>
-                </div>
             </div>
         </section>
 

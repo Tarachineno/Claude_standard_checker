@@ -120,7 +120,7 @@ export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, t
       items.push({ cert_type: certType, certificate_number: doc.info?.certificate_number || null,
         valid_until: doc.info?.valid_until || null, organization: doc.info?.organization || null, source,
         facility_number: scope.facility_number || null, facility_name: facility?.name || null, facility_location: facility?.location || null,
-        category: scope.category || null, anchor: scope.anchor || null, standard: scope.standard, references,
+        category: scope.category || null, anchor: scope.anchor || null, standard: scope.standard, description: scope.description || '', references,
         scope_versions: unique(refs.flatMap(r => r.versions)), scope_version: unique(refs.flatMap(r => r.versions)).join(' / ') || null,
         ...oj, published, oj_entries: ojEntries, oj_numbers: unique(ojEntries.map(e => e.number)),
         oj_versions: ojVersions,

@@ -79,12 +79,16 @@ const safeSourceLink = (url, label) => {
 };
 function renderEditionComparison(data) {
     const basis = catalogueElement('scope-oj-basis').value;
-    const summary = basis === 'published' ? data.published_summary : data.summary;
+    const { accreditation, facility } = updateScopeFilters(data.items);
     const filter = catalogueElement('scope-oj-status-filter').value;
     const query = catalogueElement('scope-oj-search').value.trim().toLowerCase();
     const selected = item => basis === 'published' ? item.published : item;
-    const items = data.items.filter(item => (filter === 'all' || selected(item).status === filter)
-        && (!query || [item.cert_type, item.certificate_number, item.facility_number, item.facility_name, item.category, item.standard, ...(item.references || []).map(r => r.published?.latest?.designation)].join(' ').toLowerCase().includes(query)));
+    const matching = data.items.filter(item => (accreditation === 'all' || scopeAccreditationKey(item) === accreditation)
+        && (facility === 'all' || scopeFacilityKey(item) === facility)
+        && (!query || [item.cert_type, item.certificate_number, item.facility_number, item.facility_name, item.facility_location, item.category, item.standard, item.description, ...(item.references || []).map(r => r.published?.latest?.designation)].join(' ').toLowerCase().includes(query)));
+    const items = matching.filter(item => filter === 'all' || selected(item).status === filter);
+    const statuses = ['valid', 'warning', 'caution', 'not_listed', 'unverified'];
+    const summary = Object.fromEntries(statuses.map(status => [status, matching.filter(item => selected(item).status === status).length]));
     catalogueElement('scope-oj-summary').innerHTML = ['valid', 'warning', 'caution', 'not_listed', 'unverified'].map(s =>
         '<div class="scope-oj-summary-card scope-oj-summary-' + s + '"><span>' + esc(statusText(s)) + '</span><strong>' + (summary?.[s] || 0) + '</strong></div>').join('');
     catalogueElement('scope-oj-result-count').textContent = t('scope_oj.result_count', { shown: items.length, total: data.items.length });
@@ -104,12 +108,38 @@ function renderEditionComparison(data) {
                 safeSourceLink(p.latest?.source_url || p.record?.source_url, t('catalog.source')) + '</div>';
         }).join('');
         const check = selected(item);
+        const detail = item.anchor ? '<br><button type="button" class="btn-link" data-scope-detail-cert="' + esc(item.cert_type) + '" data-scope-detail-anchor="' + esc(item.anchor) + '">' + esc(t('quick.detail_link')) + '</button>' : '';
         return '<tr><td>' + esc(item.cert_type.toUpperCase()) + '<small>' + esc(item.certificate_number || '') + '</small></td><td>' +
-            esc([item.facility_number, item.facility_name].filter(Boolean).join(' · ')) + '<small>' + esc(item.category || '') + '</small></td><td><strong>' + esc(item.standard) +
-            '</strong></td><td>' + (oj || esc(t('catalog.unverified'))) + '</td><td>' + (published || esc(t('catalog.unverified'))) +
+            esc(scopeFacilityLabel(item)) + '<small>' + esc(item.category || '') + '</small></td><td><strong>' + esc(item.standard) +
+            '</strong>' + detail + '</td><td>' + (oj || esc(t('catalog.unverified'))) + '</td><td>' + (published || esc(t('catalog.unverified'))) +
             '</td><td>' + statusBadge(check.status) + '<small>' + esc(scopeOjReasonLabel(check.reason)) + '</small></td></tr>';
-    }).join('');
+    }).join('') || '<tr><td colspan="6" class="scope-oj-empty">' + esc(t('scope_oj.no_results')) + '</td></tr>';
     catalogueElement('scope-oj-check-results').classList.remove('hidden');
+}
+
+const scopeAccreditationKey = item => JSON.stringify([item.cert_type, item.certificate_number || '']);
+const scopeFacilityKey = item => JSON.stringify([scopeAccreditationKey(item), String(item.facility_number ?? ''), item.facility_name || '', item.facility_location || '']);
+const scopeFacilityLabel = item => [
+    item.facility_number != null ? t('scope_oj.facility_number', { number: item.facility_number }) : '',
+    item.facility_name || item.facility_location,
+].filter(Boolean).join(' · ') || t('scope_oj.facility_unspecified');
+
+function updateScopeFilters(items) {
+    const accreditationLabel = item => [item.cert_type.toUpperCase(), item.certificate_number].filter(Boolean).join(' · ');
+    const setOptions = (id, entries, allLabel) => {
+        const select = catalogueElement(id);
+        const previous = select.value;
+        select.innerHTML = '<option value="all">' + esc(t(allLabel)) + '</option>' + [...entries].map(([key, label]) =>
+            '<option value="' + esc(key) + '">' + esc(label) + '</option>').join('');
+        select.value = entries.has(previous) ? previous : 'all';
+        return select.value;
+    };
+    const accreditations = new Map(items.map(item => [scopeAccreditationKey(item), accreditationLabel(item)]));
+    const accreditation = setOptions('scope-oj-accreditation', accreditations, 'scope_oj.all_accreditations');
+    const facilities = new Map(items.filter(item => accreditation === 'all' || scopeAccreditationKey(item) === accreditation)
+        .map(item => [scopeFacilityKey(item), (accreditation === 'all' ? accreditationLabel(item) + ' · ' : '') + scopeFacilityLabel(item)]));
+    const facility = setOptions('scope-oj-facility', facilities, 'scope_oj.all_facilities');
+    return { accreditation, facility };
 }
 
 async function loadPublisherCatalog() {

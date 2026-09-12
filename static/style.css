@@ -589,12 +589,40 @@ main {
     text-decoration: underline;
 }
 
-/* Certificate info */
-.certificate-info {
+/* Compact accreditation metadata, independent of the bulk check. */
+.accreditation-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.accreditation-card {
     background: #f8f9fc;
+    border: 1px solid #dce3eb;
     border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.accreditation-card h3 { margin-bottom: .6rem; color: var(--dark-orange); }
+.accreditation-card dl > div { display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin: .25rem 0; }
+.accreditation-card dt { color: #536579; }
+.accreditation-card dd { font-weight: 600; }
+.accreditation-card .muted { font-size: .82rem; margin: .65rem 0; }
+.accreditation-card-retry { grid-column: 1 / -1; }
+.scope-oj-table .scope-oj-empty { text-align: center; padding: 2rem; color: #536579; }
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .certificate-update-help {
@@ -711,6 +739,8 @@ main {
 
 .scope-oj-controls select,
 .scope-oj-controls input {
+    max-width: 100%;
+    min-width: 0;
     min-height: 38px;
     padding: 0.45rem 0.65rem;
     border: 1px solid #cbd5df;
