@@ -44,6 +44,11 @@ const translations = {
         'quick.sources': 'JAB {jab_no} (valid until {jab_until}) · A2LA {a2la_no} (valid until {a2la_until}) · OJ lists: {oj} · checked {at}',
         'quick.copied': 'Copied {n} rows to clipboard',
         'quick.empty': 'Enter at least one standard number',
+        'quick.detail_source_db': 'source: D1 database',
+        'quick.detail_source_md': 'source: MD file',
+        'quick.detail_valid_until': 'valid until',
+        'quick.detail_open_pdf': 'Open certificate PDF',
+        'quick.detail_link': 'Detail',
         'standards.title_main': 'EU Harmonized Standards',
         'standards.description': 'Fetch and analyze standards from Official Journal publications',
         'standards.directive_label': 'Select Directive:',
@@ -154,6 +159,11 @@ const translations = {
         'quick.sources': 'JAB {jab_no}（有効期限 {jab_until}）· A2LA {a2la_no}（有効期限 {a2la_until}）· OJリスト: {oj} · 判定日時 {at}',
         'quick.copied': '{n}行をクリップボードにコピーしました',
         'quick.empty': '規格番号を1つ以上入力してください',
+        'quick.detail_source_db': 'データ元: D1データベース',
+        'quick.detail_source_md': 'データ元: MDファイル',
+        'quick.detail_valid_until': '有効期限',
+        'quick.detail_open_pdf': '認定書PDFを開く',
+        'quick.detail_link': '詳細',
         'standards.title_main': 'EU調和規格',
         'standards.description': '官報公告から規格を取得・分析',
         'standards.directive_label': '指令を選択:',
@@ -265,7 +275,7 @@ let SCOPE_SOURCE_BRANCH = 'cloudflare-workers';
 // - /static/data/jab-scopes.md
 
 // DOM elements (will be initialized after DOM load)
-let loadingOverlay, errorModal, successModal;
+let loadingOverlay, errorModal, successModal, scopeDetailModal;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -278,6 +288,7 @@ async function initializeApp() {
     loadingOverlay = document.getElementById('loading-overlay');
     errorModal = document.getElementById('error-modal');
     successModal = document.getElementById('success-modal');
+    scopeDetailModal = document.getElementById('scope-detail-modal');
     
     // Load saved language or default to Japanese
     currentLanguage = localStorage.getItem('language') || 'ja';
@@ -454,7 +465,7 @@ function setupEventListeners() {
     });
 
     // Close modals on outside click
-    [errorModal, successModal].forEach(modal => {
+    [errorModal, successModal, scopeDetailModal].forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModals();
         });
@@ -1385,11 +1396,44 @@ function createScopeBadge(certType, matchData) {
 }
 
 // Open scope details in MD file
-function openScopeDetails(certType, anchor) {
-    const githubUrl = `${GITHUB_REPO_URL}/blob/${SCOPE_SOURCE_BRANCH}/static/data/${certType}-scopes.md${anchor}`;
-    console.log(`Opening scope details: ${githubUrl}`);
-    window.open(githubUrl, '_blank');
-    showBriefNotification(`Opening ${certType.toUpperCase()} certificate scope information on GitHub`);
+async function openScopeDetails(certType, anchor) {
+    try {
+        const response = await apiCall(`/scope-detail?cert_type=${certType}&anchor=${encodeURIComponent(anchor)}`);
+        if (!response.success) throw new Error(response.error || 'Scope detail not found');
+        renderScopeDetailModal(certType, response.data);
+    } catch (error) {
+        console.error('Failed to load scope detail:', error);
+        showError(`Failed to load scope detail: ${error.message}`);
+    }
+}
+
+function renderScopeDetailModal(certType, data) {
+    document.getElementById('scope-detail-title').textContent = data.category || `${certType.toUpperCase()} scope`;
+
+    const facility = data.facility
+        ? `<p class="muted">${esc(data.facility.name)}${data.facility.location ? `（${esc(data.facility.location)}）` : ''}</p>`
+        : '';
+
+    const rows = data.items.map(it => `
+        <li><strong>${esc(it.standard)}</strong>${it.description ? ` <span class="muted">— ${esc(it.description)}</span>` : ''}</li>
+    `).join('');
+
+    const certNo = data.certificate_info?.certificate_number || '-';
+    const certUntil = data.certificate_info?.valid_until || '-';
+    const sourceLabel = data.source === 'd1' ? t('quick.detail_source_db') : t('quick.detail_source_md');
+    const pdfUrl = `/certificates/${certType}.pdf`;
+
+    document.getElementById('scope-detail-body').innerHTML = `
+        ${facility}
+        <ul class="scope-detail-list">${rows}</ul>
+        <div class="scope-detail-footer">
+            <span class="muted">${esc(certType.toUpperCase())} ${esc(certNo)} ・ ${esc(t('quick.detail_valid_until'))} ${esc(certUntil)} ・ ${esc(sourceLabel)}</span>
+            <a href="${esc(pdfUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-outline">
+                <i class="fas fa-file-pdf"></i> ${esc(t('quick.detail_open_pdf'))}
+            </a>
+        </div>
+    `;
+    scopeDetailModal.classList.remove('hidden');
 }
 
 // Add click handler for CEN/CENELEC links to copy standard number to clipboard
@@ -2001,6 +2045,7 @@ function showSuccess(message) {
 function closeModals() {
     errorModal.classList.add('hidden');
     successModal.classList.add('hidden');
+    scopeDetailModal.classList.add('hidden');
 }
 
 // Standards search in fetched results
@@ -2158,15 +2203,32 @@ function verdictLabel(v) {
     return v === 'ok' ? 'OK' : v === 'check' ? 'CHECK' : 'NG';
 }
 
+/** 同じ規格・同じ施設の alternatives（試験区分違いだけ）をまとめて件数表示にする */
+function summarizeAlternatives(alternatives) {
+    const order = [];
+    const counts = new Map();
+    for (const a of alternatives) {
+        const facilityShort = a.facility ? a.facility.replace(/:.*$/, '') : '';
+        const key = `${a.matched_standard}|${facilityShort}`;
+        if (!counts.has(key)) { counts.set(key, 0); order.push({ key, standard: a.matched_standard, facility: facilityShort }); }
+        counts.set(key, counts.get(key) + 1);
+    }
+    return order.map(o => {
+        const label = o.standard + (o.facility ? ` (${o.facility})` : '');
+        const n = counts.get(o.key);
+        return n > 1 ? `${label} ×${n}` : label;
+    });
+}
+
 function scopeCell(certType, m) {
     if (!m || m.status === 'no_match') {
         return `<span class="verdict-badge verdict-ng small">NG</span> <span class="muted">${esc(t('quick.no_scope'))}</span>`;
     }
     const note = m.note ? `<span class="scope-note">${esc(translateScopeNote(m.note))}</span>` : '';
     const facility = m.facility ? `<span class="facility-info">${esc(m.facility)}</span>` : '';
-    const link = m.anchor ? `<button class="btn-link" onclick="openScopeDetails('${certType}', '${esc(m.anchor)}')" title="GitHub"><i class="fas fa-external-link-alt"></i></button>` : '';
+    const link = m.anchor ? `<button class="btn-link" onclick="openScopeDetails('${certType}', '${esc(m.anchor)}')" title="Scope detail"><i class="fas fa-circle-info"></i> ${esc(t('quick.detail_link'))}</button>` : '';
     const alts = (m.alternatives || []).length
-        ? `<div class="quick-alts">${esc(t('quick.also'))}: ${m.alternatives.map(a => esc(a.matched_standard) + (a.facility ? ` (${esc(a.facility.replace(/:.*$/, ''))})` : '')).join(' / ')}</div>`
+        ? `<div class="quick-alts">${esc(t('quick.also'))}: ${summarizeAlternatives(m.alternatives).map(esc).join(' / ')}</div>`
         : '';
     return `<span class="verdict-badge verdict-${m.verdict} small">${verdictLabel(m.verdict)}</span> <strong>${esc(m.matched_standard)}</strong> ${link}<br>${facility} ${note}${alts}`;
 }

@@ -1840,6 +1840,13 @@ footer {
 .oj-directive { display: inline-block; min-width: 2.8em; font-weight: 700; color: var(--primary-orange); }
 .quick-sources { margin-top: 12px; font-size: 0.8rem; color: var(--text-gray); }
 
+/* --- スコープ詳細モーダル（「詳細を見る」で開く、D1/MDの実データ） --- */
+#scope-detail-modal .modal-content { max-width: 560px; }
+.scope-detail-list { list-style: none; padding: 0; margin: 10px 0; max-height: 320px; overflow-y: auto; }
+.scope-detail-list li { padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+.scope-detail-list li:last-child { border-bottom: none; }
+.scope-detail-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid #eee; }
+
 @media (max-width: 768px) {
     .quick-std, .oj-row { white-space: normal; }
     .quick-hint { margin-left: 0; }

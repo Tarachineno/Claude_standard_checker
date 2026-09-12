@@ -80,6 +80,35 @@ app.post('/scope-search', async c => {
 // GET /api/scopes/status  — D1 の投入状況（運用確認用）
 app.get('/scopes/status', async c => ok(c, await scopeStatus(c)));
 
+// GET /api/scope-detail?cert_type=jab&anchor=%23facility-2-telecom-port
+// 「詳細を見る」用: 指定した試験区分（anchor）に属する全項目を、GitHub の MD に飛ばず画面内で返す。
+app.get('/scope-detail', async c => {
+  const certType = certTypeOf(c);
+  if (!certType) return fail(c, 400, 'Invalid cert_type. Must be "a2la" or "jab"');
+  const anchor = c.req.query('anchor');
+  if (!anchor) return fail(c, 400, 'Missing anchor');
+  try {
+    const { doc, source } = await loadScopeDocument(c, certType);
+    const matched = doc.items.filter(it => it.anchor === anchor);
+    if (!matched.length) return fail(c, 404, `No scope items found for anchor "${anchor}"`);
+    const facility = matched[0].facility_number
+      ? doc.facilities.find(f => f.facility_number === matched[0].facility_number) || null
+      : null;
+    return ok(c, {
+      cert_type: certType,
+      category: matched[0].category || null,
+      anchor,
+      facility: facility ? { number: facility.facility_number, name: facility.name, location: facility.location || null } : null,
+      items: matched.map(it => ({ standard: it.standard, description: it.description || '' })),
+      certificate_info: doc.info,
+      source, // 'd1' | 'md'
+    });
+  } catch (err) {
+    console.error('[scope-detail]', err);
+    return fail(c, 500, `Scope detail loading failed: ${err.message}`);
+  }
+});
+
 // POST /api/certificate  { fileData: base64, fileName }  — 旧 API 互換（PDF ヘッダ検証のみ）
 app.post('/certificate', async c => {
   let body;
