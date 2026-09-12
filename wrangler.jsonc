@@ -1,0 +1,53 @@
+/**
+ * Cloudflare Workers configuration — EU Harmonized Standards Checker
+ *
+ * 初回デプロイ前にやること（README「Cloudflare へのデプロイ」参照）:
+ *   1. npx wrangler d1 create standards-checker   → 出力された database_id を下の d1_databases に貼る
+ *   2. npx wrangler kv namespace create CACHE      → 出力された id を下の kv_namespaces に貼る
+ *   3. npm run db:migrate && npm run db:seed
+ *   4. npm run deploy
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eu-standards-checker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // 静的ファイル（旧 Netlify の publish = "static" と同じ）。
+  // 静的ファイルに一致しないリクエストだけが Worker（src/index.js）に届く。
+  "assets": {
+    "directory": "./static",
+    "binding": "ASSETS",
+    "not_found_handling": "none"
+  },
+
+  // JAB / A2LA 認定スコープの保存先（SQLite ベースの D1）
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "standards-checker",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // EC 公式 Excel（EMC / RED / LVD 整合規格リスト）のキャッシュ
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+    }
+  ],
+
+  "vars": {
+    // スコープ MD の GitHub 上の参照先ブランチ（画面の「詳細を見る」リンクに使用）
+    "SCOPE_SOURCE_BRANCH": "cloudflare-workers",
+    // EC サーバーへ更新確認（HEAD）を投げる間隔（秒）。この間はキャッシュを信用する。
+    "STANDARDS_RECHECK_SECONDS": "21600"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

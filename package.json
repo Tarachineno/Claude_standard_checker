@@ -1,0 +1,35 @@
+{
+  "name": "eu-harmonized-standards-checker",
+  "version": "3.0.0",
+  "description": "EU Harmonized Standards Checker - Cloudflare Workers edition (static assets + Hono API + D1 scope database)",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test",
+    "db:migrate": "wrangler d1 migrations apply standards-checker --remote",
+    "db:migrate:local": "wrangler d1 migrations apply standards-checker --local",
+    "db:seed": "node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --remote --file=seed/scopes.sql",
+    "db:seed:local": "node scripts/seed-from-md.mjs && wrangler d1 execute standards-checker --local --file=seed/scopes.sql",
+    "setup:local": "npm run db:migrate:local && npm run db:seed:local"
+  },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "keywords": [
+    "eu-standards",
+    "harmonized-standards",
+    "official-journal",
+    "cloudflare-workers",
+    "d1",
+    "hono"
+  ],
+  "author": "SGS Japan Inc. / Wireless-EMC Service",
+  "license": "MIT"
+}

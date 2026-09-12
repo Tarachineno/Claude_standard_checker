@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Harmonized Standards Checker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1><i class="fas fa-clipboard-check"></i> <span data-i18n="app.title">EU Harmonized Standards Checker</span></h1>
+                    <p data-i18n="app.description">Check compliance with EU directives (RED, EMC, LVD) and compare with ISO17025 certificates</p>
+                </div>
+                <div class="header-right">
+                <div id="user-badge" class="user-badge hidden" title="Cloudflare Access でログイン中"><i class="fas fa-user-check"></i> <span id="user-email"></span></div>
+                <div class="language-switch">
+                    <button id="lang-en" class="lang-btn" data-lang="en">
+                        <i class="fas fa-flag-usa"></i> EN
+                    </button>
+                    <button id="lang-ja" class="lang-btn" data-lang="ja">
+                        <i class="fas fa-flag"></i> 日本語
+                    </button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Loading overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Navigation tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="quick" data-i18n="nav.quick_check">Quick Check</button>
+            <button class="tab-btn" data-tab="standards" data-i18n="nav.oj_standards">OJ Standards</button>
+            <button class="tab-btn" data-tab="search" data-i18n="nav.search_standards">Search Standards</button>
+            <button class="tab-btn" data-tab="certificate" data-i18n="nav.iso17025_certificate">ISO17025 Certificate</button>
+        </nav>
+
+
+        <!-- Quick Check Tab（営業向け：規格番号を貼るだけで認定範囲と OJ 掲載を判定） -->
+        <section id="quick-tab" class="tab-content active">
+            <div class="card">
+                <h2><i class="fas fa-bolt"></i> <span data-i18n="quick.title">Quick Check</span></h2>
+                <p class="card-description" data-i18n="quick.description">Paste standard numbers (one per line, or comma separated). We check the JAB / A2LA accreditation scopes and the EU Official Journal lists (EMC / RED / LVD) at once.</p>
+                <div class="quick-form">
+                    <textarea id="quick-input" rows="6" data-i18n="quick.placeholder" placeholder="EN 55032:2015&#10;EN 301 489-17 V3.2.4&#10;EN 300 328 V2.2.2&#10;IEC 61000-4-2"></textarea>
+                    <div class="quick-actions">
+                        <button id="quick-check-btn" class="btn btn-primary"><i class="fas fa-bolt"></i> <span data-i18n="quick.check_btn">Check</span></button>
+                        <button id="quick-example-btn" class="btn btn-small btn-outline"><i class="fas fa-lightbulb"></i> <span data-i18n="quick.example_btn">Example</span></button>
+                        <button id="quick-clear-btn" class="btn btn-small btn-outline"><i class="fas fa-eraser"></i> <span data-i18n="quick.clear_btn">Clear</span></button>
+                        <span class="quick-hint" data-i18n="quick.hint">Tip: Ctrl+Enter runs the check</span>
+                    </div>
+                </div>
+                <div class="quick-legend">
+                    <span class="verdict-badge verdict-ok">OK</span> <span data-i18n="quick.legend_ok">within accreditation scope</span>
+                    <span class="verdict-badge verdict-check">CHECK</span> <span data-i18n="quick.legend_check">listed with a different edition — confirm with engineering</span>
+                    <span class="verdict-badge verdict-ng">NG</span> <span data-i18n="quick.legend_ng">not in JAB or A2LA scope</span>
+                </div>
+            </div>
+
+            <div id="quick-results" class="card hidden">
+                <div class="results-header">
+                    <h3><span data-i18n="quick.results_title">Results</span> <span id="quick-summary" class="quick-summary"></span></h3>
+                    <div class="results-controls quick-result-actions">
+                        <button id="quick-copy-btn" class="btn btn-small btn-secondary"><i class="fas fa-copy"></i> <span data-i18n="quick.copy_btn">Copy table</span></button>
+                        <button id="quick-csv-btn" class="btn btn-small btn-secondary"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button id="quick-print-btn" class="btn btn-small btn-outline"><i class="fas fa-print"></i> <span data-i18n="quick.print_btn">Print</span></button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="quick-table" id="quick-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="quick.col_standard">Standard</th>
+                                <th data-i18n="quick.col_verdict">Verdict</th>
+                                <th>JAB</th>
+                                <th>A2LA</th>
+                                <th data-i18n="quick.col_oj">OJ (EMC / RED / LVD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quick-tbody"></tbody>
+                    </table>
+                </div>
+                <p id="quick-sources" class="quick-sources"></p>
+            </div>
+        </section>
+
+        <!-- Standards Tab -->
+        <section id="standards-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-list"></i> <span data-i18n="standards.title_fetch">Fetch OJ Standards</span></h2>
+                <div class="form-group">
+                    <label for="directive-select" data-i18n="standards.directive_label">Select Directive:</label>
+                    <select id="directive-select">
+                        <option value="">Loading directives...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fetch-method" data-i18n="standards.fetch_method_label">Fetch Method:</label>
+                    <select id="fetch-method">
+                        <!-- Options will be populated dynamically based on selected directive -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button id="fetch-standards-btn" class="btn btn-primary" data-i18n="standards.fetch_btn">
+                        <i class="fas fa-download"></i> Fetch Standards
+                    </button>
+                </div>
+                
+                <div class="notice-box" id="oj-update-notice">
+                    <p><i class="fas fa-info-circle"></i> <span data-i18n="standards.note_oj_update">The latest OJ information may not be reflected. If this is the case, please check manually from the following links.</span></p>
+                    <ul class="notice-links">
+                        <li><span data-i18n="standards.note_red_link">RED:</span> <a href="https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en" target="_blank" rel="noopener noreferrer">https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/radio-equipment_en</a></li>
+                        <li><span data-i18n="standards.note_emc_link">EMC:</span> <a href="https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en" target="_blank" rel="noopener noreferrer">https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/electromagnetic-compatibility-emc_en</a></li>
+                        <li><span data-i18n="standards.note_lvd_link">LVD:</span> <a href="https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en" target="_blank" rel="noopener noreferrer">https://single-market-economy.ec.europa.eu/single-market/goods/european-standards/harmonised-standards/low-voltage-lvd_en</a></li>
+                    </ul>
+                </div>
+                
+                <div id="standards-results" class="results-section hidden">
+                    <h3 data-i18n="standards.results_title">Results</h3>
+                    <div class="results-header">
+                        <span id="standards-count" class="count-badge">0 standards</span>
+                    </div>
+                    
+                    <!-- Sort and Filter Controls -->
+                    <div class="results-controls">
+                        <!-- Row 1: Sort and Filter options -->
+                        <div class="controls-row controls-options">
+                            <div class="control-group">
+                                <label for="sort-standards">Sort by:</label>
+                                <select id="sort-standards">
+                                    <option value="standard_number_asc">Standard Number (A-Z)</option>
+                                    <option value="standard_number_desc">Standard Number (Z-A)</option>
+                                    <option value="oj_date_desc">OJ Date (Newest First)</option>
+                                    <option value="oj_date_asc">OJ Date (Oldest First)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="filter-status">Filter by Status:</label>
+                                <select id="filter-status">
+                                    <option value="all">All Standards</option>
+                                    <option value="valid">Valid (Published, Not Withdrawn)</option>
+                                    <option value="invalid">Invalid (Withdrawn)</option>
+                                </select>
+                            </div>
+                            <div class="control-group button-only">
+                                <button id="apply-controls-btn" class="btn btn-small">
+                                    <i class="fas fa-filter"></i> <span data-i18n="standards.apply_btn">Apply</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 2: Search and Action buttons -->
+                        <div class="controls-row controls-actions">
+                            <div class="control-group search-group">
+                                <label for="standards-search-input">Search in Results:</label>
+                                <div class="search-input-container">
+                                    <input 
+                                        type="text" 
+                                        id="standards-search-input" 
+                                        placeholder="Search standards or descriptions..."
+                                        class="search-input"
+                                    >
+                                    <button id="standards-search-btn" class="btn btn-small">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button id="clear-standards-search-btn" class="btn btn-small btn-outline">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="control-group action-buttons">
+                                <button id="reset-controls-btn" class="btn btn-small btn-outline">
+                                    <i class="fas fa-undo"></i> <span data-i18n="standards.reset_btn">Reset</span>
+                                </button>
+                                <button id="export-standards-btn" class="btn btn-small btn-secondary">
+                                    <i class="fas fa-file-export"></i> <span data-i18n="standards.export_btn">Export</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="standards-list" class="standards-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Tab -->
+        <section id="search-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-search"></i> <span data-i18n="search.title">Search Standards</span></h2>
+                <p data-i18n="search.description">Search for specific standards on official standards portals. Choose your preferred portal and enter a standard number or keyword.</p>
+                <div class="search-form">
+                    <div class="form-group">
+                        <input type="text" id="search-input" data-i18n="search.input_placeholder" placeholder="Enter standard number or keyword (e.g., 50360:2017, 18031-1)" />
+                        <div class="search-buttons">
+                            <button id="search-etsi-btn" class="btn btn-primary etsi-search-btn" data-i18n="search.etsi_btn">
+                                <i class="fas fa-external-link-alt"></i> Search on ETSI Portal
+                            </button>
+                            <button id="search-cen-btn" class="btn btn-secondary cen-search-btn" data-i18n="search.cenelec_btn">
+                                <i class="fas fa-external-link-alt"></i> Search on CEN-CENELEC Portal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="search-info">
+                    <h3><i class="fas fa-info-circle"></i> <span data-i18n="search.how_to_title">How to Search</span></h3>
+                    <div class="search-help-grid">
+                        <div class="portal-help">
+                            <h4><i class="fas fa-satellite"></i> <span data-i18n="search.etsi_portal_title">ETSI Portal</span></h4>
+                            <ul>
+                                <li><strong data-i18n="search.standard_number_label">Standard Number:</strong> EN 301 489-12, EN 300 328, etc.</li>
+                                <li><strong data-i18n="search.keywords_label">Keywords:</strong> EMC, radio equipment, bluetooth, etc.</li>
+                                <li><strong data-i18n="search.technology_label">Technology:</strong> 5G, WiFi, LTE, etc.</li>
+                            </ul>
+                            <p><i class="fas fa-lightbulb"></i> <span data-i18n="search.direct_search_note"><strong>Direct search:</strong> Opens ETSI portal with automatic search.</span></p>
+                        </div>
+                        <div class="portal-help">
+                            <h4><i class="fas fa-cogs"></i> <span data-i18n="search.cenelec_portal_title">CEN-CENELEC Portal</span></h4>
+                            <ul>
+                                <li><strong data-i18n="search.standard_number_label">Standard Number:</strong> 18031-1:2024, 50360:2017, etc.</li>
+                                <li><strong data-i18n="search.keywords_label">Keywords:</strong> Safety, EMC, machinery, etc.</li>
+                                <li><strong data-i18n="search.product_type_label">Product Type:</strong> Medical devices, machinery, etc.</li>
+                            </ul>
+                            <p><i class="fas fa-copy"></i> <span data-i18n="search.manual_search_note"><strong>Manual search:</strong> Standard number copied to clipboard for pasting.</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Certificate Tab -->
+        <section id="certificate-tab" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-certificate"></i> <span data-i18n="certificate.title">ISO17025 Certificate Analysis</span></h2>
+                <div class="certificate-selection">
+                    <div class="form-group">
+                        <label for="certificate-type-select" data-i18n="certificate.type_label">Select Certificate Type:</label>
+                        <select id="certificate-type-select">
+                            <option value="">-- Select a Certificate Type --</option>
+                            <option value="a2la">A2LA Certificate</option>
+                            <option value="jab">JAB Certificate</option>
+                        </select>
+                    </div>
+                    <button id="load-certificate-btn" class="btn btn-primary" disabled data-i18n="certificate.load_btn">
+                        <i class="fas fa-download"></i> Load Certificate Data
+                    </button>
+                </div>
+                
+                <div id="certificate-results" class="results-section hidden">
+                    <h3 data-i18n="certificate.info_title">Certificate Information</h3>
+                    <div class="certificate-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label data-i18n="certificate.number_label">Certificate Number:</label>
+                                <span id="cert-number">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label data-i18n="certificate.organization_label">Organization:</label>
+                                <span id="cert-organization">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label data-i18n="certificate.valid_until_label">Valid Until:</label>
+                                <span id="cert-valid-until">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Standards Search Section -->
+                    <div class="standards-search-section">
+                        <h4><i class="fas fa-search"></i> <span data-i18n="certificate.search_title">Search Certificate Scopes</span></h4>
+                        <p data-i18n="certificate.search_description">Search for specific standards in A2LA and JAB certificate scopes</p>
+                        <div class="search-form">
+                            <div class="form-group">
+                                <input type="text" id="scope-search-input" data-i18n="certificate.search_placeholder" placeholder="Enter standard number (e.g., EN 301 783, 55032)" />
+                                <button id="scope-search-btn" class="btn btn-primary" data-i18n="certificate.search_btn">
+                                    <i class="fas fa-search"></i> Search Scopes
+                                </button>
+                                <button id="clear-search-btn" class="btn btn-secondary" data-i18n="certificate.clear_btn">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="scope-search-results" class="search-results hidden">
+                            <h5>Search Results</h5>
+                            <div id="scope-search-content"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="categories-section">
+                        <h4>Standards by Category</h4>
+                        <div id="standards-categories"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Error modal -->
+        <div id="error-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+                <p id="error-message"></p>
+            </div>
+        </div>
+
+        <!-- Success modal -->
+        <div id="success-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3><i class="fas fa-check-circle"></i> Success</h3>
+                <p id="success-message"></p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025-2026 EU Harmonized Standards Checker. Built for compliance verification. <span id="app-runtime" class="footer-runtime"></span></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
