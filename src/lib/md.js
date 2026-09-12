@@ -128,7 +128,7 @@ export function toCertificateData(doc, certType) {
     });
   }
   for (const it of doc.items) {
-    const entry = { standard: it.standard, description: it.description, category: it.category };
+    const entry = { standard: it.standard, description: it.description, category: it.category, anchor: it.anchor };
     data.test_standards.push(entry);
     if (it.category) {
       (data.categories[it.category] ||= []).push(entry);

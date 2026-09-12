@@ -1791,7 +1791,7 @@ async function loadCertificateData() {
             uploadedCertificateData = certificateData;
             
             // Display the results
-            displayCertificateResults(certificateData);
+            displayCertificateResults(certificateData, selectedType);
             
             const src = certificateData.source === 'd1' ? 'D1 database' : 'MD file';
             showSuccess(`${selectedType.toUpperCase()} certificate data loaded successfully! (${certificateData.total_standards ?? certificateData.test_standards.length} standards from ${src})`);
@@ -1809,13 +1809,27 @@ async function loadCertificateData() {
 
 // categorizeStandards function removed - categories now come from MD files via API
 
-function displayCertificateResults(data) {
+/** カテゴリ/施設一覧の1規格分。anchor があれば「詳細を見る」（D1詳細モーダル → 認定書PDF）を添える */
+function standardLine(std, certType) {
+    if (typeof std === 'string') return `<li>${esc(std)}</li>`;
+    const link = std.anchor
+        ? ` <button class="btn-link" onclick="openScopeDetails('${certType}', '${esc(std.anchor)}')" title="Scope detail"><i class="fas fa-circle-info"></i> ${esc(t('quick.detail_link'))}</button>`
+        : '';
+    return `<li><strong>${esc(std.standard || std)}</strong>${std.description ? ' - ' + esc(std.description) : ''}${link}</li>`;
+}
+
+function displayCertificateResults(data, certType) {
     const resultsSection = document.getElementById('certificate-results');
-    
+
     // Update certificate info
     document.getElementById('cert-number').textContent = data.certificate_info.certificate_number || '-';
     document.getElementById('cert-organization').textContent = data.certificate_info.organization || '-';
     document.getElementById('cert-valid-until').textContent = data.certificate_info.valid_until || '-';
+
+    const pdfWrap = document.getElementById('cert-pdf-link-wrap');
+    if (pdfWrap) {
+        pdfWrap.innerHTML = `<a href="/certificates/${certType}.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-small btn-outline"><i class="fas fa-file-pdf"></i> ${esc(t('quick.detail_open_pdf'))}</a>`;
+    }
 
     // Display categories or facilities based on certificate type
     const categoriesElement = document.getElementById('standards-categories');
@@ -1853,14 +1867,7 @@ function displayCertificateResults(data) {
                             </div>
                             <div class="category-standards">
                                 <ul>
-                                    ${standards.map(std => {
-                                        // Handle both string and object formats
-                                        if (typeof std === 'string') {
-                                            return `<li>${std}</li>`;
-                                        } else {
-                                            return `<li><strong>${std.standard || std}</strong>${std.description ? ' - ' + std.description : ''}</li>`;
-                                        }
-                                    }).join('')}
+                                    ${standards.map(std => standardLine(std, certType)).join('')}
                                 </ul>
                             </div>
                         </div>
@@ -1883,14 +1890,7 @@ function displayCertificateResults(data) {
                 </div>
                 <div class="category-standards">
                     <ul>
-                        ${standards.map(std => {
-                            // Handle both string and object formats
-                            if (typeof std === 'string') {
-                                return `<li>${std}</li>`;
-                            } else {
-                                return `<li><strong>${std.standard}</strong>${std.description ? ' - ' + std.description : ''}</li>`;
-                            }
-                        }).join('')}
+                        ${standards.map(std => standardLine(std, certType)).join('')}
                     </ul>
                 </div>
             `;
