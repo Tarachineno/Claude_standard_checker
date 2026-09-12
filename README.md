@@ -333,11 +333,19 @@ Netlify Functions + static hosting, continuous deployment from Git. No longer th
 
 ## 📊 API Endpoints
 
-Base path is **`/api`** on the Cloudflare edition (the legacy `/.netlify/functions` prefix still works as an alias). New in v3.0: `POST /api/quick-check`, `GET /api/scopes/status`, `GET /api/me`, `GET /api/health`.
+Base path is **`/api`** on the Cloudflare edition (the legacy `/.netlify/functions` prefix still works as an alias). New in v3.0: `POST /api/quick-check`, `GET /api/scopes/status`, `GET /api/scope-oj-version-check`, `GET /api/me`, `GET /api/health`.
 
 ### Endpoints
 
 The application provides RESTful API endpoints:
+
+#### Bulk Accreditation Scope / OJ Edition Check
+```javascript
+// Compare every current JAB/A2LA scope item with active OJ editions
+GET /api/scope-oj-version-check
+```
+
+The response reports `valid`, `warning` (the accreditation scope edition is older than the active OJ edition), `caution` (for example, the accreditation scope has no edition), and `not_listed`. If an active OJ entry has no edition number, the scope item is treated as valid regardless of its accreditation edition.
 
 #### Excel File Processing
 ```javascript

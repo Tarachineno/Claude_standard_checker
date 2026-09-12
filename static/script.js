@@ -8,6 +8,7 @@ let currentLanguage = 'ja'; // Default language
 
 // Scope matching cache to avoid repeated API calls
 let scopeMatchingCache = new Map();
+let scopeOjCheckData = null;
 
 // Internationalization (i18n) translations
 const translations = {
@@ -100,6 +101,38 @@ const translations = {
         'certificate.update_help_deploy': 'Run npm run deploy. The accreditation certificate PDF and scope details then become available from this tab.',
         'certificate.update_help_format_link': 'Open scope format guide',
         'certificate.update_help_note': 'Keep the accreditation certificate PDF, Markdown scope, and D1 data aligned. Do not leave accreditation metadata or the validity date blank.',
+        'scope_oj.check_btn': 'Check all current scopes against active OJ editions',
+        'scope_oj.description': 'Compare every current JAB/A2LA D1 scope item with the active Official Journal edition.',
+        'scope_oj.title': 'Current Accreditation Scopes vs Active OJ Editions',
+        'scope_oj.filter_label': 'Filter:',
+        'scope_oj.filter_all': 'All',
+        'scope_oj.filter_valid': 'Valid',
+        'scope_oj.filter_warning': 'Warning',
+        'scope_oj.filter_caution': 'Caution',
+        'scope_oj.filter_not_listed': 'Not listed',
+        'scope_oj.search_placeholder': 'Filter by standard, facility, or certificate number',
+        'scope_oj.col_certificate': 'Accreditation',
+        'scope_oj.col_facility': 'Facility / category',
+        'scope_oj.col_scope': 'Accreditation scope',
+        'scope_oj.col_oj': 'Active OJ edition',
+        'scope_oj.col_status': 'Status',
+        'scope_oj.col_reason': 'Reason',
+        'scope_oj.scope_version_missing': 'edition not specified',
+        'scope_oj.valid': 'VALID',
+        'scope_oj.warning': 'WARNING',
+        'scope_oj.caution': 'CAUTION',
+        'scope_oj.not_listed': 'NOT LISTED',
+        'scope_oj.oj_versionless': 'OJ edition not specified',
+        'scope_oj.reason_oj_version_unavailable': 'OJ has no edition number; any scope edition is valid',
+        'scope_oj.reason_version_match': 'Accreditation edition matches an active OJ edition',
+        'scope_oj.reason_scope_version_old': 'Accreditation scope edition is older than the active OJ edition',
+        'scope_oj.reason_scope_version_missing': 'No edition on the accreditation scope; the latest OJ edition is applied automatically',
+        'scope_oj.reason_scope_version_newer': 'Accreditation scope edition is newer than the active OJ edition; confirm',
+        'scope_oj.reason_version_not_comparable': 'Edition formats do not allow automatic comparison; confirm',
+        'scope_oj.reason_oj_not_listed': 'No active OJ entry found for this standard',
+        'scope_oj.reason_oj_withdrawn': 'OJ entries exist, but all are withdrawn',
+        'scope_oj.checked_at': 'Checked',
+        'scope_oj.result_count': '{shown} / {total} items',
         'search.title': 'Official Standards Search',
         'search.description': 'Search for standards on official standards-organization portals. Choose a portal and enter a standard number or keyword.',
         'search.input_placeholder': 'Enter standard number or keyword (e.g., 50360:2017, 18031-1)',
@@ -229,6 +262,38 @@ const translations = {
         'certificate.update_help_deploy': 'npm run deploy を実行すると、このタブから認定証PDFとスコープ詳細を参照できるようになります。',
         'certificate.update_help_format_link': 'スコープ書式ガイドを開く',
         'certificate.update_help_note': '認定証PDF、スコープMD、D1データの内容を一致させ、認定メタデータや有効期限を空欄にしないでください。',
+        'scope_oj.check_btn': '現行認定スコープとOJ有効版数を一括確認',
+        'scope_oj.description': 'D1にあるJAB/A2LAの現行認定スコープ全件を、OJ掲載で有効な版数と突合します。',
+        'scope_oj.title': '現行認定スコープとOJ有効版数の突合結果',
+        'scope_oj.filter_label': '絞り込み:',
+        'scope_oj.filter_all': 'すべて',
+        'scope_oj.filter_valid': '有効',
+        'scope_oj.filter_warning': '警告',
+        'scope_oj.filter_caution': '注意',
+        'scope_oj.filter_not_listed': 'OJ掲載なし',
+        'scope_oj.search_placeholder': '規格・施設・認定番号で絞り込み',
+        'scope_oj.col_certificate': '認定',
+        'scope_oj.col_facility': '施設・区分',
+        'scope_oj.col_scope': '認定スコープ',
+        'scope_oj.col_oj': 'OJ有効版数',
+        'scope_oj.col_status': '判定',
+        'scope_oj.col_reason': '判定理由',
+        'scope_oj.scope_version_missing': '認定スコープ側の版数記載なし',
+        'scope_oj.valid': '有効',
+        'scope_oj.warning': '警告',
+        'scope_oj.caution': '注意',
+        'scope_oj.not_listed': 'OJ掲載なし',
+        'scope_oj.oj_versionless': 'OJ側に版数記載なし',
+        'scope_oj.reason_oj_version_unavailable': 'OJ側に版数がないため、認定スコープ側の版数に関係なく有効',
+        'scope_oj.reason_version_match': '認定スコープ側の版数がOJ有効版数と一致',
+        'scope_oj.reason_scope_version_old': '認定スコープ側がOJ有効版数より古い',
+        'scope_oj.reason_scope_version_missing': '認定スコープ側に版数なし。OJ記載の最新版が自動適用されるため注意',
+        'scope_oj.reason_scope_version_newer': '認定スコープ側がOJより新しいため、適用関係を確認',
+        'scope_oj.reason_version_not_comparable': '版数形式を自動比較できないため、確認が必要',
+        'scope_oj.reason_oj_not_listed': '該当する有効なOJ掲載なし',
+        'scope_oj.reason_oj_withdrawn': 'OJ掲載はあるが、すべて取下げ済み',
+        'scope_oj.checked_at': '確認日時',
+        'scope_oj.result_count': '表示 {shown} / 全 {total} 件',
         'search.title': '規格団体公式検索',
         'search.description': '規格団体の公式ポータルで規格を検索します。ポータルを選択し、規格番号またはキーワードを入力してください。',
         'search.input_placeholder': '規格番号またはキーワードを入力（例：50360:2017、18031-1）',
@@ -339,6 +404,7 @@ function switchLanguage(lang) {
     localStorage.setItem('language', lang);
     updateLanguageDisplay();
     updateLanguageButtons();
+    if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
 }
 
 function updateLanguageButtons() {
@@ -477,6 +543,13 @@ function setupEventListeners() {
 
     certificateTypeSelect.addEventListener('change', handleCertificateTypeChange);
     loadCertificateBtn.addEventListener('click', loadCertificateData);
+    document.getElementById('scope-oj-check-btn').addEventListener('click', runScopeOjVersionCheck);
+    document.getElementById('scope-oj-status-filter').addEventListener('change', () => {
+        if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
+    });
+    document.getElementById('scope-oj-search').addEventListener('input', () => {
+        if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
+    });
 
     // Scope search
     document.getElementById('scope-search-btn').addEventListener('click', performScopeSearch);
@@ -1965,6 +2038,93 @@ function displayCertificateResults(data, certType) {
 function toggleCategory(header) {
     const standards = header.nextElementSibling;
     standards.classList.toggle('active');
+}
+
+// 現行D1認定スコープ全件とOJ有効版数の一括確認
+async function runScopeOjVersionCheck() {
+    const button = document.getElementById('scope-oj-check-btn');
+    try {
+        showLoading();
+        button.disabled = true;
+        const response = await apiCall('/scope-oj-version-check');
+        if (!response.success) throw new Error(response.error || 'Scope/OJ version check failed');
+        scopeOjCheckData = response.data;
+        renderScopeOjVersionResults(response.data);
+    } catch (error) {
+        console.error('Scope/OJ version check failed:', error);
+        showError(`Scope/OJ version check failed: ${error.message}`);
+    } finally {
+        button.disabled = false;
+        hideLoading();
+    }
+}
+
+function scopeOjStatusLabel(status) {
+    const key = status === 'warning' ? 'scope_oj.warning'
+        : status === 'caution' ? 'scope_oj.caution'
+            : status === 'not_listed' ? 'scope_oj.not_listed'
+                : 'scope_oj.valid';
+    return t(key);
+}
+
+function scopeOjReasonLabel(reason) {
+    return t(`scope_oj.reason_${reason}`);
+}
+
+function renderScopeOjVersionResults(data) {
+    const results = document.getElementById('scope-oj-check-results');
+    const summary = data.summary || {};
+    const filter = document.getElementById('scope-oj-status-filter').value;
+    const query = document.getElementById('scope-oj-search').value.trim().toLowerCase();
+    const items = (data.items || []).filter(item => {
+        if (filter !== 'all' && item.status !== filter) return false;
+        if (!query) return true;
+        return [item.cert_type, item.certificate_number, item.facility_name, item.category,
+            item.standard, ...(item.oj_numbers || []), ...(item.oj_directives || [])]
+            .filter(Boolean).join(' ').toLowerCase().includes(query);
+    });
+
+    document.getElementById('scope-oj-summary').innerHTML = [
+        ['valid', summary.valid || 0, 'scope-oj-summary-valid'],
+        ['warning', summary.warning || 0, 'scope-oj-summary-warning'],
+        ['caution', summary.caution || 0, 'scope-oj-summary-caution'],
+        ['not_listed', summary.not_listed || 0, 'scope-oj-summary-not-listed'],
+    ].map(([status, count, className]) => `
+        <div class="scope-oj-summary-card ${className}">
+            <span>${esc(scopeOjStatusLabel(status))}</span>
+            <strong>${count}</strong>
+        </div>`).join('');
+
+    document.getElementById('scope-oj-result-count').textContent = t('scope_oj.result_count', {
+        shown: items.length,
+        total: data.items?.length || 0,
+    });
+
+    const scopeSources = Object.entries(data.sources?.scopes || {})
+        .map(([type, source]) => `${type.toUpperCase()}: ${source.source || '-'} (${source.item_count ?? 0})`).join(' · ');
+    const ojSources = Object.entries(data.sources?.oj || {})
+        .map(([type, source]) => `${type}: ${source.source || 'error'}`).join(' · ');
+    document.getElementById('scope-oj-sources').textContent = `${t('scope_oj.checked_at')}: ${new Date(data.checked_at).toLocaleString()} · ${scopeSources} · OJ: ${ojSources}`;
+
+    document.getElementById('scope-oj-tbody').innerHTML = items.map(item => {
+        const facility = item.facility_name
+            ? `【${esc(item.facility_number ? `施設${item.facility_number}` : '')}】${esc(item.facility_name)}`
+            : '-';
+        const category = item.category ? `<div class="scope-oj-category">${esc(item.category)}</div>` : '';
+        const ojEdition = item.oj_entries?.length
+            ? item.oj_entries.map(entry => `<div><span class="scope-oj-directive">${esc(entry.directive)}</span> ${esc(entry.version || t('scope_oj.oj_versionless'))}</div>`).join('')
+            : '<span class="muted">-</span>';
+        return `<tr class="scope-oj-row scope-oj-row-${item.status}">
+            <td><strong>${esc(String(item.cert_type || '').toUpperCase())}</strong><br><span class="muted">${esc(item.certificate_number || '-')}</span></td>
+            <td>${facility}${category}</td>
+            <td><strong>${esc(item.standard)}</strong>${item.scope_version ? `<div class="scope-oj-version">${esc(item.scope_version)}</div>` : `<div class="scope-oj-version muted">${esc(t('scope_oj.scope_version_missing'))}</div>`}</td>
+            <td>${ojEdition}</td>
+            <td><span class="scope-oj-status scope-oj-status-${item.status}">${esc(scopeOjStatusLabel(item.status))}</span></td>
+            <td>${esc(scopeOjReasonLabel(item.reason))}</td>
+        </tr>`;
+    }).join('');
+
+    results.classList.remove('hidden');
 }
 
 // Scope search functions

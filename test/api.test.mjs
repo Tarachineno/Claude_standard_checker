@@ -65,6 +65,21 @@ test('GET /api/certificate-data (MD fallback, no D1)', async () => {
   assert.equal((await get('/api/certificate-data?cert_type=x')).status, 400);
 });
 
+test('GET /api/scope-oj-version-check compares every current scope item', async () => {
+  const r = await get('/api/scope-oj-version-check');
+  assert.equal(r.status, 200);
+  const j = await r.json();
+  assert.equal(j.success, true);
+  assert.equal(j.data.items.length, 1050 + 83);
+  assert.equal(j.data.summary.total, j.data.items.length);
+  assert.ok(j.data.summary.valid + j.data.summary.warning + j.data.summary.caution + j.data.summary.not_listed === j.data.items.length);
+  assert.equal(j.data.sources.scopes.jab.source, 'md');
+  assert.equal(j.data.sources.oj.EMC.source, 'bundled');
+  const missingScopeVersion = j.data.items.find(item => item.standard === 'EN 55011');
+  assert.equal(missingScopeVersion.status, 'caution');
+  assert.equal(missingScopeVersion.reason, 'scope_version_missing');
+});
+
 test('POST /api/scope-matcher keeps the legacy response shape', async () => {
   const r = await post('/api/scope-matcher', { oj_standards: ['EN 55032:2015', 'EN 301 489-52 V1.2.1', 'EN 99999'] });
   const j = await r.json();

@@ -4,6 +4,8 @@ import { ok, fail } from '../lib/http.js';
 import { loadScopes, loadCertificateData, loadScopeDocument, scopeStatus, CERT_TYPES } from '../lib/scopes.js';
 import { toMatcherScopes } from '../lib/md.js';
 import { findScopeMatch, searchInScopes } from '../lib/matcher.js';
+import { buildScopeOjVersionCheck } from '../lib/scope-oj.js';
+import { getStandards, DIRECTIVES } from '../lib/standards.js';
 
 const app = new Hono();
 
@@ -79,6 +81,48 @@ app.post('/scope-search', async c => {
 
 // GET /api/scopes/status  — D1 の投入状況（運用確認用）
 app.get('/scopes/status', async c => ok(c, await scopeStatus(c)));
+
+// GET /api/scope-oj-version-check
+// 現行D1スコープ全件を、OJの有効掲載版数と一括突合する。
+app.get('/scope-oj-version-check', async c => {
+  try {
+    const scopeDocuments = await Promise.all(CERT_TYPES.map(async certType => {
+      const loaded = await loadScopeDocument(c, certType);
+      return { certType, ...loaded };
+    }));
+
+    const standardsByDirective = {};
+    const ojSources = {};
+    for (const directive of DIRECTIVES) {
+      try {
+        const result = await getStandards(c, directive);
+        standardsByDirective[directive] = result.standards;
+        ojSources[directive] = {
+          source: result.source,
+          count: result.standards.length,
+          last_modified: result.lastModified,
+          last_checked: result.lastChecked,
+        };
+      } catch (err) {
+        ojSources[directive] = { error: err.message };
+      }
+    }
+
+    const result = buildScopeOjVersionCheck(scopeDocuments, standardsByDirective);
+    const scopes = Object.fromEntries(scopeDocuments.map(({ certType, doc, source, certificate }) => [certType, {
+      source,
+      certificate_number: doc.info?.certificate_number || null,
+      valid_until: doc.info?.valid_until || null,
+      organization: doc.info?.organization || null,
+      imported_at: certificate?.imported_at || null,
+      item_count: doc.items.length,
+    }]));
+    return ok(c, { ...result, sources: { scopes, oj: ojSources } });
+  } catch (err) {
+    console.error('[scope-oj-version-check]', err);
+    return fail(c, 500, `Scope/OJ version check failed: ${err.message}`);
+  }
+});
 
 // GET /api/scope-detail?cert_type=jab&anchor=%23facility-2-telecom-port
 // 「詳細を見る」用: 指定した試験区分（anchor）に属する全項目を、GitHub の MD に飛ばず画面内で返す。
