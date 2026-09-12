@@ -221,6 +221,34 @@
                     </div>
                 </div>
                 
+                <div class="publisher-catalog">
+                    <h3 data-i18n="catalog.title">Published edition catalogue</h3>
+                    <p data-i18n="catalog.intro">Publisher editions, source links and last verification dates.</p>
+                    <div class="catalog-controls">
+                        <button id="catalog-load-btn" class="btn btn-secondary" data-i18n="catalog.load">Load catalogue</button>
+                        <label for="catalog-provider" data-i18n="catalog.provider">Publisher</label>
+                        <select id="catalog-provider"><option value="all">All</option><option value="etsi">ETSI</option><option value="cenelec">CEN/CENELEC</option><option value="iec">IEC/CISPR</option><option value="iso">ISO</option><option value="ieee">ANSI/IEEE</option><option value="ised">ISED</option><option value="jisc">JIS</option><option value="ks">KS</option><option value="vcci">VCCI</option><option value="fcc">FCC</option><option value="manual">Other</option></select>
+                        <input id="catalog-search" type="search" aria-label="Catalogue search" data-i18n="catalog.search" placeholder="Search references" />
+                    </div>
+                    <p id="catalog-message" role="status"></p>
+                    <div class="table-wrap"><table class="catalog-table"><thead><tr><th data-i18n="catalog.reference">Reference</th><th data-i18n="catalog.edition">Published edition</th><th data-i18n="catalog.checked">Verified / source</th><th data-i18n="catalog.actions">Actions</th></tr></thead><tbody id="catalog-tbody"></tbody></table></div>
+                    <details id="catalog-admin" class="catalog-admin">
+                        <summary data-i18n="catalog.admin">Refresh / manually verify editions</summary>
+                        <p data-i18n="catalog.admin_help">An administration key is required to save changes. It is kept only in this page.</p>
+                        <label for="catalog-token" data-i18n="catalog.token">Administration key</label><input id="catalog-token" type="password" autocomplete="off" />
+                        <button id="catalog-refresh-btn" class="btn btn-small" data-i18n="catalog.refresh_batch">Refresh next 3 references</button>
+                        <form id="catalog-manual-form">
+                            <label for="catalog-reference" data-i18n="catalog.reference">Reference</label><input id="catalog-reference" required placeholder="EN 61326-1" maxlength="150" />
+                            <label for="catalog-edition" data-i18n="catalog.edition_input">Edition including amendments / corrigenda</label><input id="catalog-edition" required placeholder="2013 / V2.2.2 / Issue 6 / 2015+A1:2020" maxlength="150" />
+                            <label for="catalog-status" data-i18n="catalog.publication_status">Publication status</label><select id="catalog-status"><option value="published">Published</option><option value="withdrawn">Withdrawn</option><option value="draft">Draft</option></select>
+                            <label for="catalog-date" data-i18n="catalog.date">Publication date (optional)</label><input id="catalog-date" type="date" />
+                            <label for="catalog-url" data-i18n="catalog.url">Official source URL</label><input id="catalog-url" type="url" required />
+                            <label for="catalog-note" data-i18n="catalog.note">Verification note</label><textarea id="catalog-note" required maxlength="1000"></textarea>
+                            <button type="submit" class="btn btn-primary" data-i18n="catalog.save">Save verified edition</button>
+                        </form>
+                        <p><a href="/data/CATALOG_HELP.md" target="_blank" rel="noopener" data-i18n="catalog.help">Catalogue setup and verification guide</a></p>
+                    </details>
+                </div>
                 <div class="search-info">
                     <h3><i class="fas fa-info-circle"></i> <span data-i18n="search.how_to_title">How to Search</span></h3>
                     <div class="search-help-grid">
@@ -266,6 +294,8 @@
                 </div>
 
                 <div class="scope-oj-check-actions">
+                    <label for="scope-oj-directive" data-i18n="catalog.directive">OJ directive</label>
+                    <select id="scope-oj-directive"><option value="EMC">EMC</option><option value="RED">RED</option><option value="LVD">LVD</option><option value="ALL">EMC / RED / LVD</option></select>
                     <button id="scope-oj-check-btn" class="btn btn-secondary" data-i18n="scope_oj.check_btn">
                         <i class="fas fa-code-compare"></i> Check all current scopes against active OJ editions
                     </button>
@@ -276,6 +306,8 @@
                     <h3><i class="fas fa-code-compare"></i> <span data-i18n="scope_oj.title">Current Accreditation Scopes vs Active OJ Editions</span></h3>
                     <div id="scope-oj-summary" class="scope-oj-summary"></div>
                     <div class="scope-oj-controls">
+                        <label for="scope-oj-basis" data-i18n="catalog.basis">Summary / filter basis</label>
+                        <select id="scope-oj-basis"><option value="published" data-i18n="catalog.published_basis">Latest Published</option><option value="oj" data-i18n="catalog.oj_basis">Active OJ</option></select>
                         <label for="scope-oj-status-filter" data-i18n="scope_oj.filter_label">Filter:</label>
                         <select id="scope-oj-status-filter">
                             <option value="all" data-i18n="scope_oj.filter_all">All</option>
@@ -283,6 +315,7 @@
                             <option value="warning" data-i18n="scope_oj.filter_warning">Warning</option>
                             <option value="caution" data-i18n="scope_oj.filter_caution">Caution</option>
                             <option value="not_listed" data-i18n="scope_oj.filter_not_listed">Not listed</option>
+                            <option value="unverified" data-i18n="catalog.unverified">Unverified</option>
                         </select>
                         <input id="scope-oj-search" type="search" data-i18n="scope_oj.search_placeholder" placeholder="Filter by standard, facility, or certificate number" />
                         <span id="scope-oj-result-count" class="muted"></span>
@@ -296,8 +329,8 @@
                                     <th data-i18n="scope_oj.col_facility">Facility / category</th>
                                     <th data-i18n="scope_oj.col_scope">Accreditation scope</th>
                                     <th data-i18n="scope_oj.col_oj">Active OJ edition</th>
-                                    <th data-i18n="scope_oj.col_status">Status</th>
-                                    <th data-i18n="scope_oj.col_reason">Reason</th>
+                                    <th data-i18n="catalog.published_basis">Latest Published</th>
+                                    <th data-i18n="catalog.basis_result">Selected basis</th>
                                 </tr>
                             </thead>
                             <tbody id="scope-oj-tbody"></tbody>
@@ -411,5 +444,6 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="catalog.js"></script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 // 規格番号の正規化・照合ロジック（旧 scope-matcher.js / scope-search.js から純粋関数として抽出）
 // 判定結果の status 文字列と note の文言は旧 API と完全互換（フロントの translateScopeNote が依存）。
 
+import { parseStandardReferences, coversEdition } from './references.js';
+
 const PREFIX_RE = /^(EN|ETSI|IEC|ISO|CISPR|JIS|KS)\s*/i;
 
 /** "EN 55032:2015" → "55032", "EN 301 489-1" → "301-489-1" */
@@ -85,6 +87,21 @@ function matchOne(ojStandard, ojCore, ojVersion, ojPart, scope) {
   const scopeVersion = extractVersion(scope.standard);
   const base = { matched_standard: scope.standard, anchor: scope.anchor, facility: scope.facility || null };
 
+  const query = parseStandardReferences(ojStandard)[0];
+  const refs = parseStandardReferences(scope.standard);
+  if (query && refs.length) {
+    const ref = refs.find(r => r.key === query.key);
+    if (!ref) return null;
+    if (query.edition_unparsed || ref.edition_unparsed) return { status: 'version_mismatch', note: '版数の解析に要確認', ...base };
+    if (query.editions.length && ref.editions.length && !query.editions.some(q => ref.editions.some(s => coversEdition(s, q)))) {
+      return { status: 'version_mismatch', note: `版違い(${query.versions.join('/')}↔${ref.versions.join('/')})`, ...base };
+    }
+    if (refs.length > 1) return { status: 'comprehensive_match', note: `包括スコープ適用(${ojPart}含む)`, ...base };
+    if (query.editions.length && !ref.editions.length) return { status: 'version_tolerant_match', note: `バージョン包括(${query.versions.join('/')})`, ...base };
+    if (!query.editions.length && ref.editions.length) return { status: 'version_tolerant_match', note: 'スコープに適用', ...base };
+    return { status: 'exact_match', note: null, ...base };
+  }
+
   if (ojCore === scopeCore) {
     if (norm(ojStandard) === norm(scope.standard)) return { status: 'exact_match', note: null, ...base };
 
@@ -121,7 +138,7 @@ function matchOne(ojStandard, ojCore, ojVersion, ojPart, scope) {
  * @param {Array<{standard:string, anchor:string, facility?:string}>} scopes
  */
 export function findScopeMatch(ojStandard, scopes) {
-  const ojCore = extractStandardCore(ojStandard);
+  const ojCore = extractStandardCore(ojStandard) || parseStandardReferences(ojStandard)[0]?.key;
   const ojVersion = extractVersion(ojStandard);
   if (!ojCore) return { ...NO_MATCH };
   const ojPart = extractPartNumber(ojStandard);
@@ -138,7 +155,7 @@ export function findScopeMatch(ojStandard, scopes) {
 
 /** 同じ規格に当たる候補をすべて返す（クイック判定の「他の施設でも可」表示用） */
 export function findAllScopeMatches(ojStandard, scopes) {
-  const ojCore = extractStandardCore(ojStandard);
+  const ojCore = extractStandardCore(ojStandard) || parseStandardReferences(ojStandard)[0]?.key;
   const ojVersion = extractVersion(ojStandard);
   if (!ojCore) return [];
   const ojPart = extractPartNumber(ojStandard);
@@ -156,8 +173,8 @@ export function verdictOf(status) {
     case 'exact_match':
     case 'comprehensive_match':
     case 'version_tolerant_match':
-    case 'prefix_mismatch':
       return 'ok';
+    case 'prefix_mismatch':
     case 'version_mismatch':
       return 'check';
     default:

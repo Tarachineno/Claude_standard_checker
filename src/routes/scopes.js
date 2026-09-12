@@ -6,6 +6,7 @@ import { toMatcherScopes } from '../lib/md.js';
 import { findScopeMatch, searchInScopes } from '../lib/matcher.js';
 import { buildScopeOjVersionCheck } from '../lib/scope-oj.js';
 import { getStandards, DIRECTIVES } from '../lib/standards.js';
+import { loadCatalog } from '../lib/catalog.js';
 
 const app = new Hono();
 
@@ -85,6 +86,8 @@ app.get('/scopes/status', async c => ok(c, await scopeStatus(c)));
 // GET /api/scope-oj-version-check
 // 現行D1スコープ全件を、OJの有効掲載版数と一括突合する。
 app.get('/scope-oj-version-check', async c => {
+  const directive = (c.req.query('directive') || 'ALL').toUpperCase();
+  if (directive !== 'ALL' && !DIRECTIVES.includes(directive)) return fail(c, 400, 'Invalid directive');
   try {
     const scopeDocuments = await Promise.all(CERT_TYPES.map(async certType => {
       const loaded = await loadScopeDocument(c, certType);
@@ -108,7 +111,9 @@ app.get('/scope-oj-version-check', async c => {
       }
     }
 
-    const result = buildScopeOjVersionCheck(scopeDocuments, standardsByDirective);
+    const catalog = await loadCatalog(c);
+    const ojErrors = Object.fromEntries(Object.entries(ojSources).filter(([, s]) => s.error));
+    const result = buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, undefined, { directive, catalog: catalog.records, ojErrors });
     const scopes = Object.fromEntries(scopeDocuments.map(({ certType, doc, source, certificate }) => [certType, {
       source,
       certificate_number: doc.info?.certificate_number || null,
@@ -117,7 +122,7 @@ app.get('/scope-oj-version-check', async c => {
       imported_at: certificate?.imported_at || null,
       item_count: doc.items.length,
     }]));
-    return ok(c, { ...result, sources: { scopes, oj: ojSources } });
+    return ok(c, { ...result, sources: { scopes, oj: ojSources, catalog: { available: catalog.available, error: catalog.error, count: catalog.records.length } } });
   } catch (err) {
     console.error('[scope-oj-version-check]', err);
     return fail(c, 500, `Scope/OJ version check failed: ${err.message}`);

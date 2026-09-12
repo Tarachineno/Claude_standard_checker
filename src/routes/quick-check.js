@@ -12,13 +12,15 @@ import { ok, fail } from '../lib/http.js';
 import { loadScopes, loadScopeDocument } from '../lib/scopes.js';
 import { findScopeMatch, findAllScopeMatches, verdictOf, splitStandardsInput, extractStandardCore, extractVersion } from '../lib/matcher.js';
 import { getStandards, DIRECTIVES } from '../lib/standards.js';
+import { parseStandardReferences } from '../lib/references.js';
+import { isActiveOjEntry } from '../lib/scope-oj.js';
 
 const app = new Hono();
 const RANK = { ok: 0, check: 1, ng: 2 };
 
 function ojStatusOf(entries, today) {
   if (!entries.length) return 'not_listed';
-  const active = entries.some(e => !e.withdrawal_date || e.withdrawal_date > today);
+  const active = entries.some(e => isActiveOjEntry(e, today));
   return active ? 'harmonised' : 'withdrawn';
 }
 
@@ -44,7 +46,7 @@ app.post('/quick-check', async c => {
         const r = await getStandards(c, d);
         ojSources[d] = { source: r.source, last_modified: r.lastModified, count: r.standards.length };
         for (const s of r.standards) {
-          const core = extractStandardCore(s.number);
+          const core = parseStandardReferences(s.full_number || s.number)[0]?.key;
           if (!core) continue;
           const list = ojIndex.get(core) || [];
           list.push({ directive: d, number: s.number, full_number: s.full_number, title: s.title, version: s.version, date: s.date,
@@ -63,12 +65,13 @@ app.post('/quick-check', async c => {
       const jabAlt = findAllScopeMatches(input, jab).filter(m => m.matched_standard !== j.matched_standard || m.facility !== j.facility).slice(0, 5);
       const core = extractStandardCore(input);
       const version = extractVersion(input);
-      let oj = core ? (ojIndex.get(core) || []) : [];
+      const ref = parseStandardReferences(input)[0];
+      let oj = ref ? (ojIndex.get(ref.key) || []) : [];
       if (version) {
-        const exact = oj.filter(e => extractVersion(e.number) === version || (e.version && String(e.version).includes(version)));
+        const exact = oj.filter(e => parseStandardReferences(e.full_number || e.number).some(r => r.key === ref?.key && r.versions.some(v => ref.versions.includes(v))));
         if (exact.length) oj = exact;
       }
-      const ojVersionMatch = !!version && oj.some(e => extractVersion(e.number) === version || (e.version && String(e.version).includes(version)));
+      const ojVersionMatch = !!ref?.versions.length && oj.some(e => parseStandardReferences(e.full_number || e.number).some(r => r.key === ref.key && r.versions.some(v => ref.versions.includes(v))));
       const jv = verdictOf(j.status), av = verdictOf(a.status);
       const verdict = RANK[jv] <= RANK[av] ? jv : av;
       return {

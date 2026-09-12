@@ -429,6 +429,7 @@ function updateLanguageDisplay() {
     
     // Update document language attribute
     document.documentElement.lang = currentLanguage;
+    if (typeof renderCatalog === 'function' && typeof catalogData !== 'undefined' && catalogData) renderCatalog();
     
     // Update page title
     document.title = getTranslation('app.title');
@@ -2046,7 +2047,8 @@ async function runScopeOjVersionCheck() {
     try {
         showLoading();
         button.disabled = true;
-        const response = await apiCall('/scope-oj-version-check');
+        const directive = document.getElementById('scope-oj-directive').value;
+        const response = await apiCall('/scope-oj-version-check?directive=' + encodeURIComponent(directive));
         if (!response.success) throw new Error(response.error || 'Scope/OJ version check failed');
         scopeOjCheckData = response.data;
         renderScopeOjVersionResults(response.data);
@@ -2072,59 +2074,7 @@ function scopeOjReasonLabel(reason) {
 }
 
 function renderScopeOjVersionResults(data) {
-    const results = document.getElementById('scope-oj-check-results');
-    const summary = data.summary || {};
-    const filter = document.getElementById('scope-oj-status-filter').value;
-    const query = document.getElementById('scope-oj-search').value.trim().toLowerCase();
-    const items = (data.items || []).filter(item => {
-        if (filter !== 'all' && item.status !== filter) return false;
-        if (!query) return true;
-        return [item.cert_type, item.certificate_number, item.facility_name, item.category,
-            item.standard, ...(item.oj_numbers || []), ...(item.oj_directives || [])]
-            .filter(Boolean).join(' ').toLowerCase().includes(query);
-    });
-
-    document.getElementById('scope-oj-summary').innerHTML = [
-        ['valid', summary.valid || 0, 'scope-oj-summary-valid'],
-        ['warning', summary.warning || 0, 'scope-oj-summary-warning'],
-        ['caution', summary.caution || 0, 'scope-oj-summary-caution'],
-        ['not_listed', summary.not_listed || 0, 'scope-oj-summary-not-listed'],
-    ].map(([status, count, className]) => `
-        <div class="scope-oj-summary-card ${className}">
-            <span>${esc(scopeOjStatusLabel(status))}</span>
-            <strong>${count}</strong>
-        </div>`).join('');
-
-    document.getElementById('scope-oj-result-count').textContent = t('scope_oj.result_count', {
-        shown: items.length,
-        total: data.items?.length || 0,
-    });
-
-    const scopeSources = Object.entries(data.sources?.scopes || {})
-        .map(([type, source]) => `${type.toUpperCase()}: ${source.source || '-'} (${source.item_count ?? 0})`).join(' · ');
-    const ojSources = Object.entries(data.sources?.oj || {})
-        .map(([type, source]) => `${type}: ${source.source || 'error'}`).join(' · ');
-    document.getElementById('scope-oj-sources').textContent = `${t('scope_oj.checked_at')}: ${new Date(data.checked_at).toLocaleString()} · ${scopeSources} · OJ: ${ojSources}`;
-
-    document.getElementById('scope-oj-tbody').innerHTML = items.map(item => {
-        const facility = item.facility_name
-            ? `【${esc(item.facility_number ? `施設${item.facility_number}` : '')}】${esc(item.facility_name)}`
-            : '-';
-        const category = item.category ? `<div class="scope-oj-category">${esc(item.category)}</div>` : '';
-        const ojEdition = item.oj_entries?.length
-            ? item.oj_entries.map(entry => `<div><span class="scope-oj-directive">${esc(entry.directive)}</span> ${esc(entry.version || t('scope_oj.oj_versionless'))}</div>`).join('')
-            : '<span class="muted">-</span>';
-        return `<tr class="scope-oj-row scope-oj-row-${item.status}">
-            <td><strong>${esc(String(item.cert_type || '').toUpperCase())}</strong><br><span class="muted">${esc(item.certificate_number || '-')}</span></td>
-            <td>${facility}${category}</td>
-            <td><strong>${esc(item.standard)}</strong>${item.scope_version ? `<div class="scope-oj-version">${esc(item.scope_version)}</div>` : `<div class="scope-oj-version muted">${esc(t('scope_oj.scope_version_missing'))}</div>`}</td>
-            <td>${ojEdition}</td>
-            <td><span class="scope-oj-status scope-oj-status-${item.status}">${esc(scopeOjStatusLabel(item.status))}</span></td>
-            <td>${esc(scopeOjReasonLabel(item.reason))}</td>
-        </tr>`;
-    }).join('');
-
-    results.classList.remove('hidden');
+    renderEditionComparison(data);
 }
 
 // Scope search functions

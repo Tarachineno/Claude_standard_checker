@@ -1,176 +1,134 @@
-// 現行の認定スコープと、OJに掲載されている有効版数の突合ロジック。
-// OJの getStandards() と認定スコープの loadScopeDocument() を組み合わせて使う。
+import { parseStandardReferences, compareVersions, unique, coversEdition, mergeEditions } from './references.js';
 
-import { extractStandardCore, extractVersion } from './matcher.js';
-
-const VERSION_YEAR_RE = /^\(?\d{4}\)?$/;
-const VERSION_SEMVER_RE = /^V\d+(?:\.\d+){2}$/i;
-
-/** OJの取下げ日が未到来、または未記載なら有効とする（quick-check と同じ判定）。 */
+export const compareEditionVersions = compareVersions;
+export const normalizeOjNumber = value => String(value || '').replace(/\s*,?\s*[\r\n]+\s*/g, ' / ').trim();
 export function isActiveOjEntry(entry, today) {
-  return !entry.withdrawal_date || entry.withdrawal_date > today;
+  const start = entry.date_of_start_presumption;
+  return (!start || !/^\d{4}-\d{2}-\d{2}$/.test(start) || start <= today)
+    && (!entry.withdrawal_date || entry.withdrawal_date > today);
 }
 
-/** Excel内の改行・カンマ区切りを画面表示用に整える。 */
-export function normalizeOjNumber(value) {
-  return String(value || '').replace(/\s*,?\s*[\r\n]+\s*/g, ' / ').trim();
-}
-
-function parseComparableVersion(value) {
-  const version = String(value || '').trim();
-  if (VERSION_YEAR_RE.test(version)) return { kind: 'year', values: [Number(version.replace(/[()]/g, ''))] };
-  if (VERSION_SEMVER_RE.test(version)) return { kind: 'semver', values: version.slice(1).split('.').map(Number) };
-  return null;
-}
-
-/** 同じ形式（年版同士、V版同士）の版数を比較する。比較不能なら null。 */
-export function compareEditionVersions(left, right) {
-  const a = parseComparableVersion(left);
-  const b = parseComparableVersion(right);
-  if (!a || !b || a.kind !== b.kind) return null;
-  const length = Math.max(a.values.length, b.values.length);
-  for (let i = 0; i < length; i++) {
-    const av = a.values[i] || 0;
-    const bv = b.values[i] || 0;
-    if (av !== bv) return av < bv ? -1 : 1;
+export function assessEditions(ref, targets, kind = 'oj') {
+  if (ref.edition_unparsed || targets.some(t => t.edition_unparsed)) return { status: 'unverified', reason: 'version_not_comparable' };
+  if (kind === 'oj' && targets.some(t => !t.editions.length)) return { status: 'valid', reason: 'oj_version_unavailable' };
+  if (!ref.editions.length) return { status: 'caution', reason: 'scope_version_missing' };
+  const editions = targets.flatMap(t => t.editions);
+  if (!editions.length) return { status: 'unverified', reason: 'version_not_comparable' };
+  for (const e of editions) {
+    if (ref.editions.some(s => coversEdition(s, e))) return { status: 'valid', reason: 'version_match', matched_version: e.base };
   }
-  return 0;
+  if (editions.some(e => ref.editions.some(s => s.base === e.base))) return { status: 'caution', reason: 'amendments_missing' };
+  const comparisons = ref.editions.flatMap(s => editions.map(e => compareVersions(s.base, e.base)));
+  if (comparisons.every(c => c !== null && c < 0)) return { status: 'warning', reason: 'scope_version_old' };
+  if (comparisons.some(c => c !== null && c > 0)) return { status: 'caution', reason: 'scope_version_newer' };
+  return { status: 'unverified', reason: 'version_not_comparable' };
 }
 
-function latestComparableVersion(versions, preferredKind = null) {
-  const candidates = preferredKind
-    ? versions.filter(version => parseComparableVersion(version)?.kind === preferredKind)
-    : versions;
-  return candidates.reduce((latest, version) => {
-    if (!latest) return version;
-    const comparison = compareEditionVersions(version, latest);
-    return comparison !== null && comparison > 0 ? version : latest;
-  }, '');
+function ojView(entry, today) {
+  const raw = entry.full_number || entry.number || '';
+  const references = parseStandardReferences(raw).map(r => ({ ...r, editions: mergeEditions(r.editions) }));
+  return { ...entry, number: normalizeOjNumber(raw), active: entry.active !== false && isActiveOjEntry(entry, today), references };
 }
 
-function unique(values) {
-  return [...new Set(values.filter(Boolean))];
-}
-
-function entryVersion(entry) {
-  return entry.version || extractVersion(entry.number || entry.full_number) || null;
-}
-
-function ojEntryView(entry, directive, today) {
-  const number = entry.number || entry.full_number || '';
-  return {
-    directive,
-    number: normalizeOjNumber(number),
-    version: extractVersion(number) || null,
-    date: entry.date || null,
-    oj_reference: entry.oj_reference || null,
-    withdrawal_date: entry.withdrawal_date || null,
-    active: isActiveOjEntry(entry, today),
+export function checkScopeAgainstOj(scopeStandard, ojEntries, today) {
+  const ref = typeof scopeStandard === 'string' ? parseStandardReferences(scopeStandard)[0] : scopeStandard;
+  const entries = (ojEntries || []).map(e => ojView(e, today));
+  const active = entries.filter(e => e.active);
+  const targets = active.flatMap(e => e.references.filter(r => r.key === ref?.key));
+  const versions = unique(targets.flatMap(t => t.versions));
+  const base = {
+    scope_version: ref?.versions.join(' / ') || null, scope_versions: ref?.versions || [],
+    oj_status: active.length ? 'active' : entries.length ? 'withdrawn' : 'not_listed',
+    oj_versions: versions, oj_latest_version: versions.reduce((a, b) => !a || compareVersions(b, a) > 0 ? b : a, null),
+    oj_numbers: unique(active.map(e => e.number)), oj_directives: unique(active.map(e => e.directive)),
+    oj_entries: active.map(({ references, ...e }) => ({ ...e, version: references.filter(r => r.key === ref?.key).flatMap(r => r.versions).join(' / ') || null })),
   };
+  if (!ref) return { ...base, status: 'unverified', reason: 'reference_unknown' };
+  if (!active.length) return { ...base, status: 'not_listed', reason: entries.length ? 'oj_withdrawn' : 'oj_not_listed' };
+  if (!targets.length) return { ...base, status: 'unverified', reason: 'reference_unknown' };
+  // EC can list the base and its amendments in separate rows. They are not
+  // interchangeable alternatives; preserve coexistence only across base editions.
+  const combined = targets.some(t => !t.editions.length) ? targets : [{
+    editions: mergeEditions(targets.flatMap(t => t.editions)),
+    edition_unparsed: targets.some(t => t.edition_unparsed),
+  }];
+  return { ...base, ...assessEditions(ref, combined) };
 }
 
-function createOjIndex(standardsByDirective, today) {
+export function aggregateChecks(checks) {
+  const order = ['warning', 'unverified', 'caution', 'valid', 'not_listed'];
+  for (const status of order) {
+    const found = checks.find(c => c.status === status);
+    if (found) return { status, reason: found.reason };
+  }
+  return { status: 'unverified', reason: 'reference_unknown' };
+}
+
+export function checkPublished(ref, record, today) {
+  const base = { record: record || null };
+  if (!record?.editions?.length) return { ...base, status: 'unverified', reason: record?.error ? 'fetch_failed' : 'catalog_missing' };
+  const current = record.editions.filter(e => e.status === 'published' && (!e.publication_date || e.publication_date <= today));
+  if (!current.length) return { ...base, status: 'unverified', reason: 'published_missing' };
+  // Normative edition numbers, not webpage update dates / reaffirmation dates.
+  let latest = current[0];
+  for (const e of current.slice(1)) {
+    const cmp = compareVersions(e.edition.base, latest.edition.base);
+    if (cmp === null && e.edition.base !== latest.edition.base) return { ...base, status: 'unverified', reason: 'version_not_comparable' };
+    if (cmp > 0 || (cmp === 0 && (e.edition.amendments.length + e.edition.corrections.length > latest.edition.amendments.length + latest.edition.corrections.length))) latest = e;
+  }
+  const checked = assessEditions(ref, [{ editions: [latest.edition] }], 'published');
+  if (latest.reference_changed) Object.assign(checked, { status: 'caution', reason: 'reference_changed' });
+  const checkedAt = Date.parse(record.checked_at);
+  const stale = !Number.isFinite(checkedAt) || Date.parse(today + 'T23:59:59Z') - checkedAt > 8 * 86400000;
+  return { ...base, ...checked, latest, stale, ...(record.error || stale ? { status: 'unverified', reason: record.error ? 'fetch_failed' : 'catalog_stale' } : {}) };
+}
+
+const counts = checks => Object.fromEntries(['valid', 'warning', 'caution', 'not_listed', 'unverified'].map(s => [s, checks.filter(c => c.status === s).length]));
+
+export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, today = new Date().toISOString().slice(0, 10), options = {}) {
   const index = new Map();
-  for (const [directive, standards] of Object.entries(standardsByDirective || {})) {
-    for (const standard of standards || []) {
-      const number = standard.number || standard.full_number || '';
-      const core = extractStandardCore(number);
-      if (!core) continue;
-      const list = index.get(core) || [];
-      list.push(ojEntryView(standard, directive, today));
-      index.set(core, list);
+  const directives = options.directive && options.directive !== 'ALL' ? [options.directive] : ['RED', 'EMC', 'LVD'];
+  for (const directive of directives) for (const entry of standardsByDirective[directive] || []) {
+    for (const ref of parseStandardReferences(entry.full_number || entry.number)) {
+      const key = directive + '|' + ref.key;
+      index.set(key, [...(index.get(key) || []), { ...entry, directive }]);
     }
   }
-  return index;
-}
-
-/** 1つの認定スコープ項目をOJの有効掲載と突合する。 */
-export function checkScopeAgainstOj(scopeStandard, ojEntries, today) {
-  const scopeVersion = extractVersion(scopeStandard) || null;
-  const allEntries = ojEntries || [];
-  const activeEntries = allEntries.filter(entry => entry.active ?? isActiveOjEntry(entry, today));
-  const ojVersions = unique(activeEntries.map(entryVersion));
-  const ojNumbers = unique(activeEntries.map(entry => entry.number));
-  const ojDirectives = unique(activeEntries.map(entry => entry.directive));
-  const base = {
-    scope_version: scopeVersion,
-    oj_status: activeEntries.length ? 'active' : allEntries.length ? 'withdrawn' : 'not_listed',
-    oj_versions: ojVersions,
-    oj_latest_version: latestComparableVersion(ojVersions) || null,
-    oj_numbers: ojNumbers,
-    oj_directives: ojDirectives,
-    oj_entries: activeEntries,
-  };
-
-  if (!activeEntries.length) {
-    return {
-      ...base,
-      status: 'not_listed',
-      reason: allEntries.length ? 'oj_withdrawn' : 'oj_not_listed',
-    };
-  }
-
-  // OJに版数の記載がない場合は、認定スコープ側の版数に関係なく有効。
-  if (!ojVersions.length) {
-    return { ...base, status: 'valid', reason: 'oj_version_unavailable' };
-  }
-
-  // OJは版数あり、認定スコープは版数なし。最新版が自動適用されるため注意。
-  if (!scopeVersion) {
-    return { ...base, status: 'caution', reason: 'scope_version_missing' };
-  }
-
-  const scopeKind = parseComparableVersion(scopeVersion)?.kind || null;
-  const latestForScope = latestComparableVersion(ojVersions, scopeKind) || base.oj_latest_version;
-  const comparison = latestForScope ? compareEditionVersions(scopeVersion, latestForScope) : null;
-  if (comparison === 0) {
-    return { ...base, status: 'valid', reason: 'version_match' };
-  }
-
-  if (comparison !== null && comparison < 0) {
-    return { ...base, status: 'warning', reason: 'scope_version_old' };
-  }
-  if (comparison !== null && comparison > 0) {
-    return { ...base, status: 'caution', reason: 'scope_version_newer' };
-  }
-  return { ...base, status: 'caution', reason: 'version_not_comparable' };
-}
-
-/** 現行の認定スコープ全件をOJ有効版数と突合する。 */
-export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, today = new Date().toISOString().slice(0, 10)) {
-  const ojIndex = createOjIndex(standardsByDirective, today);
+  const catalog = new Map((options.catalog || []).map(r => [r.key, r]));
   const items = [];
   for (const { certType, doc, source } of scopeDocuments) {
-    const facilityMap = new Map((doc.facilities || []).map(f => [f.facility_number, f]));
+    const facilities = new Map((doc.facilities || []).map(f => [f.facility_number, f]));
     for (const scope of doc.items || []) {
-      const core = extractStandardCore(scope.standard);
-      const checked = checkScopeAgainstOj(scope.standard, core ? ojIndex.get(core) || [] : [], today);
-      const facility = scope.facility_number ? facilityMap.get(scope.facility_number) : null;
-      items.push({
-        cert_type: certType,
-        certificate_number: doc.info?.certificate_number || null,
-        valid_until: doc.info?.valid_until || null,
-        organization: doc.info?.organization || null,
-        source,
-        facility_number: scope.facility_number || null,
-        facility_name: facility?.name || null,
-        facility_location: facility?.location || null,
-        category: scope.category || null,
-        anchor: scope.anchor || null,
-        standard: scope.standard,
-        core: core || null,
-        ...checked,
+      const refs = parseStandardReferences(scope.standard);
+      const references = refs.map(ref => {
+        const checks = directives.map(d => {
+          const entries = index.get(d + '|' + ref.key) || [];
+          if (options.ojErrors?.[d] && ref.namespace.startsWith('EN')) return { directive: d, status: 'unverified', reason: 'fetch_failed', oj_entries: [] };
+          return { directive: d, ...checkScopeAgainstOj(ref, entries, today) };
+        });
+        const relevant = checks.filter(c => c.status !== 'not_listed');
+        return { ...ref, oj: { ...aggregateChecks(relevant.length ? relevant : checks), checks }, published: checkPublished(ref, catalog.get(ref.key), today) };
+      });
+      const oj = aggregateChecks(references.map(r => r.oj));
+      const published = aggregateChecks(references.map(r => r.published));
+      const ojEntries = references.flatMap(r => r.oj.checks.flatMap(c => c.oj_entries || []));
+      const ojVersions = unique(references.flatMap(r => r.oj.checks.flatMap(c => c.oj_versions || [])));
+      const facility = facilities.get(scope.facility_number);
+      items.push({ cert_type: certType, certificate_number: doc.info?.certificate_number || null,
+        valid_until: doc.info?.valid_until || null, organization: doc.info?.organization || null, source,
+        facility_number: scope.facility_number || null, facility_name: facility?.name || null, facility_location: facility?.location || null,
+        category: scope.category || null, anchor: scope.anchor || null, standard: scope.standard, references,
+        scope_versions: unique(refs.flatMap(r => r.versions)), scope_version: unique(refs.flatMap(r => r.versions)).join(' / ') || null,
+        ...oj, published, oj_entries: ojEntries, oj_numbers: unique(ojEntries.map(e => e.number)),
+        oj_versions: ojVersions,
+        oj_latest_version: refs.length === 1 ? ojVersions.reduce((a, b) => !a || compareVersions(b, a) > 0 ? b : a, null) : null,
+        oj_status: ojEntries.length ? 'active' : references.some(r => r.oj.checks.some(c => c.oj_status === 'withdrawn')) ? 'withdrawn' : 'not_listed',
+        oj_directives: unique(ojEntries.map(e => e.directive)),
       });
     }
   }
-
-  const summary = {
-    total: items.length,
-    valid: items.filter(item => item.status === 'valid').length,
-    warning: items.filter(item => item.status === 'warning').length,
-    caution: items.filter(item => item.status === 'caution').length,
-    not_listed: items.filter(item => item.status === 'not_listed').length,
-    oj_active: items.filter(item => item.oj_status === 'active').length,
+  return { checked_at: new Date().toISOString(), today, directive: options.directive || 'ALL', items,
+    summary: { total: items.length, ...counts(items), oj_active: items.filter(i => i.oj_status === 'active').length },
+    published_summary: { total: items.length, ...counts(items.map(i => i.published)) },
   };
-  return { checked_at: new Date().toISOString(), today, items, summary };
 }

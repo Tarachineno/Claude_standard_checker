@@ -9,6 +9,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node --test",
+    "check:publishers": "node scripts/check-publishers.mjs",
     "db:migrate": "wrangler d1 migrations apply standards-checker --remote",
     "db:migrate:local": "wrangler d1 migrations apply standards-checker --local",
     "validate": "node scripts/validate-scopes.mjs",

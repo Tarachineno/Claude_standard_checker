@@ -10,6 +10,8 @@ import standards from './routes/standards.js';
 import scopes from './routes/scopes.js';
 import quickCheck from './routes/quick-check.js';
 import meta from './routes/meta.js';
+import catalog from './routes/catalog.js';
+import { syncCatalog } from './lib/catalog.js';
 
 const api = new Hono();
 
@@ -20,6 +22,7 @@ api.route('/', meta);
 api.route('/', standards);
 api.route('/', scopes);
 api.route('/', quickCheck);
+api.route('/', catalog);
 
 const app = new Hono();
 app.route('/api', api);
@@ -54,4 +57,12 @@ app.onError((err, c) => {
     : c.text('Internal error', 500);
 });
 
-export default app;
+export default {
+  fetch: app.fetch,
+  // Keep app.request for Node integration tests.
+  request: app.request.bind(app),
+  async scheduled(event, env) {
+    const c = { env, req: { url: 'https://lab-scope-checker.seidaku.workers.dev/' } };
+    await syncCatalog(c, { limit: 3 });
+  },
+};

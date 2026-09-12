@@ -31,11 +31,11 @@ test('matching active edition is valid and withdrawn-only entry is not listed', 
   assert.equal(withdrawn.reason, 'oj_withdrawn');
 });
 
-test('when multiple active OJ editions exist, only the latest edition is valid', () => {
+test('an earlier edition remains valid during OJ coexistence', () => {
   const result = checkScopeAgainstOj('EN 12345:2015', [active('EN 12345:2015'), active('EN 12345:2020')], '2026-09-12');
   assert.equal(result.oj_latest_version, '2020');
-  assert.equal(result.status, 'warning');
-  assert.equal(result.reason, 'scope_version_old');
+  assert.equal(result.status, 'valid');
+  assert.equal(result.reason, 'version_match');
 });
 
 test('edition comparison supports years and semantic V versions', () => {

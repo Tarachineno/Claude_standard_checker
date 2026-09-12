@@ -77,11 +77,24 @@ Access の無料枠は 50 ユーザーまで。
 
 ```bash
 npm run setup:local      # ローカル D1 にスキーマ適用 + シード（初回だけ）
-npm run dev              # http://localhost:8787  （静的ファイル + API + ローカル D1/KV）
-npm test                 # ロジックと API の自動テスト（22 件）
+npm run dev -- --local   # http://localhost:8787（remote:true を無効化し、本番D1への書込みを避ける）
+npm test                 # ロジックと API の自動テスト（Node.js 22.13以上）
 ```
 
 `wrangler.jsonc` の `database_id` / `id` がプレースホルダのままでもローカル開発は動きます。
+
+### OJ・最新Published版の一括確認
+
+認定書タブで全スコープを一括照合します。OJ掲載と発行団体のPublished版を別々に表示し、EMCはPublished、REDはOJを初期の集計基準にします。これは版数の対応確認であり、法令適合・認定条件の判断を代替しません。
+
+- `EN 61326-1:2012/2013` はOJ 2013を含むので有効。OJの併存期間は旧版も有効として扱います。
+- EN／EN IEC／IEC／JIS／KSを同一視しません。追補・正誤票の包含も確認し、不明は注意または未確認にします。
+- 規格団体公式検索タブにPublished版台帳・公式取得・根拠URL付き手動補完・履歴を追加しています。
+- 自動取得対象: ETSI、CEN/CENELEC、IEC/CISPR、ISED（RSS/ICES）。ISO、ANSI/IEEE、JIS、KS、VCCI、FCC系等は手動確認で補完します。検索結果の断片や古い詳細ページだけから最新版とは断定しません。
+- 台帳は追加マイグレーション `0002_publisher_catalog.sql`。既存の認定書・認定スコープは変更しません。今回の機能追加で再シードは不要です。
+- Cronは15分ごとに最大3規格。成功した規格は7日後、失敗した規格は1日後に再試行。最終確認から8日超・取得失敗は前回値を保持したまま未確認にします。
+
+本番適用順序・管理キー設定・制約は [版情報の運用ヘルプ](static/data/CATALOG_HELP.md) を参照してください。公開APIは `GET /api/catalog`、`GET /api/catalog/history?key=EN:61326-1`、`GET /api/scope-oj-version-check?directive=EMC`。書込み用の `/api/catalog/manual`・`/refresh`・`/clear-manual` は `Authorization: Bearer <CATALOG_ADMIN_TOKEN>` を必須とします。
 
 ### 認定スコープ（JAB / A2LA）の更新手順
 

@@ -14,6 +14,9 @@
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
 
+  // 15分ごとに期限到来した3規格を取得。成功時7日後、失敗時1日後に再確認。
+  "triggers": { "crons": ["*/15 * * * *"] },
+
   // 静的ファイル（旧 Netlify の publish = "static" と同じ）。
   // 静的ファイルに一致しないリクエストだけが Worker（src/index.js）に届く。
   "assets": {
