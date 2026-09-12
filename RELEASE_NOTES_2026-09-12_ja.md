@@ -47,3 +47,11 @@ Netlify（Functions + Hosting）から Cloudflare（Workers + Static Assets + D1
 ## 移行手順
 
 README「☁️ Cloudflare Workers 版」を参照。
+
+## 2026-09-12 追加修正（`d79c404`〜`52bc698`）
+
+- OJ 整合規格の新着バナーを追加。新規追加の検知から既定7日間表示し、閉じるボタンを備える。表示日数は `wrangler.jsonc` の `STANDARDS_BANNER_DAYS` で変更可能。
+- 証明書タブを D1 / 証明書 PDF 参照に対応。カテゴリ・施設別一覧の規格から詳細モーダルを開け、証明書情報欄にも Cloudflare 上の PDF リンクを表示する。API の `anchor` も保持する。
+- OJ 規格の版違い表示を「版違い」に統一。バックエンドの判定結果 note とフロントエンドの表示テンプレートを含む。
+- `scripts/validate-scopes.mjs` と `static/data/SCOPE_FORMAT.md` を追加。必須項目、有効期限、アンカー・施設番号・規格重複、空カテゴリを検査し、`db:seed` 実行前に自動検証する。
+- `jab-scopes.md` の重複アンカーを修正し、本番 D1 を再シード済み。JAB 1,050件、施設2件を反映。
