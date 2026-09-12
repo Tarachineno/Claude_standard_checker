@@ -24,6 +24,17 @@ app.get('/standards', async c => {
   }
   try {
     const r = await getStandards(c, directive, { forceRefresh: c.req.query('refresh') === '1' });
+
+    // 「新着あり」バナー: 前回追加検知（lastUpdated）からの経過日数が設定値未満なら表示する
+    const bannerDays = Number(c.env.STANDARDS_BANNER_DAYS || 7);
+    let showBanner = false, bannerDaysLeft = 0;
+    if (r.lastUpdated && r.lastAdded?.length) {
+      const elapsedMs = Date.now() - Date.parse(r.lastUpdated);
+      const remainingMs = bannerDays * 86400000 - elapsedMs;
+      showBanner = remainingMs > 0;
+      bannerDaysLeft = showBanner ? Math.ceil(remainingMs / 86400000) : 0;
+    }
+
     return c.json({
       success: true,
       data: {
@@ -40,6 +51,8 @@ app.get('/standards', async c => {
         last_checked: r.lastChecked,
         last_updated: r.lastUpdated,
         last_added: r.lastAdded,
+        show_banner: showBanner,
+        banner_days_left: bannerDaysLeft,
       },
       ...(r.source === 'fallback' || r.source === 'bundled' || r.source === 'kv-stale' ? { note: `Using cached data (${r.source})` } : {}),
     }, 200, CORS_HEADERS);

@@ -46,7 +46,9 @@
     // スコープ MD の GitHub 上の参照先ブランチ（画面の「詳細を見る」リンクに使用）
     "SCOPE_SOURCE_BRANCH": "cloudflare-workers",
     // EC サーバーへ更新確認（HEAD）を投げる間隔（秒）。この間はキャッシュを信用する。
-    "STANDARDS_RECHECK_SECONDS": "21600"
+    "STANDARDS_RECHECK_SECONDS": "21600",
+    // OJ整合規格の「新着あり」バナーを表示し続ける日数（追加検知からの経過日数で判定）
+    "STANDARDS_BANNER_DAYS": "7"
   },
 
   "observability": {

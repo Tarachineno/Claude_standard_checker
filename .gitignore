@@ -94,3 +94,4 @@ package-lock.json
 .wrangler/
 .dev.vars
 seed/*.sql
+*.bundle

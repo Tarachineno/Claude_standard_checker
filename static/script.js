@@ -110,6 +110,7 @@ const translations = {
         'standards.note_red_link': 'RED:',
         'standards.note_emc_link': 'EMC:',
         'standards.note_lvd_link': 'LVD:',
+        'standards.new_banner': 'New harmonized standards added: {list} (shown for {days} more day(s))',
         'common.loading': 'Processing...',
         'common.no_results': 'No results found',
         'common.error': 'Error',
@@ -225,6 +226,7 @@ const translations = {
         'standards.note_red_link': 'RED:',
         'standards.note_emc_link': 'EMC:',
         'standards.note_lvd_link': 'LVD:',
+        'standards.new_banner': '新しい整合規格が追加されました：{list}（あと{days}日間表示）',
         'common.loading': '処理中...',
         'common.no_results': '結果が見つかりません',
         'common.error': 'エラー',
@@ -426,6 +428,11 @@ function setupEventListeners() {
 
     // Standards tab
     document.getElementById('fetch-standards-btn').addEventListener('click', fetchStandards);
+    document.getElementById('standards-new-banner-close').addEventListener('click', () => {
+        const banner = document.getElementById('standards-new-banner');
+        dismissedBannerKey = banner.dataset.bannerKey || null;
+        banner.classList.add('hidden');
+    });
     document.getElementById('export-standards-btn').addEventListener('click', exportStandards);
     document.getElementById('directive-select').addEventListener('change', updateFetchMethodOptions);
     document.getElementById('apply-controls-btn').addEventListener('click', applySortAndFilter);
@@ -679,10 +686,37 @@ async function fetchStandards() {
     showError('Please select a valid fetch method');
 }
 
+// 新着 OJ 整合規格バナー。一度閉じたら同じ更新内容の間は出さない（リロードで復活してよい軽量な記憶）
+let dismissedBannerKey = null;
+
+function updateNewStandardsBanner(data) {
+    const banner = document.getElementById('standards-new-banner');
+    const textEl = document.getElementById('standards-new-banner-text');
+    if (!banner || !textEl) return;
+
+    const key = `${data.directive}:${data.last_updated || ''}`;
+    if (!data.show_banner || !(data.last_added || []).length || dismissedBannerKey === key) {
+        banner.classList.add('hidden');
+        return;
+    }
+
+    const max = 3;
+    const added = data.last_added;
+    const shown = added.slice(0, max).join(', ');
+    const list = added.length > max
+        ? shown + (currentLanguage === 'ja' ? ` 他${added.length - max}件` : ` and ${added.length - max} more`)
+        : shown;
+
+    textEl.textContent = t('standards.new_banner', { list, days: data.banner_days_left });
+    banner.dataset.bannerKey = key;
+    banner.classList.remove('hidden');
+}
+
 async function displayStandards(data) {
     // Store current data for sorting/filtering
     currentStandardsData = data;
-    
+    updateNewStandardsBanner(data);
+
     const resultsSection = document.getElementById('standards-results');
     const countElement = document.getElementById('standards-count');
     const listElement = document.getElementById('standards-list');
