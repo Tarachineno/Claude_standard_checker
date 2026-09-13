@@ -1,6 +1,9 @@
 // Publisher catalogue and two-axis edition comparison.
 let catalogData = null;
 let catalogAuth = null;
+// Temporarily hide manual editing until email authentication is ready.
+// This is a UI switch, not a replacement for the API's authorization checks.
+const CATALOG_EDITING_UI_ENABLED = false;
 const catalogueTranslations = {
     en: {
         title: 'Published edition catalogue', intro: 'Publisher editions are checked independently of OJ listings. Last verification dates are shown; elapsed time alone does not invalidate results.',
@@ -13,6 +16,7 @@ const catalogueTranslations = {
         unverified: 'Unverified', manual: 'Manually verified', automatic: 'Automatic', supplement: 'Verify / edit', source: 'Official source',
         saved: 'Verified edition saved. Rerun the bulk check to update results.', unavailable: 'Catalogue unavailable. See setup guide.', missing: 'Not yet verified',
         needs_key: 'Enter the administration key in the manual verification section.',
+        editing_paused: 'Manual verification / correction is temporarily unavailable in this page.',
         count: '{shown} / {total} references', guidance: 'Edition coverage only. OJ presumption, publisher status and accreditation conditions are distinct.',
         cache: 'OJ data includes cached / bundled information; check the source dates before relying on it.', history: 'History', clear: 'Use automatic data', cleared: 'Manual override removed; history is retained.',
         oj_source_updated: 'OJ source updated', xlsx_generated: 'XLSX generated date', xlsx_modified: 'XLSX modified date, UTC', http_last_modified: 'Source HTTP Last-Modified, UTC',
@@ -29,6 +33,7 @@ const catalogueTranslations = {
         unverified: '未確認', manual: '手動確認済み', automatic: '自動取得', supplement: '確認・補完', source: '公式出典',
         saved: '確認した版を保存しました。一括確認を再実行すると結果に反映されます。', unavailable: '版情報の台帳を利用できません。ヘルプの初期設定を確認してください。', missing: '未取得・未確認',
         needs_key: '「版情報の確認・補完」に管理キーを入力してください。',
+        editing_paused: '画面からの確認・補完は一時的に停止しています。',
         count: '{shown} / {total} 規格', guidance: '版数の対応状況です。OJによる適合推定・発行状態・認定条件は別に確認してください。',
         cache: 'OJ情報にキャッシュ・同梱データを含みます。出典の更新日と取得元に注意してください。', history: '確認履歴', clear: '自動取得に戻す', cleared: '手動補完を解除しました。履歴は保持しています。',
         oj_source_updated: 'OJ元データ更新日', xlsx_generated: 'XLSX記載の生成日', xlsx_modified: 'XLSXファイル内の更新日・UTC', http_last_modified: '元データのHTTP更新日・UTC',
@@ -241,13 +246,14 @@ function renderCatalog() {
             + (!ref.automatic_supported ? '<small>' + esc(t('catalog.manual_required')) + '</small>' : '') + (error ? '<small class="catalog-error">' + esc(error) + '</small>' : '') + reviewFailureText(record) +
             '</td><td>' + esc(verificationText(record)) + (record?.origin ? '<small>' + esc(t('catalog.' + record.origin)) + '</small>' : '') +
             safeSourceLink(record?.editions?.at(-1)?.source_url || record?.source_url || ref.search_url, t('catalog.source')) + '</td><td class="catalog-row-actions">' +
-            (withdrawn ? '<small>' + esc(t('catalog.lifecycle_managed')) + '</small>' : '<button class="btn btn-small btn-outline" data-catalog-edit="' + esc(ref.key) + '">' + esc(t('catalog.supplement')) + '</button> ') +
+            (withdrawn ? '<small>' + esc(t('catalog.lifecycle_managed')) + '</small>' : CATALOG_EDITING_UI_ENABLED ? '<button class="btn btn-small btn-outline" data-catalog-edit="' + esc(ref.key) + '">' + esc(t('catalog.supplement')) + '</button> ' : '') +
             (record ? '<button class="btn btn-small btn-outline" data-catalog-history="' + esc(ref.key) + '">' + esc(t('catalog.history')) + '</button>' : '') +
-            (record?.origin === 'manual' && !withdrawn ? '<button class="btn btn-small btn-outline" data-catalog-clear="' + esc(ref.key) + '">' + esc(t('catalog.clear')) + '</button>' : '') +
+            (CATALOG_EDITING_UI_ENABLED && record?.origin === 'manual' && !withdrawn ? '<button class="btn btn-small btn-outline" data-catalog-clear="' + esc(ref.key) + '">' + esc(t('catalog.clear')) + '</button>' : '') +
             '</td></tr>';
     }).join('');
 }
 async function catalogWrite(path, body) {
+    if (!CATALOG_EDITING_UI_ENABLED) throw new Error(t('catalog.editing_paused'));
     const auth = await loadCatalogAuth();
     if (auth.mode === 'access') {
         if (!auth.user) {
@@ -283,8 +289,9 @@ async function loadCatalogAuth() {
     return catalogAuth;
 }
 document.addEventListener('DOMContentLoaded', () => {
-    loadCatalogAuth().catch(error => { catalogueElement('catalog-auth-user').textContent = error.message; });
-    if (new URLSearchParams(window.location.search).get('catalog-login') === '1') {
+    catalogueElement('catalog-admin').hidden = !CATALOG_EDITING_UI_ENABLED;
+    if (CATALOG_EDITING_UI_ENABLED) loadCatalogAuth().catch(error => { catalogueElement('catalog-auth-user').textContent = error.message; });
+    if (CATALOG_EDITING_UI_ENABLED && new URLSearchParams(window.location.search).get('catalog-login') === '1') {
         switchTab('search');
         catalogueElement('catalog-admin').open = true;
         loadPublisherCatalog();
@@ -294,12 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
     catalogueElement('catalog-search').addEventListener('input', renderCatalog);
     catalogueElement('scope-oj-basis').addEventListener('change', () => scopeOjCheckData && renderEditionComparison(scopeOjCheckData));
     catalogueElement('scope-oj-directive').addEventListener('change', () => {
-        catalogueElement('scope-oj-basis').value = catalogueElement('scope-oj-directive').value === 'EMC' ? 'published' : 'oj';
+        catalogueElement('scope-oj-basis').value = ['ALL', 'EMC'].includes(catalogueElement('scope-oj-directive').value) ? 'published' : 'oj';
         if (scopeOjCheckData) runScopeOjVersionCheck();
     });
     catalogueElement('catalog-tbody').addEventListener('click', async event => {
         const button = event.target.closest('button');
         if (!button || !catalogData) return;
+        if (!CATALOG_EDITING_UI_ENABLED && (button.dataset.catalogEdit || button.dataset.catalogClear)) return;
         if (button.dataset.catalogClear) {
             try { await catalogWrite('clear-manual', { key: button.dataset.catalogClear }); await loadPublisherCatalog(); showSuccess(t('catalog.cleared')); }
             catch (error) { showError(error.message); }
@@ -330,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     catalogueElement('catalog-manual-form').addEventListener('submit', async event => {
         event.preventDefault();
+        if (!CATALOG_EDITING_UI_ENABLED) return;
         const button = event.submitter || event.currentTarget.querySelector('button[type="submit"]');
         button.disabled = true;
         try {

@@ -811,7 +811,7 @@ main {
 .catalog-table .catalog-error { color: #a12a25; }
 .catalog-admin { margin: 1.5rem 0; padding: 1.2rem; background: #f4f8fd; border: 1px solid #ccdbea; border-radius: 8px; }
 .catalog-admin summary { cursor: pointer; font-weight: 600; }
-.catalog-admin [hidden] { display: none !important; }
+.catalog-admin[hidden], .catalog-admin [hidden] { display: none !important; }
 .catalog-admin #catalog-token-fields input { margin: .4rem .7rem; }
 .catalog-admin > p { line-height: 1.6; margin: .9rem 0; }
 .catalog-admin > input { margin: .4rem .7rem; }

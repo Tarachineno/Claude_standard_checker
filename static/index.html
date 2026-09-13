@@ -222,7 +222,7 @@
                     </div>
                     <p id="catalog-message" role="status"></p>
                     <div class="table-wrap"><table class="catalog-table"><thead><tr><th data-i18n="catalog.reference">Reference</th><th data-i18n="catalog.edition">Published edition</th><th data-i18n="catalog.checked">Last verified / source</th><th data-i18n="catalog.actions">Actions</th></tr></thead><tbody id="catalog-tbody"></tbody></table></div>
-                    <details id="catalog-admin" class="catalog-admin">
+                    <details id="catalog-admin" class="catalog-admin" hidden>
                         <summary data-i18n="catalog.admin">Manual verification / correction</summary>
                         <p id="catalog-auth-help" data-i18n="catalog.admin_help">An administration key is required to save changes. It is kept only in this page.</p>
                         <div id="catalog-token-fields"><label for="catalog-token" data-i18n="catalog.token">Administration key</label><input id="catalog-token" type="password" autocomplete="off" /></div>
@@ -299,7 +299,7 @@
 
                 <div class="scope-oj-check-actions">
                     <label for="scope-oj-directive" data-i18n="catalog.directive">OJ directive</label>
-                    <select id="scope-oj-directive"><option value="EMC">EMC</option><option value="RED">RED</option><option value="LVD">LVD</option><option value="ALL">EMC / RED / LVD</option></select>
+                    <select id="scope-oj-directive"><option value="ALL" selected>EMC / RED / LVD</option><option value="EMC">EMC</option><option value="RED">RED</option><option value="LVD">LVD</option></select>
                     <button id="scope-oj-check-btn" class="btn btn-secondary" data-i18n="scope_oj.check_btn">
                         <i class="fas fa-code-compare"></i> Check all current scopes against active OJ editions
                     </button>
