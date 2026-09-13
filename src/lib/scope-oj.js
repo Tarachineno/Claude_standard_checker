@@ -1,10 +1,11 @@
-import { parseStandardReferences, compareVersions, unique, coversEdition, mergeEditions } from './references.js';
+import { parseStandardReferences, compareVersions, unique, coversEdition, mergeEditions, editionLabel } from './references.js';
+import { splitOjReferenceText } from './oj-reference.js';
 import { isWithdrawnRecord } from './publisher-lifecycle.js';
 
 export const compareEditionVersions = compareVersions;
 export const normalizeOjNumber = value => String(value || '').replace(/\s*,?\s*[\r\n]+\s*/g, ' / ').trim();
 export function isActiveOjEntry(entry, today) {
-  const start = entry.date_of_start_presumption;
+  const start = entry.date_of_start_presumption || entry.restriction_date;
   return (!start || !/^\d{4}-\d{2}-\d{2}$/.test(start) || start <= today)
     && (!entry.withdrawal_date || entry.withdrawal_date > today);
 }
@@ -27,8 +28,10 @@ export function assessEditions(ref, targets, kind = 'oj') {
 
 function ojView(entry, today) {
   const raw = entry.full_number || entry.number || '';
-  const references = parseStandardReferences(raw).map(r => ({ ...r, editions: mergeEditions(r.editions) }));
-  return { ...entry, number: normalizeOjNumber(raw), active: entry.active !== false && isActiveOjEntry(entry, today), references };
+  const separated = splitOjReferenceText(raw);
+  const references = parseStandardReferences(separated.number).map(r => ({ ...r, editions: mergeEditions(r.editions) }));
+  return { ...entry, number: normalizeOjNumber(separated.number), title: separated.title || entry.title,
+    restriction: separated.restriction || entry.restriction, active: entry.active !== false && isActiveOjEntry(entry, today), references };
 }
 
 export function checkScopeAgainstOj(scopeStandard, ojEntries, today) {
@@ -41,6 +44,8 @@ export function checkScopeAgainstOj(scopeStandard, ojEntries, today) {
     scope_version: ref?.versions.join(' / ') || null, scope_versions: ref?.versions || [],
     oj_status: active.length ? 'active' : entries.length ? 'withdrawn' : 'not_listed',
     oj_versions: versions, oj_latest_version: versions.reduce((a, b) => !a || compareVersions(b, a) > 0 ? b : a, null),
+    oj_designations: ref ? mergeEditions(targets.flatMap(t => t.editions)).map(e =>
+      ref.designation + (/^V/i.test(e.base) ? ' ' : ':') + editionLabel(e)) : [],
     oj_numbers: unique(active.map(e => e.number)), oj_directives: unique(active.map(e => e.directive)),
     oj_entries: active.map(({ references, ...e }) => ({ ...e, version: references.filter(r => r.key === ref?.key).flatMap(r => r.versions).join(' / ') || null })),
   };
@@ -97,7 +102,7 @@ export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, t
   const index = new Map();
   const directives = options.directive && options.directive !== 'ALL' ? [options.directive] : ['RED', 'EMC', 'LVD'];
   for (const directive of directives) for (const entry of standardsByDirective[directive] || []) {
-    for (const ref of parseStandardReferences(entry.full_number || entry.number)) {
+    for (const ref of parseStandardReferences(splitOjReferenceText(entry.full_number || entry.number).number)) {
       const key = directive + '|' + ref.key;
       index.set(key, [...(index.get(key) || []), { ...entry, directive }]);
     }

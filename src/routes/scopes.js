@@ -122,6 +122,8 @@ app.get('/scope-oj-version-check', async c => {
           count: result.standards.length,
           last_modified: result.lastModified,
           last_checked: result.lastChecked,
+          source_updated_at: result.sourceUpdatedAt,
+          source_updated_kind: result.sourceUpdatedKind,
         };
       } catch (err) {
         ojSources[directive] = { error: err.message };

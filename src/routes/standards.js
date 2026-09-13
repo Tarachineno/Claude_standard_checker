@@ -49,6 +49,8 @@ app.get('/standards', async c => {
         source: r.source,
         last_modified: r.lastModified,
         last_checked: r.lastChecked,
+        source_updated_at: r.sourceUpdatedAt,
+        source_updated_kind: r.sourceUpdatedKind,
         last_updated: r.lastUpdated,
         last_added: r.lastAdded,
         show_banner: showBanner,

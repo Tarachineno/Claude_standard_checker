@@ -44,7 +44,7 @@ app.post('/quick-check', async c => {
     for (const d of wantDirectives) {
       try {
         const r = await getStandards(c, d);
-        ojSources[d] = { source: r.source, last_modified: r.lastModified, count: r.standards.length };
+        ojSources[d] = { source: r.source, last_modified: r.lastModified, source_updated_at: r.sourceUpdatedAt, source_updated_kind: r.sourceUpdatedKind, count: r.standards.length };
         for (const s of r.standards) {
           const core = parseStandardReferences(s.full_number || s.number)[0]?.key;
           if (!core) continue;

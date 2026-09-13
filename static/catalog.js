@@ -14,7 +14,9 @@ const catalogueTranslations = {
         saved: 'Verified edition saved. Rerun the bulk check to update results.', unavailable: 'Catalogue unavailable. See setup guide.', missing: 'Not yet verified',
         needs_key: 'Enter the administration key in the manual verification section.',
         count: '{shown} / {total} references', guidance: 'Edition coverage only. OJ presumption, publisher status and accreditation conditions are distinct.',
-        cache: 'OJ data includes cached / bundled information; check the source dates before relying on it.', history: 'History', clear: 'Use automatic data', cleared: 'Manual override removed; history is retained.'
+        cache: 'OJ data includes cached / bundled information; check the source dates before relying on it.', history: 'History', clear: 'Use automatic data', cleared: 'Manual override removed; history is retained.',
+        oj_source_updated: 'OJ source updated', xlsx_generated: 'XLSX generated date', xlsx_modified: 'XLSX modified date, UTC', http_last_modified: 'Source HTTP Last-Modified, UTC',
+        scope_comparison: 'Scope comparison', oj_details: 'OJ listing details'
     },
     ja: {
         title: 'Published版の管理', intro: 'OJ掲載とは別に、発行団体の最新版を確認します。最終確認日時を表示し、日数の経過だけでは判定を変更しません。',
@@ -28,7 +30,9 @@ const catalogueTranslations = {
         saved: '確認した版を保存しました。一括確認を再実行すると結果に反映されます。', unavailable: '版情報の台帳を利用できません。ヘルプの初期設定を確認してください。', missing: '未取得・未確認',
         needs_key: '「版情報の確認・補完」に管理キーを入力してください。',
         count: '{shown} / {total} 規格', guidance: '版数の対応状況です。OJによる適合推定・発行状態・認定条件は別に確認してください。',
-        cache: 'OJ情報にキャッシュ・同梱データを含みます。出典の確認日時に注意してください。', history: '確認履歴', clear: '自動取得に戻す', cleared: '手動補完を解除しました。履歴は保持しています。'
+        cache: 'OJ情報にキャッシュ・同梱データを含みます。出典の更新日と取得元に注意してください。', history: '確認履歴', clear: '自動取得に戻す', cleared: '手動補完を解除しました。履歴は保持しています。',
+        oj_source_updated: 'OJ元データ更新日', xlsx_generated: 'XLSX記載の生成日', xlsx_modified: 'XLSXファイル内の更新日・UTC', http_last_modified: '元データのHTTP更新日・UTC',
+        scope_comparison: '認定スコープとの比較', oj_details: 'OJ掲載内容'
     }
 };
 const extraReasons = {
@@ -126,6 +130,21 @@ function withdrawalDetails(lifecycle, replacements = []) {
                 + (latest ? safeSourceLink(latest.source_url, t('catalog.source')) : '') + '</div>';
         }).join('') + '<small class="muted">' + esc(t('catalog.withdrawal_scope_note')) + '</small>';
 }
+function ojSourceDateText(source) {
+    const value = source.source_updated_at;
+    const valid = value && Number.isFinite(Date.parse(value));
+    // Date-only values have no timezone; do not shift the source's calendar day.
+    const date = valid ? new Date(value).toISOString().slice(0, 10).replace(/-/g, '/') : t('catalog.date_unknown');
+    return date + (valid && source.source_updated_kind ? ' (' + t('catalog.' + source.source_updated_kind) + ')' : '');
+}
+function ojCheckHtml(ref, check) {
+    const designation = (check.oj_designations || []).join(' / ') || ref.designation;
+    const details = (check.oj_entries || []).map(entry => [entry.number, entry.title, entry.restriction && entry.restriction !== '-' ? entry.restriction : ''].filter(Boolean).join('\n')).join('\n\n');
+    return '<div class="edition-reference"><strong>' + esc(designation) + '</strong>'
+        + '<div><span class="scope-oj-directive">' + esc(check.directive) + '</span> <small>' + esc(t('catalog.scope_comparison')) + '</small> ' + statusBadge(check.status) + '</div>'
+        + '<small>' + esc(scopeOjReasonLabel(check.reason)) + '</small>'
+        + (details ? '<details><summary>' + esc(t('catalog.oj_details')) + '</summary><small>' + esc(details) + '</small></details>' : '') + '</div>';
+}
 function renderEditionComparison(data) {
     const basis = catalogueElement('scope-oj-basis').value;
     const { accreditation, facility } = updateScopeFilters(data.items);
@@ -146,14 +165,12 @@ function renderEditionComparison(data) {
     catalogueElement('scope-oj-summary').innerHTML = statuses.map(s =>
         '<button type="button" class="scope-oj-summary-card scope-oj-summary-' + s + '" data-scope-status="' + s + '" aria-pressed="' + (filter === s) + '"><span>' + esc(statusText(s)) + '</span><strong>' + (summary?.[s] || 0) + '</strong></button>').join('');
     catalogueElement('scope-oj-result-count').textContent = t('scope_oj.result_count', { shown: items.length, total: data.items.length });
-    const sources = Object.entries(data.sources.oj || {}).map(([d, s]) => d + ': ' + (s.last_checked ? new Date(s.last_checked).toLocaleString() : s.source || 'error')).join(' · ');
+    const sources = Object.entries(data.sources.oj || {}).map(([d, s]) => d + ': ' + ojSourceDateText(s)).join(' · ');
     const stale = Object.values(data.sources.oj || {}).some(s => ['kv-stale', 'bundled', 'fallback'].includes(s.source) || s.error);
-    catalogueElement('scope-oj-sources').textContent = t('catalog.guidance') + ' OJ: ' + sources + (stale ? ' ' + t('catalog.cache') : '') + (!data.sources.catalog?.available ? ' ' + t('catalog.unavailable') : '');
+    catalogueElement('scope-oj-sources').textContent = t('catalog.guidance') + ' ' + t('catalog.oj_source_updated') + ': ' + sources + (stale ? ' ' + t('catalog.cache') : '') + (!data.sources.catalog?.available ? ' ' + t('catalog.unavailable') : '');
     catalogueElement('scope-oj-tbody').innerHTML = items.map(item => {
         const refs = item.references || [];
-        const oj = refs.map(ref => '<div class="edition-reference"><strong>' + esc(ref.designation) + '</strong>' + ref.oj.checks.map(check =>
-            '<div><span class="scope-oj-directive">' + esc(check.directive) + '</span> ' + statusBadge(check.status) +
-            '<small>' + esc((check.oj_numbers || []).join(' / ') || scopeOjReasonLabel(check.reason)) + '</small></div>').join('') + '</div>').join('');
+        const oj = refs.map(ref => ref.oj.checks.map(check => ojCheckHtml(ref, check)).join('')).join('');
         const published = refs.map(ref => {
             const p = ref.published;
             return '<div class="edition-reference"><strong>' + esc(p.latest?.designation || ref.designation) + '</strong> ' + statusBadge(p.status) +

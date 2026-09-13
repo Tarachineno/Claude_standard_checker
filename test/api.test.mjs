@@ -108,6 +108,8 @@ test('GET /api/scope-oj-version-check compares every current scope item', async 
   assert.ok(j.data.summary.valid + j.data.summary.warning + j.data.summary.caution + j.data.summary.confirmation + j.data.summary.not_listed + j.data.summary.unverified + j.data.summary.withdrawn === j.data.items.length);
   assert.equal(j.data.sources.scopes.jab.source, 'md');
   assert.equal(j.data.sources.oj.EMC.source, 'bundled');
+  assert.equal(j.data.sources.oj.EMC.source_updated_at, '2022-09-16T14:37:07.000Z');
+  assert.equal(j.data.sources.oj.EMC.source_updated_kind, 'xlsx_modified');
   const missingScopeVersion = j.data.items.find(item => item.standard === 'EN 55011');
   assert.equal(missingScopeVersion.status, 'confirmation');
   assert.equal(missingScopeVersion.reason, 'scope_version_missing');

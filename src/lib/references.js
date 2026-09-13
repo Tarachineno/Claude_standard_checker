@@ -48,17 +48,23 @@ export function compareVersions(a, b) {
 
 export function parseEditions(suffix) {
   const s = String(suffix || '');
-  const v = s.match(/^\s*:?\s*(V\d+(?:\.\d+){0,3})(?:\s*\/\s*(V\d+(?:\.\d+){0,3}))*/i);
+  const v = s.match(/^\s*[:(]?\s*(V\d+(?:\.\d+){0,3})(?:\s*\/\s*(V\d+(?:\.\d+){0,3}))*(?:\))?/i);
   const years = s.match(/^\s*[:\-]\s*(\d{4}(?:\s*\/\s*\d{4})*)/) || s.match(/^\s*\((\d{4})\)/);
   const issue = s.match(/^\s*[,;:]?\s*(?:Issue|Ed(?:ition)?\.?)\s*(\d+(?:\.\d+)*)/i);
   const bases = v ? v[0].match(/V\d+(?:\.\d+)*/gi).map(n => n.toUpperCase())
     : years ? years[1].split(/\s*\/\s*/)
       : issue ? [`${/Issue/i.test(issue[0]) ? 'Issue' : 'Ed'} ${issue[1]}`] : [];
   const amendments = [], corrections = [];
-  for (const m of s.matchAll(/(?:\+|\/|\b)(AMD|A|AC|COR(?:RIGENDUM)?\.?)\s*(\d*)\s*[:\-]?\s*(\d{4})?/gi)) {
+  // Read only consecutive edition tokens. Do not interpret Article, Annex,
+  // apparatus, or references mentioned in the title as amendments.
+  let rest = s.slice((v || years || issue)?.[0].length || 0);
+  while (true) {
+    const m = rest.match(/^\s*(?:[+/,]\s*|\(\s*)?(AC|AMD|A|COR(?:RIGENDUM)?\.?)\s*(\d*)(?:\s*[:\-]\s*(\d{4}(?:-\d{2})?))?(?=$|[\s)+/,;])/i);
+    if (!m) break;
     const correction = /^(AC|COR)/i.test(m[1]);
     const token = `${correction ? 'COR' : 'A'}${m[2]}${m[3] ? ':' + m[3] : ''}`;
     (correction ? corrections : amendments).push(token);
+    rest = rest.slice(m[0].length).replace(/^\)/, '');
   }
   // A following amendment applies to the last edition in an explicit list.
   const editions = bases.map((base, i) => ({ base, amendments: i === bases.length - 1 ? unique(amendments) : [], corrections: i === bases.length - 1 ? unique(corrections) : [] }));

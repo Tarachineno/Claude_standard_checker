@@ -6,7 +6,7 @@
 // 旧 Netlify 版は Lambda のローカルディスクに Excel を書き込んでいた。Workers にはディスクが無いので
 // KV（CACHE バインディング）に置き換えた。KV が未設定でも同梱 Excel で動く。
 
-import { parseStandardsFromXlsx } from './excel.js';
+import { parseStandardsFromXlsx, parseStandardsWorkbook } from './excel.js';
 import { readAssetJson, readAssetBytes } from './http.js';
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -55,7 +55,7 @@ async function loadWithCache(c, directive, config, forceRefresh) {
   // 1) キャッシュが新しければそのまま使う
   if (!forceRefresh && kv && meta && meta.checkedAt && now - Date.parse(meta.checkedAt) < recheckSec * 1000) {
     const buf = await kvBytes();
-    if (buf) return finish(parseStandardsFromXlsx(new Uint8Array(buf), directive), { meta, source: 'kv', updateAvailable: false, added: [] });
+    if (buf) return finishWorkbook(new Uint8Array(buf), directive, { meta, source: 'kv', updateAvailable: false, added: [] });
   }
 
   // 2) EC 公式サイトへ（更新確認 → 必要なら再取得）
@@ -72,12 +72,12 @@ async function loadWithCache(c, directive, config, forceRefresh) {
       if (buf) {
         meta = { ...meta, checkedAt: new Date(now).toISOString() };
         await kv.put(`meta:${directive}`, JSON.stringify(meta));
-        return finish(parseStandardsFromXlsx(new Uint8Array(buf), directive), { meta, source: 'kv', updateAvailable: false, added: [] });
+        return finishWorkbook(new Uint8Array(buf), directive, { meta, source: 'kv', updateAvailable: false, added: [] });
       }
     }
 
-    const { bytes, filename } = await downloadExcel(excelUrl, directive);
-    const standards = parseStandardsFromXlsx(bytes, directive);
+    const { bytes, filename, lastModified } = await downloadExcel(excelUrl, directive);
+    const { standards, sourceUpdatedAt, sourceUpdatedKind } = parseStandardsWorkbook(bytes, directive);
     if (!standards.length) throw new Error('Excel parsed but no standards found');
 
     // 差分（前回キャッシュとの比較）
@@ -91,7 +91,8 @@ async function loadWithCache(c, directive, config, forceRefresh) {
     }
 
     const newMeta = {
-      lastModified: remoteLastMod || new Date(now).toISOString(),
+      lastModified: lastModified || remoteLastMod || null,
+      httpLastModified: lastModified || remoteLastMod || null,
       filename,
       checkedAt: new Date(now).toISOString(),
       updatedAt: updateAvailable || !meta ? new Date(now).toISOString() : (meta.updatedAt || new Date(now).toISOString()),
@@ -102,21 +103,21 @@ async function loadWithCache(c, directive, config, forceRefresh) {
       await kv.put(`xlsx:${directive}`, bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
       await kv.put(`meta:${directive}`, JSON.stringify(newMeta));
     }
-    return finish(standards, { meta: newMeta, source: 'ec', updateAvailable, added });
+    return finish(standards, { meta: newMeta, source: 'ec', updateAvailable, added, sourceUpdatedAt, sourceUpdatedKind });
   } catch (err) {
     console.error(`[standards] EC fetch failed for ${directive}: ${err.message}`);
   }
 
   // 3) KV に古いキャッシュがあればそれを使う
   const stale = await kvBytes();
-  if (stale) return finish(parseStandardsFromXlsx(new Uint8Array(stale), directive), { meta, source: 'kv-stale', updateAvailable: false, added: [] });
+  if (stale) return finishWorkbook(new Uint8Array(stale), directive, { meta, source: 'kv-stale', updateAvailable: false, added: [] });
 
   // 4) リポジトリ同梱の Excel
   try {
     const bytes = await readAssetBytes(c, `/data/${directive}.xlsx`);
     let bundledMeta = null;
     try { bundledMeta = await readAssetJson(c, `/data/${directive}-meta.json`); } catch { /* optional */ }
-    return finish(parseStandardsFromXlsx(bytes, directive), { meta: bundledMeta, source: 'bundled', updateAvailable: false, added: [] });
+    return finishWorkbook(bytes, directive, { meta: bundledMeta, source: 'bundled', updateAvailable: false, added: [] });
   } catch (err) {
     console.error(`[standards] bundled xlsx failed for ${directive}: ${err.message}`);
   }
@@ -127,7 +128,13 @@ async function loadWithCache(c, directive, config, forceRefresh) {
   return finish(fb.standards || [], { meta: null, source: 'fallback', updateAvailable: false, added: [] });
 }
 
-function finish(standards, { meta, source, updateAvailable, added }) {
+function finishWorkbook(bytes, directive, options) {
+  const { standards, sourceUpdatedAt, sourceUpdatedKind } = parseStandardsWorkbook(bytes, directive);
+  return finish(standards, { ...options, sourceUpdatedAt, sourceUpdatedKind });
+}
+
+function finish(standards, { meta, source, updateAvailable, added, sourceUpdatedAt, sourceUpdatedKind }) {
+  const httpDate = Number.isFinite(Date.parse(meta?.httpLastModified)) ? new Date(meta.httpLastModified).toISOString() : null;
   return {
     standards,
     updateAvailable: !!updateAvailable,
@@ -136,6 +143,8 @@ function finish(standards, { meta, source, updateAvailable, added }) {
     source,
     lastModified: meta?.lastModified || null,
     lastChecked: meta?.checkedAt || null,
+    sourceUpdatedAt: sourceUpdatedAt || httpDate,
+    sourceUpdatedKind: sourceUpdatedKind || (httpDate ? 'http_last_modified' : null),
     lastUpdated: meta?.updatedAt || null,
     lastAdded: meta?.lastAdded || [],
   };
@@ -276,5 +285,5 @@ export async function downloadExcel(excelUrl, directive) {
   const filename = filenameFromResponse(res, excelUrl, directive);
   const bytes = new Uint8Array(await res.arrayBuffer());
   if (bytes.byteLength < 1000) throw new Error(`Downloaded file too small (${bytes.byteLength} bytes)`);
-  return { bytes, filename };
+  return { bytes, filename, lastModified: res.headers.get('last-modified') };
 }

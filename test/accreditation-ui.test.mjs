@@ -101,6 +101,53 @@ test('undated scopes use the renamed category beside caution in both languages',
   }
 });
 
+test('OJ shows its actual version prominently and explains which scope lacks an edition', () => {
+  for (const lang of ['ja', 'en']) {
+    const ui = view();
+    ui.context.fixture = buildScopeOjVersionCheck([{ certType: 'a2la', doc: { items: [{ standard: 'EN 302 065-2' }] } }], {
+      RED: [{ number: 'EN 302 065-2 V2.1.1 / Short Range Devices; Article 3(2)', title: '<script>unsafe title</script>' }],
+    }, '2026-09-13', { directive: 'RED' });
+    ui.context.fixture.sources = { oj: {}, catalog: { available: true } };
+    ui.run(`currentLanguage='${lang}'; renderEditionComparison(fixture);`);
+    const cell = [...ui.get('scope-oj-tbody').innerHTML.matchAll(/<td>([\s\S]*?)<\/td>/g)][3][1];
+    assert.ok(cell.includes('<strong>EN 302 065-2 V2.1.1</strong>'));
+    assert.ok(cell.includes(lang === 'ja' ? '認定スコープとの比較' : 'Scope comparison'));
+    assert.ok(cell.includes(lang === 'ja' ? '認定スコープに版数の記載がありません' : 'No edition in the accreditation scope'));
+    assert.match(cell, /scope-oj-status-confirmation/);
+    assert.ok(!cell.includes('<script>'));
+    assert.match(cell, /<details><summary>/);
+    ui.context.fixture.items[0].references[0].oj.checks[0].oj_designations = ['<script>alert(1)</script>'];
+    ui.run('renderEditionComparison(fixture);');
+    assert.ok(ui.get('scope-oj-tbody').innerHTML.includes('&lt;script&gt;'));
+  }
+});
+
+test('OJ source date display does not substitute collection time, including missing metadata', () => {
+  for (const lang of ['ja', 'en']) {
+    const ui = view();
+    ui.context.fixture = comparison();
+    ui.context.fixture.sources.oj = {
+      RED: { source_updated_at: '2026-09-07', source_updated_kind: 'xlsx_generated', last_checked: '2026-09-13T09:15:15Z' },
+      EMC: { source_updated_at: '2022-09-16T14:37:07.000Z', source_updated_kind: 'xlsx_modified', last_checked: '2026-09-13T09:15:21Z' },
+      LVD: { last_checked: '2026-09-13T09:15:23Z', last_modified: '2025-08-13T00:00:00Z' },
+    };
+    ui.run(`currentLanguage='${lang}'; renderEditionComparison(fixture);`);
+    const text = ui.get('scope-oj-sources').textContent;
+    assert.ok(text.includes('RED: 2026/09/07'));
+    assert.ok(text.includes('EMC: 2022/09/16'));
+    assert.ok(text.includes('LVD: ' + (lang === 'ja' ? '不明' : 'Unknown')));
+    assert.ok(!text.includes('2026/9/13') && !text.includes('09:15') && !text.includes('2025'));
+  }
+});
+
+test('Japanese app labels use the requested accreditation tab and certificate terminology', () => {
+  const ui = view();
+  assert.equal(ui.run("translations.ja['nav.iso17025_certificate']"), 'ISO 17025認可');
+  assert.equal(ui.run("translations.ja['certificate.number_label']"), '認可書番号:');
+  assert.equal(ui.run("translations.ja['quick.detail_open_pdf']"), '認可書PDFを開く');
+  assert.ok(!ui.run('Object.values(translations.ja).join(" ")').match(/認定書|認定証/));
+});
+
 test('withdrawal details support partial replacement and safe successor search; OJ selection clears the withdrawal filter', () => {
   const ui = view();
   const ref = parseStandardReferences('EN 55022:2010')[0];
@@ -269,7 +316,7 @@ test('cards load independently of a bulk check, translate and allow retry after 
   assert.equal(attempts, 1);
   assert.match(ui.get('accreditation-cards').innerHTML, /R009/);
   assert.match(ui.get('accreditation-cards').innerHTML, /&lt;Lab&gt;/);
-  assert.match(ui.get('accreditation-cards').innerHTML, /認定書番号/);
+  assert.match(ui.get('accreditation-cards').innerHTML, /認可書番号/);
   assert.match(ui.get('accreditation-cards').innerHTML, /href="\/certificates\/jab\.pdf"/);
   assert.equal(ui.run('scopeOjCheckData'), null);
   ui.run('switchLanguage("en");');
