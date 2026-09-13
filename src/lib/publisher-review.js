@@ -1,8 +1,9 @@
 import { inventoryOf, validateManual } from './catalog.js';
 import { editionLabel, parseStandardReferences } from './references.js';
 import { SEARCH_URLS } from './publishers.js';
+import { validateLifecycle, lifecycleState } from './publisher-lifecycle.js';
 
-export const REVIEW_SCHEMA = 1;
+export const REVIEW_SCHEMA = 2;
 export const PUBLISHED_BANNER_DAYS = 7;
 const DAY = 86400000;
 const SOURCE_HOSTS = {
@@ -25,6 +26,7 @@ export function publishedSet(record) {
     editionLabel({ base: e.edition.base, amendments: [...(e.edition.amendments || [])].sort(), corrections: [...(e.edition.corrections || [])].sort() })
   ))].sort();
 }
+export const publisherState = record => ({ published: publishedSet(record), ...lifecycleState(record) });
 export function providerSource(url, provider) {
   try {
     if (typeof url !== 'string' || url.length > 2048) return false;
@@ -42,6 +44,8 @@ export async function readReviewState(db) {
   const { results: rows } = await db.prepare('SELECT * FROM publisher_catalog ORDER BY reference_key').all();
   const { results: schema } = await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('publisher_review_runs','publisher_review_results','publisher_changes')").all();
   requireThat(schema.length === 3, 'Apply migration 0003 before running the weekly review');
+  const { results: contract } = await db.prepare('SELECT min_schema_version FROM publisher_review_contract WHERE id=1').all();
+  requireThat(contract[0]?.min_schema_version === REVIEW_SCHEMA, 'Apply migration 0004 / use the current publisher review CLI');
   const inventory = inventoryOf([{ doc: { items } }]).sort((a, b) => a.key.localeCompare(b.key));
   const recognized = new Set(inventory.flatMap(ref => [ref.key]));
   // Unknown source strings must remain visible to the researcher, never silently counted as checked.
@@ -49,17 +53,20 @@ export async function readReviewState(db) {
   return { certificates, inventory, rows, unresolved };
 }
 
-export async function createManifest(state, now = new Date().toISOString(), runId = crypto.randomUUID()) {
+export async function createManifest(state, now = new Date().toISOString(), runId = crypto.randomUUID(), targetKeys = null) {
+  requireThat(targetKeys === null || (Array.isArray(targetKeys) && targetKeys.length > 0
+    && new Set(targetKeys).size === targetKeys.length && targetKeys.every(key => state.inventory.some(ref => ref.key === key))), 'Unknown or duplicate target selection');
   const byKey = new Map(state.rows.map(row => [row.reference_key, row]));
   const targets = [];
   for (const ref of state.inventory) {
+    if (targetKeys && !targetKeys.includes(ref.key)) continue;
     const row = byKey.get(ref.key) || null;
     targets.push({ key: ref.key, reference: ref.designation, provider: ref.provider, scope_count: ref.scope_count,
       expected_hash: await digest(row), current: effectiveRecord(row), search_url: SEARCH_URLS[ref.provider]?.(ref) || null,
       allowed_hosts: SOURCE_HOSTS[ref.provider] || [] });
   }
   return { schema_version: REVIEW_SCHEMA, run_id: runId, started_at: now,
-    scope_hash: await digest(state.certificates), targets, unresolved_scope_strings: state.unresolved };
+    scope_hash: await digest(state.certificates), target_keys: targetKeys, targets, unresolved_scope_strings: state.unresolved };
 }
 
 function validDate(value, start, now) {
@@ -114,8 +121,10 @@ export function validateReport(manifest, input, now = new Date().toISOString()) 
     if (!editions.some(e => e.status === 'published')) {
       requireThat(result.no_current_published === true && editions.some(e => e.status === 'withdrawn'), 'A draft alone does not replace a Published edition');
     }
+    const lifecycle = validateLifecycle(result.lifecycle, { target, editions, evidence, checked_at: result.checked_at });
     const record = { key: target.key, designation: target.reference, provider: target.provider, source_url: evidence[0].url,
       checked_at: result.checked_at, origin: 'manual', verification_method: 'scheduled_review',
+      review_schema_version: REVIEW_SCHEMA, lifecycle,
       run_id: manifest.run_id, runner: input.runner.trim(), note: result.note.trim(), evidence, editions };
     return { key: result.key, outcome: 'verified', note: result.note.trim(), evidence, record };
   });
@@ -125,7 +134,7 @@ export function validateReport(manifest, input, now = new Date().toISOString()) 
 // Every mutation is compare-and-swap protected and run/result keys make retry idempotent.
 export async function buildReviewSql(state, manifest, input, now = new Date().toISOString()) {
   const results = validateReport(manifest, input, now);
-  const fresh = await createManifest(state, now, manifest.run_id);
+  const fresh = await createManifest(state, now, manifest.run_id, manifest.target_keys ?? null);
   requireThat(manifest.scope_hash === fresh.scope_hash, 'Current accreditation revisions changed; export again');
   const targets = new Map(fresh.targets.map(ref => [ref.key, ref]));
   requireThat(targets.size === manifest.targets.length && manifest.targets.every(ref => {
@@ -133,7 +142,7 @@ export async function buildReviewSql(state, manifest, input, now = new Date().to
     return current && current.reference === ref.reference && current.provider === ref.provider;
   }), 'Target inventory changed or manifest was modified');
   const rows = new Map(state.rows.map(row => [row.reference_key, row]));
-  const scopeGuard = `(SELECT COUNT(*) FROM certificates WHERE is_current=1)=${state.certificates.length} AND ` + state.certificates.map(cert =>
+  const scopeGuard = `(SELECT min_schema_version FROM publisher_review_contract WHERE id=1)=${REVIEW_SCHEMA} AND (SELECT COUNT(*) FROM certificates WHERE is_current=1)=${state.certificates.length} AND ` + state.certificates.map(cert =>
     `EXISTS(SELECT 1 FROM certificates WHERE id=${Number(cert.id)} AND cert_type=${q(cert.cert_type)} AND source_hash=${q(cert.source_hash)} AND is_current=1)`).join(' AND ');
   // target_count is NOT NULL: scope changes after the preflight abort the entire atomic import.
   const sql = [`INSERT INTO publisher_review_runs(run_id,started_at,completed_at,target_count,runner,report_hash) VALUES (${q(manifest.run_id)},${q(manifest.started_at)},${q(now)},CASE WHEN ${scopeGuard} THEN ${targets.size} ELSE NULL END,${q(input.runner)},${q(await digest(input))});`];
@@ -143,8 +152,9 @@ export async function buildReviewSql(state, manifest, input, now = new Date().to
     const row = rows.get(result.key) || null;
     let outcome = result.outcome === 'verified' ? 'unchanged' : 'unverified';
     if (target.expected_hash !== expected.expected_hash) outcome = 'conflict';
-    const oldSet = publishedSet(effectiveRecord(row)), newSet = publishedSet(result.record);
-    if (outcome === 'unchanged' && asJson(oldSet) !== asJson(newSet)) outcome = 'changed';
+    const oldState = publisherState(effectiveRecord(row)), newState = publisherState(result.record);
+    const oldSet = oldState.published, newSet = newState.published;
+    if (outcome === 'unchanged' && asJson(oldState) !== asJson(newState)) outcome = 'changed';
     summary[outcome]++;
     // Protect against writes arriving after the fresh read, including manual/API refreshes.
     const guard = row
@@ -155,7 +165,9 @@ export async function buildReviewSql(state, manifest, input, now = new Date().to
     if (!['changed','unchanged'].includes(outcome)) continue;
     const permitted = `EXISTS(SELECT 1 FROM publisher_review_results WHERE run_id=${q(manifest.run_id)} AND reference_key=${q(result.key)} AND outcome IN ('changed','unchanged'))`;
     const payload = asJson(result.record);
-    if (outcome === 'changed') sql.push(`INSERT INTO publisher_changes(run_id,reference_key,designation,before_json,after_json,source_url,detected_at) SELECT ${q(manifest.run_id)},${q(result.key)},${q(target.reference)},${q(asJson(oldSet))},${q(asJson(newSet))},${q(result.record.source_url)},${q(now)} WHERE ${permitted};`);
+    const changeKind = oldState.status !== newState.status ? 'status'
+      : asJson({ ...oldState, published: [] }) !== asJson({ ...newState, published: [] }) ? 'replacement' : 'edition';
+    if (outcome === 'changed') sql.push(`INSERT INTO publisher_changes(run_id,reference_key,designation,before_json,after_json,source_url,detected_at,before_state_json,after_state_json,change_kind) SELECT ${q(manifest.run_id)},${q(result.key)},${q(target.reference)},${q(asJson(oldSet))},${q(asJson(newSet))},${q(result.record.source_url)},${q(now)},${q(asJson(oldState))},${q(asJson(newState))},${q(changeKind)} WHERE ${permitted};`);
     sql.push(`INSERT INTO publisher_catalog(reference_key,designation,provider,manual_json,source_url,checked_at,attempted_at,error,next_check_at)
       SELECT ${q(result.key)},${q(target.reference)},${q(target.provider)},${q(payload)},${q(result.record.source_url)},${q(result.record.checked_at)},${q(now)},NULL,${q(new Date(Date.parse(now)+7*DAY).toISOString())} WHERE ${permitted}
       ON CONFLICT(reference_key) DO UPDATE SET designation=excluded.designation,provider=excluded.provider,manual_json=excluded.manual_json,source_url=excluded.source_url,checked_at=excluded.checked_at,attempted_at=excluded.attempted_at,error=NULL,next_check_at=excluded.next_check_at;`);
@@ -172,5 +184,7 @@ export async function recentPublisherChanges(db, now = new Date().toISOString(),
   const { results } = await db.prepare('SELECT * FROM publisher_changes WHERE detected_at>?1 AND detected_at<=?2 ORDER BY detected_at DESC,id DESC').bind(since, now).all();
   return { banner_days: days, items: results.map(row => ({ id: row.id, key: row.reference_key, designation: row.designation,
     before: JSON.parse(row.before_json), after: JSON.parse(row.after_json), source_url: row.source_url,
+    before_state: row.before_state_json ? JSON.parse(row.before_state_json) : null,
+    after_state: row.after_state_json ? JSON.parse(row.after_state_json) : null, change_kind: row.change_kind || 'edition',
     detected_at: row.detected_at, expires_at: new Date(Date.parse(row.detected_at) + days * DAY).toISOString() })) };
 }

@@ -1,4 +1,5 @@
 import { parseStandardReferences, compareVersions, unique, coversEdition, mergeEditions } from './references.js';
+import { isWithdrawnRecord } from './publisher-lifecycle.js';
 
 export const compareEditionVersions = compareVersions;
 export const normalizeOjNumber = value => String(value || '').replace(/\s*,?\s*[\r\n]+\s*/g, ' / ').trim();
@@ -11,7 +12,7 @@ export function isActiveOjEntry(entry, today) {
 export function assessEditions(ref, targets, kind = 'oj') {
   if (ref.edition_unparsed || targets.some(t => t.edition_unparsed)) return { status: 'unverified', reason: 'version_not_comparable' };
   if (kind === 'oj' && targets.some(t => !t.editions.length)) return { status: 'valid', reason: 'oj_version_unavailable' };
-  if (!ref.editions.length) return { status: 'caution', reason: 'scope_version_missing' };
+  if (!ref.editions.length) return { status: 'confirmation', reason: 'scope_version_missing' };
   const editions = targets.flatMap(t => t.editions);
   if (!editions.length) return { status: 'unverified', reason: 'version_not_comparable' };
   for (const e of editions) {
@@ -56,16 +57,20 @@ export function checkScopeAgainstOj(scopeStandard, ojEntries, today) {
 }
 
 export function aggregateChecks(checks) {
-  const order = ['warning', 'unverified', 'caution', 'valid', 'not_listed'];
+  const order = ['withdrawn', 'warning', 'unverified', 'caution', 'confirmation', 'valid', 'not_listed'];
   for (const status of order) {
     const found = checks.find(c => c.status === status);
-    if (found) return { status, reason: found.reason };
+    if (found) return { status, reason: found.reason, ...(status === 'withdrawn' ? {
+      partial_withdrawal: checks.some(c => c.status !== 'withdrawn'),
+    } : {}) };
   }
   return { status: 'unverified', reason: 'reference_unknown' };
 }
 
 export function checkPublished(ref, record, today) {
   const base = { record: record || null };
+  if (isWithdrawnRecord(record, today)) return { ...base, status: 'withdrawn',
+    reason: 'publisher_withdrawn_' + record.lifecycle.replacement_status, lifecycle: record.lifecycle };
   if (!record?.editions?.length) return { ...base, status: 'unverified', reason: record?.error ? 'fetch_failed' : 'catalog_missing' };
   const current = record.editions.filter(e => e.status === 'published' && (!e.publication_date || e.publication_date <= today));
   if (!current.length) return { ...base, status: 'unverified', reason: 'published_missing' };
@@ -86,7 +91,7 @@ export function checkPublished(ref, record, today) {
   } : {}) };
 }
 
-const counts = checks => Object.fromEntries(['valid', 'warning', 'caution', 'not_listed', 'unverified'].map(s => [s, checks.filter(c => c.status === s).length]));
+const counts = checks => Object.fromEntries(['valid', 'warning', 'caution', 'confirmation', 'not_listed', 'unverified', 'withdrawn'].map(s => [s, checks.filter(c => c.status === s).length]));
 
 export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, today = new Date().toISOString().slice(0, 10), options = {}) {
   const index = new Map();
@@ -110,7 +115,13 @@ export function buildScopeOjVersionCheck(scopeDocuments, standardsByDirective, t
           return { directive: d, ...checkScopeAgainstOj(ref, entries, today) };
         });
         const relevant = checks.filter(c => c.status !== 'not_listed');
-        return { ...ref, oj: { ...aggregateChecks(relevant.length ? relevant : checks), checks }, published: checkPublished(ref, catalog.get(ref.key), today) };
+        const published = checkPublished(ref, catalog.get(ref.key), today);
+        if (published.status === 'withdrawn') published.replacements = published.lifecycle.replacements.map(replacement => ({
+          ...replacement,
+          // Resolve one link only: never treat a successor as an accredited equivalent or follow cycles.
+          published: checkPublished(parseStandardReferences(replacement.reference)[0], catalog.get(replacement.key), today),
+        }));
+        return { ...ref, oj: { ...aggregateChecks(relevant.length ? relevant : checks), checks }, published };
       });
       const oj = aggregateChecks(references.map(r => r.oj));
       const published = aggregateChecks(references.map(r => r.published));

@@ -10,14 +10,14 @@ test('OJ without an edition makes any accreditation edition valid', () => {
   assert.equal(result.reason, 'oj_version_unavailable');
 });
 
-test('older accreditation edition is warned and missing edition is cautioned', () => {
+test('older accreditation edition is warned and missing edition needs confirmation', () => {
   const oj = [active('EN 12345:2015')];
   const old = checkScopeAgainstOj('EN 12345:2010', oj, '2026-09-12');
   assert.equal(old.status, 'warning');
   assert.equal(old.reason, 'scope_version_old');
 
   const missing = checkScopeAgainstOj('EN 12345', oj, '2026-09-12');
-  assert.equal(missing.status, 'caution');
+  assert.equal(missing.status, 'confirmation');
   assert.equal(missing.reason, 'scope_version_missing');
 });
 

@@ -61,12 +61,14 @@ test('summary buttons apply the same filter as the dropdown and retain other fil
     ui.context.fixture = comparison();
     ui.run(`currentLanguage = '${lang}'; scopeOjCheckData = fixture; renderEditionComparison(fixture);`);
     const summary = ui.get('scope-oj-summary');
-    assert.equal((summary.innerHTML.match(/<button type="button"/g) || []).length, 5);
+    assert.equal((summary.innerHTML.match(/<button type="button"/g) || []).length, 7);
     const allCards = summary.innerHTML;
+    assert.deepEqual([...allCards.matchAll(/data-scope-status="([^"]+)"/g)].map(m => m[1]), ['valid','warning','caution','confirmation','not_listed','unverified','withdrawn']);
+    assert.ok(allCards.includes(lang === 'ja' ? '版情報なし' : 'No scope edition'));
     const accreditationKey = ui.run('scopeAccreditationKey(fixture.items[2])');
     ui.get('scope-oj-accreditation').value = accreditationKey;
     ui.get('scope-oj-search').value = 'IEC';
-    for (const status of ['valid', 'warning', 'caution', 'not_listed', 'unverified']) {
+    for (const status of ['valid', 'warning', 'caution', 'confirmation', 'not_listed', 'unverified', 'withdrawn']) {
       summary.listeners.click({ target: { closest: () => ({ dataset: { scopeStatus: status } }) } });
       assert.equal(ui.get('scope-oj-status-filter').value, status);
       assert.match(summary.innerHTML, new RegExp(`data-scope-status="${status}" aria-pressed="true"`));
@@ -82,6 +84,44 @@ test('summary buttons apply the same filter as the dropdown and retain other fil
     assert.ok(!summary.innerHTML.includes('aria-pressed="true"'));
     assert.ok(allCards.includes('scope-oj-summary-caution'));
   }
+});
+
+test('undated scopes use the renamed category beside caution in both languages', () => {
+  assert.match(html, /value="caution"[^]*?<\/option>\s*<option value="confirmation"/);
+  for (const lang of ['ja','en']) {
+    const ui = view();
+    const record = { key: 'IEC:61326-1', checked_at: '2026-09-13T00:00:00Z', editions: [{designation:'IEC 61326-1:2020', edition:parseStandardReferences('IEC 61326-1:2020')[0].editions[0],status:'published'}] };
+    ui.context.fixture = buildScopeOjVersionCheck([{certType:'jab',doc:{items:[{standard:'IEC 61326-1'}]}}],{},'2026-09-13',{catalog:[record]});
+    ui.context.fixture.sources = {oj:{},catalog:{available:true}};
+    ui.run(`currentLanguage='${lang}'; scopeOjCheckData=fixture; renderEditionComparison(fixture);`);
+    ui.get('scope-oj-summary').listeners.click({target:{closest:()=>({dataset:{scopeStatus:'confirmation'}})}});
+    assert.match(ui.get('scope-oj-tbody').innerHTML, /scope-oj-status-confirmation/);
+    assert.ok(ui.get('scope-oj-tbody').innerHTML.includes(lang === 'ja' ? '版情報なし' : 'No scope edition'));
+    assert.match(ui.get('scope-oj-summary').innerHTML, /scope-oj-summary-confirmation[^]*?<strong>1<\/strong>/);
+  }
+});
+
+test('withdrawal details support partial replacement and safe successor search; OJ selection clears the withdrawal filter', () => {
+  const ui = view();
+  const ref = parseStandardReferences('EN 55022:2010')[0];
+  const record = {key:ref.key,checked_at:'2026-09-13T00:00:00Z',review_schema_version:2,
+    editions:[{designation:'EN 55022:2010',edition:ref.editions[0],status:'withdrawn'}],
+    lifecycle:{status:'withdrawn',withdrawal_confirmed:true,withdrawal_date:null,replacement_status:'known',source_url:'https://standards.cencenelec.eu/',replacements:[
+      {key:'EN:55032',reference:'EN 55032',relation:'partial',cited_edition:'2012',note:'<script>partial coverage</script>',source_url:'https://standards.cencenelec.eu/'}]}};
+  ui.context.fixture=buildScopeOjVersionCheck([{certType:'jab',doc:{items:[{standard:'EN 55022:2010'}]}}],{EMC:[{number:'EN 55022:2010'}]},'2026-09-13',{directive:'EMC',catalog:[record]});
+  ui.context.fixture.sources = {oj:{},catalog:{available:true}};
+  ui.get('scope-oj-search').value='EN 55032';
+  ui.run('scopeOjCheckData=fixture; renderEditionComparison(fixture);');
+  ui.get('scope-oj-summary').listeners.click({target:{closest:()=>({dataset:{scopeStatus:'withdrawn'}})}});
+  const body=ui.get('scope-oj-tbody').innerHTML;
+  for(const text of ['廃止','EN 55032','2012','&lt;script&gt;']) assert.ok(body.includes(text),text);
+  assert.ok(!body.includes('<script>'));
+  ui.get('scope-oj-basis').value='oj';
+  ui.run('renderEditionComparison(fixture);');
+  assert.equal(ui.get('scope-oj-status-filter').value,'all');
+  assert.equal(ui.get('scope-oj-filter-withdrawn').disabled,true);
+  assert.equal(ui.get('scope-oj-filter-withdrawn').hidden,true);
+  assert.ok(!ui.get('scope-oj-summary').innerHTML.includes('data-scope-status="withdrawn"'));
 });
 
 test('scope detail shows escaped certificate notes, category restrictions and revision', () => {

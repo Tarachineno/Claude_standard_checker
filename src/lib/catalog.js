@@ -1,6 +1,9 @@
 import { parseStandardReferences, parseEditions, editionLabel } from './references.js';
 import { fetchPublisher, officialUrl, SEARCH_URLS, AUTOMATIC_PROVIDERS } from './publishers.js';
 import { loadScopeDocument, CERT_TYPES } from './scopes.js';
+import { isWithdrawnRecord } from './publisher-lifecycle.js';
+import { checkPublished } from './scope-oj.js';
+import { adminAudit } from './catalog-auth.js';
 
 export function inventoryOf(documents) {
   const refs = new Map();
@@ -18,6 +21,17 @@ export async function loadCatalog(c) {
   if (!c.env.DB) return { available: false, error: 'Catalogue database is not configured', records: [] };
   try {
     const { results } = await c.env.DB.prepare('SELECT * FROM publisher_catalog ORDER BY reference_key').all();
+    let reviewAttempts = new Map();
+    // Older installations remain readable before the additive review migrations.
+    const { results: tables } = await c.env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='publisher_review_results'").all();
+    if (tables.length) {
+      const { results: attempts } = await c.env.DB.prepare(`SELECT reference_key,outcome,reason,completed_at FROM (
+        SELECT r.reference_key,r.outcome,r.reason,u.completed_at,
+          ROW_NUMBER() OVER (PARTITION BY r.reference_key ORDER BY u.completed_at DESC,u.run_id DESC) AS position
+        FROM publisher_review_results r JOIN publisher_review_runs u ON u.run_id=r.run_id
+      ) WHERE position=1`).all();
+      reviewAttempts = new Map(attempts.map(attempt => [attempt.reference_key, attempt]));
+    }
     return { available: true, records: results.map(row => {
       const auto = row.auto_json ? JSON.parse(row.auto_json) : null;
       const manual = row.manual_json ? JSON.parse(row.manual_json) : null;
@@ -26,6 +40,7 @@ export async function loadCatalog(c) {
         origin: manual?.verification_method === 'scheduled_review' ? 'review' : manual ? 'manual' : 'automatic', error: manual ? null : row.error,
         automatic_error: row.error, attempted_at: row.attempted_at, next_check_at: row.next_check_at,
         automatic: manual ? auto : null,
+        latest_review: reviewAttempts.get(row.reference_key) || null,
       };
     }) };
   } catch (err) {
@@ -54,7 +69,9 @@ export function validateManual(input, now = new Date().toISOString()) {
     checked_at: now, origin: 'manual', note: input.note.trim(), editions: [{ designation: ref.designation + ':' + editionLabel(edition), edition, status, publication_date: date, source_url: input.source_url }] };
 }
 
-export async function saveManual(db, record) {
+export async function saveManual(db, record, actor = null) {
+  const old = await db.prepare('SELECT manual_json,auto_json FROM publisher_catalog WHERE reference_key=?1').bind(record.key).first();
+  if (old && isWithdrawnRecord(JSON.parse(old.manual_json || old.auto_json || 'null'))) throw new Error('Use the lifecycle review workflow to change a withdrawn reference');
   const payload = JSON.stringify(record);
   await db.batch([
     db.prepare(`INSERT INTO publisher_catalog(reference_key, designation, provider, manual_json, source_url) VALUES (?1,?2,?3,?4,?5)
@@ -62,6 +79,7 @@ export async function saveManual(db, record) {
       .bind(record.key, record.designation, record.provider, payload, record.source_url),
     db.prepare(`INSERT INTO publisher_catalog_history(reference_key, origin, payload_json, recorded_at) VALUES (?1,'manual',?2,?3)`)
       .bind(record.key, payload, record.checked_at),
+    ...adminAudit(db, actor, record.key, 'manual', record.checked_at),
   ]);
 }
 
@@ -86,6 +104,10 @@ export async function syncCatalog(c, { keys, limit = 5, force = false } = {}) {
       .sort((a, b) => a.next_check_at.localeCompare(b.next_check_at)).slice(0, Math.min(10, Math.max(1, limit)));
     const results = [];
     for (const record of chosen) {
+      if (isWithdrawnRecord(record)) {
+        results.push({ key: record.key, success: false, error: 'Use the lifecycle review workflow for withdrawal and replacement verification' });
+        continue;
+      }
       const ref = byKey.get(record.key) || parseStandardReferences(record.designation)[0];
       if (!ref) continue;
       const attempted = new Date().toISOString();
@@ -115,5 +137,11 @@ export async function syncCatalog(c, { keys, limit = 5, force = false } = {}) {
 
 export function withSearchLinks(inventory, records) {
   const map = new Map(records.map(r => [r.key, r]));
-  return inventory.map(ref => ({ ...ref, automatic_supported: AUTOMATIC_PROVIDERS.includes(ref.provider), search_url: SEARCH_URLS[ref.provider]?.(ref) || null, record: map.get(ref.key) || null }));
+  return inventory.map(ref => {
+    const record = map.get(ref.key);
+    return { ...ref, automatic_supported: AUTOMATIC_PROVIDERS.includes(ref.provider), search_url: SEARCH_URLS[ref.provider]?.(ref) || null,
+      record: isWithdrawnRecord(record) ? { ...record, replacement_checks: record.lifecycle.replacements.map(replacement => ({
+        ...replacement, published: checkPublished(parseStandardReferences(replacement.reference)[0], map.get(replacement.key), new Date().toISOString().slice(0, 10)),
+      })) } : record || null };
+  });
 }

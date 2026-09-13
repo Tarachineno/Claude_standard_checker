@@ -679,6 +679,11 @@ main {
 .scope-oj-summary-caution { background: #ef8b00; }
 .scope-oj-summary-not_listed { background: #687783; }
 .scope-oj-summary-unverified { background: #526173; }
+.scope-oj-summary-withdrawn, .scope-oj-status-withdrawn { background: #6b4176; }
+.scope-oj-summary-confirmation, .scope-oj-status-confirmation { background: #176882; }
+.publisher-replacement { border-left: 3px solid #95709f; padding-left: .7rem; margin: .7rem 0; overflow-wrap: anywhere; }
+.publisher-replacement a { display: block; margin-top: .3rem; }
+.scope-oj-partial { color: #6b4176; font-weight: 700; }
 
 .scope-oj-controls {
     display: flex;
@@ -802,6 +807,8 @@ main {
 .catalog-table .catalog-error { color: #a12a25; }
 .catalog-admin { margin: 1.5rem 0; padding: 1.2rem; background: #f4f8fd; border: 1px solid #ccdbea; border-radius: 8px; }
 .catalog-admin summary { cursor: pointer; font-weight: 600; }
+.catalog-admin [hidden] { display: none !important; }
+.catalog-admin #catalog-token-fields input { margin: .4rem .7rem; }
 .catalog-admin > p { line-height: 1.6; margin: .9rem 0; }
 .catalog-admin > input { margin: .4rem .7rem; }
 #catalog-manual-form { display: grid; grid-template-columns: minmax(130px, 200px) minmax(0, 1fr); gap: .8rem; align-items: center; max-width: 850px; margin: 1.2rem 0; }

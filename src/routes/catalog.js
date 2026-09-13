@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
 import { ok, fail } from '../lib/http.js';
 import { CERT_TYPES, loadScopeDocument } from '../lib/scopes.js';
-import { inventoryOf, loadCatalog, withSearchLinks, validateManual, saveManual, syncCatalog } from '../lib/catalog.js';
+import { inventoryOf, loadCatalog, withSearchLinks, validateManual, saveManual } from '../lib/catalog.js';
 import { recentPublisherChanges } from '../lib/publisher-review.js';
+import { isWithdrawnRecord } from '../lib/publisher-lifecycle.js';
+import { CATALOG_ORIGIN, catalogAuthMode, accessConfiguration, accessIdentity, adminAudit } from '../lib/catalog-auth.js';
 
 const app = new Hono();
 app.get('/catalog/changes', async c => {
@@ -20,9 +22,41 @@ async function authorize(c) {
   return new Uint8Array(a).reduce((diff, byte, i) => diff | (byte ^ new Uint8Array(b)[i]), 0) === 0;
 }
 async function requireAdmin(c, next) {
+  const mode = catalogAuthMode(c.env);
+  if (mode === 'access') {
+    try { accessConfiguration(c.env); } catch { return fail(c, 503, 'Catalogue email authentication is not configured'); }
+    if (new URL(c.req.url).origin !== CATALOG_ORIGIN || c.req.header('Origin') !== CATALOG_ORIGIN
+      || (c.req.header('Sec-Fetch-Site') && c.req.header('Sec-Fetch-Site') !== 'same-origin')
+      || !/^application\/json(?:\s*;|$)/i.test(c.req.header('Content-Type') || '')) return fail(c, 403, 'Same-origin JSON request required');
+    const actor = await accessIdentity(c);
+    if (!actor) return fail(c, 401, 'Sign in with your @sgs.com email');
+    c.set('catalogActor', actor);
+    return next();
+  }
+  if (mode !== 'token') return fail(c, 503, 'Unknown catalogue authentication mode');
   if (!await authorize(c)) return fail(c, 401, 'Catalogue administration key required');
   return next();
 }
+
+app.get('/catalog/auth', async c => {
+  c.header('Cache-Control', 'no-store');
+  c.header('Vary', 'Cookie, Cf-Access-Jwt-Assertion');
+  const mode = catalogAuthMode(c.env);
+  if (mode === 'token') return c.json({success:true,data:{mode, user:null}});
+  if (mode !== 'access') return c.json({success:false,error:'Unknown catalogue authentication mode'},503);
+  try {
+    const user = await accessIdentity(c);
+    return c.json({success:true,data:{mode,user,login_url:CATALOG_ORIGIN+'/api/catalog/login',logout_url:CATALOG_ORIGIN+'/cdn-cgi/access/logout'}});
+  } catch { return c.json({success:false,error:'Catalogue email authentication is not configured'},503); }
+});
+app.get('/catalog/login', async c => {
+  c.header('Cache-Control','no-store');
+  if (catalogAuthMode(c.env) !== 'access') return c.text('Email login is not enabled.',503);
+  try {
+    if (!await accessIdentity(c)) return c.text('Email sign-in required. Check the Cloudflare Access policy for this login path.',401);
+    return c.redirect(CATALOG_ORIGIN+'/?catalog-login=1');
+  } catch { return c.text('Email login is not configured.',503); }
+});
 async function bodyOf(c) {
   const text = await c.req.text();
   if (text.length > 16000) throw new Error('Request too large');
@@ -34,7 +68,7 @@ async function bodyOf(c) {
 app.get('/catalog', async c => {
   const docs = await Promise.all(CERT_TYPES.map(async certType => ({ certType, ...await loadScopeDocument(c, certType) })));
   const catalog = await loadCatalog(c);
-  return ok(c, { available: catalog.available, error: catalog.error, admin_configured: !!c.env.CATALOG_ADMIN_TOKEN,
+  return ok(c, { available: catalog.available, error: catalog.error, admin_configured: catalogAuthMode(c.env) === 'access' ? !!c.env.CATALOG_ACCESS_AUD : !!c.env.CATALOG_ADMIN_TOKEN,
     items: withSearchLinks(inventoryOf(docs), catalog.records) });
 });
 
@@ -42,18 +76,16 @@ app.post('/catalog/manual', requireAdmin, async c => {
   let record;
   try { record = validateManual(await bodyOf(c)); } catch (err) { return fail(c, 400, err.message); }
   if (!c.env.DB) return fail(c, 503, 'Catalogue database is not configured');
-  await saveManual(c.env.DB, record);
+  try { await saveManual(c.env.DB, record, c.get('catalogActor')); }
+  catch (error) {
+    if (error.message.includes('lifecycle review workflow')) return fail(c, 409, 'Use the lifecycle review workflow to change a withdrawn reference');
+    throw error;
+  }
   return ok(c, record);
 });
 
-app.post('/catalog/refresh', requireAdmin, async c => {
-  let body;
-  try { body = await bodyOf(c); } catch (err) { return fail(c, 400, err.message); }
-  if (body.keys && (!Array.isArray(body.keys) || body.keys.length > 10 || body.keys.some(k => typeof k !== 'string' || k.length > 150))) return fail(c, 400, 'Provide up to 10 reference keys');
-  if (body.force && !body.keys?.length) return fail(c, 400, 'Force refresh requires explicit keys');
-  try { return ok(c, await syncCatalog(c, { keys: body.keys, force: !!body.force, limit: 3 })); }
-  catch (err) { return fail(c, 503, err.message); }
-});
+// Old pages and direct callers must not start the retired single-shot writer.
+app.post('/catalog/refresh', c => fail(c, 410, 'Single-shot refresh is retired. Use the scheduled publisher review workflow.'));
 
 app.post('/catalog/clear-manual', requireAdmin, async c => {
   let body;
@@ -62,9 +94,11 @@ app.post('/catalog/clear-manual', requireAdmin, async c => {
   if (!c.env.DB) return fail(c, 503, 'Catalogue database is not configured');
   const old = await c.env.DB.prepare('SELECT manual_json FROM publisher_catalog WHERE reference_key=?1').bind(body.key).first();
   if (!old?.manual_json) return fail(c, 404, 'No manual override');
+  if (isWithdrawnRecord(JSON.parse(old.manual_json))) return fail(c, 409, 'Use the lifecycle review workflow to change a withdrawn reference');
   await c.env.DB.batch([
     c.env.DB.prepare('UPDATE publisher_catalog SET manual_json=NULL WHERE reference_key=?1').bind(body.key),
     c.env.DB.prepare("INSERT INTO publisher_catalog_history(reference_key,origin,payload_json,recorded_at) VALUES (?1,'clear_manual',?2,?3)").bind(body.key, old.manual_json, new Date().toISOString()),
+    ...adminAudit(c.env.DB, c.get('catalogActor'), body.key, 'clear_manual', new Date().toISOString()),
   ]);
   return ok(c, { key: body.key });
 });

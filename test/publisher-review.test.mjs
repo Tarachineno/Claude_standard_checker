@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
-import { createManifest, readReviewState, validateReport, buildReviewSql, publishedSet, recentPublisherChanges, providerSource } from '../src/lib/publisher-review.js';
+import { createManifest, readReviewState, validateReport, buildReviewSql, publishedSet, recentPublisherChanges, providerSource, REVIEW_SCHEMA } from '../src/lib/publisher-review.js';
 import { validateManual, loadCatalog } from '../src/lib/catalog.js';
 import app from '../src/index.js';
 import { env } from './helpers.mjs';
@@ -11,7 +11,7 @@ const START = '2026-09-13T00:00:00.000Z', CHECK = '2026-09-13T00:10:00.000Z', NO
 const source = 'https://webstore.iec.ch/en/publication/test';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
-  for (const file of ['0001_init.sql','0002_publisher_catalog.sql','0003_publisher_reviews.sql']) sqlite.exec(readFileSync(new URL('../migrations/' + file, import.meta.url), 'utf8'));
+  for (const file of ['0001_init.sql','0002_publisher_catalog.sql','0003_publisher_reviews.sql','0004_publisher_lifecycle.sql']) sqlite.exec(readFileSync(new URL('../migrations/' + file, import.meta.url), 'utf8'));
   const db = { sqlite, prepare(sql) {
     const statement = sqlite.prepare(sql); let params = {};
     return { bind(...values) { params = Object.fromEntries(values.map((v, i) => [String(i + 1), v])); return this; },
@@ -25,7 +25,7 @@ function database() {
   return db;
 }
 function report(manifest, edition = '2024') {
-  return { schema_version: 1, run_id: manifest.run_id, runner: 'test-executor', results: manifest.targets.map(target => ({
+  return { schema_version: REVIEW_SCHEMA, run_id: manifest.run_id, runner: 'test-executor', results: manifest.targets.map(target => ({
     key: target.key, expected_hash: target.expected_hash, outcome: 'verified', checked_at: CHECK, coverage: 'current_published_set',
     source_reference: target.reference,
     note: 'Confirmed current catalogue and full edition status list',
@@ -173,6 +173,9 @@ test('withdrawal requires explicit evidence; semantic comparison includes amendm
     const input = report(manifest, '2020'); input.results[0].editions[0].status = 'withdrawn';
     assert.throws(() => validateReport(manifest, input, NOW));
     input.results[0].no_current_published = true;
+    assert.throws(() => validateReport(manifest, input, NOW), /lifecycle/);
+    input.results[0].lifecycle = { status: 'withdrawn', withdrawal_confirmed: true, withdrawal_date: null,
+      replacement_status: 'unknown', replacements: [], source_url: source };
     assert.equal(validateReport(manifest, input, NOW).length, 1);
     const record = { editions: [{ status: 'published', edition: { base: '2020', amendments: ['A2:2024','A1:2021'], corrections: [] } }] };
     const reordered = structuredClone(record); reordered.editions[0].edition.amendments.reverse();

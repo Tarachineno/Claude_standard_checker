@@ -9,6 +9,9 @@ const script = readFileSync(new URL('../static/catalog.js', import.meta.url), 'u
 
 test('official portal search follows catalogue management and precedes additional publishers', () => {
   const html = readFileSync(new URL('../static/index.html', import.meta.url), 'utf8');
+  assert.ok(!html.includes('catalog-refresh-btn'));
+  assert.ok(!script.includes('data-catalog-refresh'));
+  assert.ok(!script.includes("catalogWrite('refresh'"));
   const searchTab = html.match(/<section id="search-tab"[\s\S]*?<\/section>/)?.[0];
   assert.ok(searchTab, 'official search tab exists');
   const markers = [

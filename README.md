@@ -99,7 +99,9 @@ npm test                 # ロジックと API の自動テスト（Node.js 22.1
 - Published版の差分だけを検知から7日間、全タブ共通のお知らせに表示します。同じ版の再確認では通知を延長しません。取得失敗時・競合時は既存台帳を保持し、巡回記録に理由を残します。未確認を確認済みにはしません。
 - 巡回・変更通知のテーブルは`0003_publisher_reviews.sql`で追加します。既存のスコープ・版台帳を再シードしません。CLIは本番D1を直接読み書きし、Web側に新しい書込みAPIや秘密鍵は追加しません。
 
-本番適用順序・管理キー設定・制約は [版情報の運用ヘルプ](static/data/CATALOG_HELP.md) を参照してください。公開APIは `GET /api/catalog`、`GET /api/catalog/history?key=EN:61326-1`、`GET /api/scope-oj-version-check?directive=EMC`。書込み用の `/api/catalog/manual`・`/refresh`・`/clear-manual` は `Authorization: Bearer <CATALOG_ADMIN_TOKEN>` を必須とします。
+本番適用順序・管理キー設定・制約は [版情報の運用ヘルプ](static/data/CATALOG_HELP.md) を参照してください。公開APIは `GET /api/catalog`、`GET /api/catalog/history?key=EN:61326-1`、`GET /api/scope-oj-version-check?directive=EMC`。書込み用の `/api/catalog/manual`・`/clear-manual` は `Authorization: Bearer <CATALOG_ADMIN_TOKEN>` を必須とします。単発の `/api/catalog/refresh` は廃止し、410を返します。週次巡回はschema v2で廃止・後継関係も検証し、認定スコープやOJの状態とは別に表示します。
+
+メール認証の対応コードは、[Cloudflare Accessへの切替手順](docs/catalog-email-auth.md)に従って有効化できます。未設定時は上記の管理キー方式を維持します。Accessモードでは共有キーを受け付けず、本人確認済み`@sgs.com`ユーザーだけが編集でき、編集者を非公開の操作記録に残します。
 
 ### 認定スコープ（JAB / A2LA）の更新手順
 

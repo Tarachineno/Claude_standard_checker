@@ -75,10 +75,12 @@ test('refresh retains last success after network failure, releases lock, and hon
     assert.equal((await syncCatalog(c)).busy, true);
   } finally { clearScopeCache(); DB.sqlite.close(); }
 });
-test('refresh input is bounded and force requires explicit references', async () => {
-  const bindings = { ...env, CATALOG_ADMIN_TOKEN: 'key' };
-  assert.equal((await call(bindings, '/refresh', { force: true }, 'key')).status, 400);
-  assert.equal((await call(bindings, '/refresh', { keys: Array(11).fill('EN:1') }, 'key')).status, 400);
+test('retired refresh rejects both authenticated and unauthenticated callers without reading or writing D1', async () => {
+  const bindings = { ...env, CATALOG_ADMIN_TOKEN: 'key', DB: { prepare() { assert.fail('retired API accessed D1'); } } };
+  for (const token of [undefined, 'key']) {
+    assert.equal((await call(bindings, '/refresh', { force: true }, token)).status, 410);
+    assert.equal((await call(bindings, '/refresh', { keys: ['EN:1'] }, token)).status, 410);
+  }
   assert.equal((await app.request('/api/scope-oj-version-check?directive=wrong', {}, env)).status, 400);
 });
 

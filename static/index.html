@@ -223,10 +223,12 @@
                     <p id="catalog-message" role="status"></p>
                     <div class="table-wrap"><table class="catalog-table"><thead><tr><th data-i18n="catalog.reference">Reference</th><th data-i18n="catalog.edition">Published edition</th><th data-i18n="catalog.checked">Last verified / source</th><th data-i18n="catalog.actions">Actions</th></tr></thead><tbody id="catalog-tbody"></tbody></table></div>
                     <details id="catalog-admin" class="catalog-admin">
-                        <summary data-i18n="catalog.admin">Refresh / manually verify editions</summary>
-                        <p data-i18n="catalog.admin_help">An administration key is required to save changes. It is kept only in this page.</p>
-                        <label for="catalog-token" data-i18n="catalog.token">Administration key</label><input id="catalog-token" type="password" autocomplete="off" />
-                        <button id="catalog-refresh-btn" class="btn btn-small" data-i18n="catalog.refresh_batch">Refresh next 3 references</button>
+                        <summary data-i18n="catalog.admin">Manual verification / correction</summary>
+                        <p id="catalog-auth-help" data-i18n="catalog.admin_help">An administration key is required to save changes. It is kept only in this page.</p>
+                        <div id="catalog-token-fields"><label for="catalog-token" data-i18n="catalog.token">Administration key</label><input id="catalog-token" type="password" autocomplete="off" /></div>
+                        <p id="catalog-auth-user" role="status"></p>
+                        <a id="catalog-login" class="btn btn-small" hidden data-i18n="catalog.email_login">Sign in with @sgs.com</a>
+                        <a id="catalog-logout" class="btn btn-small btn-outline" hidden data-i18n="catalog.email_logout">Sign out</a>
                         <form id="catalog-manual-form">
                             <label for="catalog-reference" data-i18n="catalog.reference">Reference</label><input id="catalog-reference" required placeholder="EN 61326-1" maxlength="150" />
                             <label for="catalog-edition" data-i18n="catalog.edition_input">Edition including amendments / corrigenda</label><input id="catalog-edition" required placeholder="2013 / V2.2.2 / Issue 6 / 2015+A1:2020" maxlength="150" />
@@ -321,8 +323,10 @@
                             <option value="valid" data-i18n="scope_oj.filter_valid">Valid</option>
                             <option value="warning" data-i18n="scope_oj.filter_warning">Warning</option>
                             <option value="caution" data-i18n="scope_oj.filter_caution">Caution</option>
+                            <option value="confirmation" data-i18n="catalog.confirmation">No scope edition</option>
                             <option value="not_listed" data-i18n="scope_oj.filter_not_listed">Not listed</option>
                             <option value="unverified" data-i18n="catalog.unverified">Unverified</option>
+                            <option id="scope-oj-filter-withdrawn" value="withdrawn" data-i18n="catalog.withdrawn">Withdrawn</option>
                         </select>
                         <label for="scope-oj-search" class="sr-only" data-i18n="scope_oj.search_label">Search scopes</label>
                         <input id="scope-oj-search" type="search" data-i18n="scope_oj.search_placeholder" placeholder="Filter by standard, facility, or certificate number" />

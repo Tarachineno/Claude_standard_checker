@@ -389,6 +389,7 @@ function switchLanguage(lang) {
     updateLanguageDisplay();
     updateLanguageButtons();
     if (scopeOjCheckData) renderScopeOjVersionResults(scopeOjCheckData);
+    if (typeof catalogData !== 'undefined' && catalogData) renderCatalog();
 }
 
 function updateLanguageButtons() {
@@ -534,7 +535,8 @@ function setupEventListeners() {
     });
     document.getElementById('scope-oj-summary').addEventListener('click', event => {
         const status = event.target.closest('[data-scope-status]')?.dataset.scopeStatus;
-        if (!scopeOjCheckData || !['valid', 'warning', 'caution', 'not_listed', 'unverified'].includes(status)) return;
+        if (!scopeOjCheckData || !['valid', 'confirmation', 'warning', 'caution', 'not_listed', 'unverified', 'withdrawn'].includes(status)) return;
+        if (status === 'withdrawn' && document.getElementById('scope-oj-basis').value !== 'published') return;
         document.getElementById('scope-oj-status-filter').value = status;
         renderScopeOjVersionResults(scopeOjCheckData);
         document.querySelector(`[data-scope-status="${status}"]`)?.focus();
@@ -615,7 +617,7 @@ async function apiCall(endpoint, options = {}) {
             throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}...`);
         }
         
-        console.log('API response data:', data);
+        if (endpoint !== '/catalog/auth') console.log('API response data:', data);
         
         if (!response.ok) {
             throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
@@ -1952,6 +1954,7 @@ async function runScopeOjVersionCheck() {
 }
 
 function scopeOjStatusLabel(status) {
+    if (['confirmation', 'withdrawn', 'unverified'].includes(status)) return t('catalog.' + status);
     const key = status === 'warning' ? 'scope_oj.warning'
         : status === 'caution' ? 'scope_oj.caution'
             : status === 'not_listed' ? 'scope_oj.not_listed'

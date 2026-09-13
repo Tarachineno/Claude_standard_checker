@@ -51,3 +51,19 @@ test('dismissal suppresses existing events, but a new change is visible', () => 
   ui.run("renderPublisherNotices(Date.parse('2026-09-14T00:00:00Z'))");
   assert.equal(ui.get('publisher-change-banner').hidden, false);
 });
+
+test('lifecycle notices show withdrawal and replacement states without losing legacy edition notices', () => {
+  for (const lang of ['ja','en']) {
+    const ui=view(lang);
+    for(const status of ['known','none','unknown']) {
+      ui.context.fixture.items=[notice,{...notice,id:2,before:[],after:[],before_state:{status:'unknown',published:[]},
+        after_state:{status:'withdrawn',published:[],replacement_status:status,replacements:status==='known'?[{reference:'EN 55032',cited_edition:'2012',relation:'partial',note:'<script>coverage</script>'}]:[]}}];
+      ui.run("renderPublisherNotices(Date.parse('2026-09-14T00:00:00Z'))");
+      const content=ui.get('publisher-change-list').innerHTML;
+      assert.ok(content.includes(lang==='ja'?'廃止':'Withdrawn'));
+      assert.ok(content.includes('2020 → 2024'));
+      assert.ok(!content.includes('<script>'));
+      if(status==='known') for(const text of ['EN 55032','2012','&lt;script&gt;']) assert.ok(content.includes(text));
+    }
+  }
+});

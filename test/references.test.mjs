@@ -49,11 +49,11 @@ test('future applicability and withdrawal boundaries override active flags', () 
   assert.equal(checkScopeAgainstOj('EN 55032:2015', [{ number: 'EN 55032:2015', active: true, date_of_start_presumption: '2026-09-13' }], today).status, 'not_listed');
   assert.equal(checkScopeAgainstOj('EN 55032:2015', [{ number: 'EN 55032:2015', active: true, withdrawal_date: today }], today).status, 'not_listed');
 });
-test('Published chooses latest, preserves missing-edition caution and rejects draft/future dates', () => {
+test('Published chooses latest, separates missing-edition confirmation and rejects draft/future dates', () => {
   const record = pub('IEC 61326-1:2013/2020');
   assert.equal(checkPublished(parse('IEC 61326-1:2013')[0], record, today).status, 'warning');
   assert.equal(checkPublished(parse('IEC 61326-1:2012/2020')[0], record, today).status, 'valid');
-  assert.equal(checkPublished(parse('IEC 61326-1')[0], record, today).status, 'caution');
+  assert.equal(checkPublished(parse('IEC 61326-1')[0], record, today).status, 'confirmation');
   record.editions[1].status = 'draft';
   assert.equal(checkPublished(parse('IEC 61326-1:2013')[0], record, today).status, 'valid');
   record.editions[1].status = 'published'; record.editions[1].publication_date = '2026-09-13';
@@ -66,7 +66,7 @@ test('Published verification does not expire after eight days, months or years',
       for (const [scope, status, reason] of [
         ['IEC 61326-1:2020', 'valid', 'version_match'],
         ['IEC 61326-1:2013', 'warning', 'scope_version_old'],
-        ['IEC 61326-1', 'caution', 'scope_version_missing'],
+        ['IEC 61326-1', 'confirmation', 'scope_version_missing'],
       ]) {
         const result = checkPublished(parse(scope)[0], record, today);
         assert.equal(result.status, status);
