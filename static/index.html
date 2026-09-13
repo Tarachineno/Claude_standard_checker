@@ -307,7 +307,11 @@
                 </div>
 
                 <div id="scope-oj-check-results" class="scope-oj-check-results hidden">
-                    <h3><i class="fas fa-code-compare"></i> <span data-i18n="scope_oj.title">Current Accreditation Scopes vs Active OJ Editions</span></h3>
+                    <div class="scope-oj-heading">
+                        <h3><i class="fas fa-code-compare"></i> <span data-i18n="scope_oj.title">Current Accreditation Scopes vs Active OJ Editions</span></h3>
+                        <button id="scope-oj-export-btn" class="btn btn-small btn-secondary" type="button" aria-describedby="scope-oj-export-hint" data-i18n="scope_export.button">Export all to CSV</button>
+                    </div>
+                    <p id="scope-oj-export-hint" class="muted" data-i18n="scope_export.hint">Export a fresh comparison for all accreditations, facilities and OJ directives (RED / EMC / LVD), regardless of filters. One scope per row.</p>
                     <p class="muted" data-i18n="scope_oj.summary_hint">Counts reflect the accreditation, facility and search filters, before the status filter.</p>
                     <div id="scope-oj-summary" class="scope-oj-summary"></div>
                     <div class="scope-oj-controls">
@@ -390,6 +394,7 @@
 
     <script src="script.js"></script>
     <script src="catalog.js"></script>
+    <script src="scope-export.js"></script>
     <script src="publisher-notices.js"></script>
 </body>
 </html>

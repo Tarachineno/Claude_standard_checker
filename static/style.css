@@ -649,6 +649,10 @@ main {
     margin: 1.5rem 0 2rem;
 }
 
+.scope-oj-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.scope-oj-heading h3 { margin: 0; }
+#scope-oj-export-hint { margin: .65rem 0; font-size: .85rem; }
+
 .scope-oj-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
